@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>제주 햇살감귤농장</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* 헤더 스타일 */
+        header {
+            background: linear-gradient(135deg, #ff8c42, #ffa726);
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        /* 메인 콘텐츠 */
+        main {
+            margin-top: 80px;
+        }
+
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://picsum.photos/1920/800?random=1');
+            background-size: cover;
+            background-position: center;
+            height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #ff8c42;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* 섹션 공통 스타일 */
+        .section {
+            padding: 80px 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: #ff8c42;
+        }
+
+        /* 농장 소개 섹션 */
+        .about {
+            background: #f8f9fa;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .about-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .about-image {
+            text-align: center;
+        }
+
+        .about-image img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        /* 감귤 따기 체험 섹션 */
+        .experience {
+            background: white;
+        }
+
+        .experience-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .experience-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .experience-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .experience-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .experience-card h3 {
+            color: #ff8c42;
+            margin-bottom: 1rem;
+        }
+
+        /* 감귤 판매 섹션 */
+        .products {
+            background: #f8f9fa;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .product-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ff8c42;
+            margin-top: 1rem;
+        }
+
+        /* 생산과정 섹션 */
+        .process {
+            background: white;
+        }
+
+        .process-timeline {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .process-step {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 15px;
+            background: #f8f9fa;
+            transition: all 0.3s;
+        }
+
+        .process-step:hover {
+            background: #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .process-step img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+            object-fit: cover;
+        }
+
+        .process-number {
+            background: #ff8c42;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        /* 연락처 섹션 */
+        .contact {
+            background: #333;
+            color: white;
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .contact-item {
+            padding: 2rem;
+        }
+
+        .contact-item h3 {
+            color: #ff8c42;
+            margin-bottom: 1rem;
+        }
+
+        /* 푸터 */
+        footer {
+            background: #222;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+
+        /* 스크롤 애니메이션 */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header>
+        <nav>
+            <div class="logo">🍊 제주 햇살감귤농장</div>
+            <ul class="nav-links">
+                <li><a href="#home">홈</a></li>
+                <li><a href="#about">농장소개</a></li>
+                <li><a href="https://thankful-aphid-0a2.notion.site/25f4991f016680258830ce590968c443?source=copy_link">체험</a></li>
+                <li><a href="#products">감귤판매</a></li>
+                <li><a href="#process">생산과정</a></li>
+                <li><a href="#contact">연락처</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- 메인 히어로 섹션 -->
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <h1>제주의 달콤한 햇살을 담은 감귤</h1>
+                <p>자연이 키운 건강한 감귤과 특별한 체험을 만나보세요</p>
+                <a href="#experience" class="btn">체험 예약하기</a>
+            </div>
+        </section>
+
+        <!-- 농장 소개 섹션 -->
+        <section id="about" class="section about">
+            <div class="container">
+                <h2 class="section-title fade-in">농장 소개</h2>
+                <div class="about-content">
+                    <div class="about-text fade-in">
+                        <h3>3대째 이어온 전통 감귤농장</h3>
+                        <p>
+                            제주의 청정한 자연 속에서 3대째 감귤을 재배해온 햇살감귤농장입니다. 
+                            화학비료를 최소화하고 친환경 농법으로 키운 감귤은 달콤하고 건강합니다.
+                        </p>
+                        <p>
+                            한라산 중턱의 최적의 기후조건에서 자란 우리 감귤은 당도가 높고 
+                            과즙이 풍부해 많은 분들께 사랑받고 있습니다.
+                        </p>
+                        <a href="https://www.notion.so" class="btn" target="_blank">농장 자세히 보기</a>
+                    </div>
+                    <div class="about-image fade-in">
+                        <img src="https://picsum.photos/500/400?random=2" alt="감귤농장 전경">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 감귤 따기 체험 섹션 -->
+        <section id="experience" class="section experience">
+            <div class="container">
+                <h2 class="section-title fade-in">감귤 따기 체험</h2>
+                <div class="experience-grid">
+                    <div class="experience-card fade-in">
+                        <img src="https://picsum.photos/300/200?random=3" alt="가족 체험">
+                        <h3>가족 체험 프로그램</h3>
+                        <p>온 가족이 함께 즐길 수 있는 감귤따기 체험으로 소중한 추억을 만들어보세요.</p>
+                        <p><strong>체험료: 성인 15,000원 / 어린이 10,000원</strong></p>
+                        <a href="https://www.notion.so" class="btn" target="_blank">예약하기</a>
+                    </div>
+                    <div class="experience-card fade-in">
+                        <img src="https://picsum.photos/300/200?random=4" alt="단체 체험">
+                        <h3>단체 체험 프로그램</h3>
+                        <p>학교나 회사 단체로 오시면 특별한 할인 혜택과 함께 즐거운 시간을 보내실 수 있습니다.</p>
+                        <p><strong>10명 이상 단체 할인 적용</strong></p>
+                        <a href="https://www.notion.so" class="btn" target="_blank">문의하기</a>
+                    </div>
+                    <div class="experience-card fade-in">
+                        <img src="https://picsum.photos/300/200?random=5" alt="체험 선물">
+                        <h3>체험 포함 선물</h3>
+                        <p>체험 후에는 직접 딴 감귤 2kg을 가져가실 수 있으며, 감귤잼 만들기 체험도 가능합니다.</p>
+                        <p><strong>감귤 2kg + 체험 기념품</strong></p>
+                        <a href="https://www.notion.so" class="btn" target="_blank">상세보기</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 감귤 판매 섹션 -->
+        <section id="products" class="section products">
+            <div class="container">
+                <h2 class="section-title fade-in">감귤 판매</h2>
+                <div class="products-grid">
+                    <div class="product-card fade-in">
+                        <img src="https://picsum.photos/300/200?random=6" alt="프리미엄 감귤">
+                        <div class="product-info">
+                            <h3>프리미엄 감귤</h3>
+                            <p>당도 12브릭스 이상의 최고급 감귤로 선물용으로 인기가 높습니다.</p>
+                            <div class="product-price">5kg - 35,000원</div>
+                            <a href="https://www.notion.so" class="btn" target="_blank">주문하기</a>
+                        </div>
+                    </div>
+                    <div class="product-card fade-in">
+                        <img src="https://picsum.photos/300/200?random=7" alt="일반 감귤">
+                        <div class="product-info">
+                            <h3>일반 감귤</h3>
+                            <p>가정용으로 적합한 달콤하고 맛있는 일반 감귤입니다.</p>
+                            <div class="product-price">10kg - 45,000원</div>
+                            <a href="https://www.notion.so" class="btn" target="_blank">주문하기</a>
+                        </div>
+                    </div>
+                    <div class="product-card fade-in">
+                        <img src="https://picsum.photos/300/200?random=8" alt="감귤 가공품">
+                        <div class="product-info">
+                            <h3>감귤 가공품</h3>
+                            <p>감귤잼, 감귤청, 감귤차 등 직접 만든 가공품도 판매합니다.</p>
+                            <div class="product-price">세트 - 25,000원</div>
+                            <a href="https://www.notion.so" class="btn" target="_blank">구매하기</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 생산과정 섹션 -->
+        <section id="process" class="section process">
+            <div class="container">
+                <h2 class="section-title fade-in">감귤 생산과정</h2>
+                <div class="process-timeline">
+                    <div class="process-step fade-in">
+                        <div class="process-number">1</div>
+                        <img src="https://picsum.photos/80/80?random=9" alt="토양관리">
+                        <h3>토양 관리</h3>
+                        <p>유기물 퇴비로 토양을 비옥하게 만들어 감귤나무가 건강하게 자랄 수 있도록 합니다.</p>
+                        <a href="https://www.notion.so" class="btn" target="_blank">자세히 보기</a>
+                    </div>
+                    <div class="process-step fade-in">
+                        <div class="process-number">2</div>
+                        <img src="https://picsum.photos/80/80?random=10" alt="재배관리">
+                        <h3>재배 관리</h3>
+                        <p>정기적인 가지치기와 병해충 방제로 건강한 감귤나무를 유지합니다.</p>
+                        <a href="https://www.notion.so" class="btn" target="_blank">자세히 보기</a>
+                    </div>
+                    <div class="process-step fade-in">
+                        <div class="process-number">3</div>
+                        <img src="https://picsum.photos/80/80?random=11" alt="수확">
+                        <h3>수확</h3>
+                        <p>11월부터 이듬해 2월까지 당도와 색깔을 확인하며 최적의 시기에 수확합니다.</p>
+                        <a href="https://www.notion.so" class="btn" target="_blank">자세히 보기</a>
+                    </div>
+                    <div class="process-step fade-in">
+                        <div class="process-number">4</div>
+                        <img src="https://picsum.photos/80/80?random=12" alt="선별포장">
+                        <h3>선별 및 포장</h3>
+                        <p>크기와 품질에 따라 꼼꼼히 선별하여 신선함을 유지하며 포장합니다.</p>
+                        <a href="https://www.notion.so" class="btn" target="_blank">자세히 보기</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 연락처 섹션 -->
+        <section id="contact" class="section contact">
+            <div class="container">
+                <h2 class="section-title fade-in" style="color: white;">연락처</h2>
+                <div class="contact-info">
+                    <div class="contact-item fade-in">
+                        <h3>📞 전화문의</h3>
+                        <p>064-XXX-XXXX</p>
+                        <p>오전 8시 ~ 오후 6시</p>
+                    </div>
+                    <div class="contact-item fade-in">
+                        <h3>📍 농장 위치</h3>
+                        <p>제주특별자치도 제주시<br>한라산 중턱</p>
+                        <a href="https://www.notion.so" class="btn" target="_blank">오시는 길</a>
+                    </div>
+                    <div class="contact-item fade-in">
+                        <h3>✉️ 온라인 문의</h3>
+                        <p>citrus@farm.co.kr</p>
+                        <a href="https://www.notion.so" class="btn" target="_blank">문의하기</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 푸터 -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 제주 햇살감귤농장. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // 부드러운 스크롤 효과
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 스크롤 애니메이션
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // 모든 fade-in 요소에 observer 적용
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // 헤더 스크롤 효과
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(255, 140, 66, 0.95)';
+            } else {
+                header.style.background = 'linear-gradient(135deg, #ff8c42, #ffa726)';
+            }
+        });
+
+        // 모바일 메뉴 (간단한 버전)
+        if (window.innerWidth <= 768) {
+            const nav = document.querySelector('.nav-links');
+            const logo = document.querySelector('.logo');
+            
+            // 모바일에서는 로고 클릭시 메뉴 토글 (필요시 추가 개발)
+            logo.addEventListener('click', function() {
+                nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+            });
+        }
+    </script>
+</body>
+</html>
