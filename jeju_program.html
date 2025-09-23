@@ -17,7 +17,7 @@
     html, body { height:100%; }
     body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun 고딕", "맑은 고딕", sans-serif; color:var(--fg); background:#fff; }
 
-    .wrap{ padding:8px; }
+    .wrap{ padding:6px 8px; }
 
     /* Card */
     .card{ background:var(--card); border:1px solid var(--bd); border-radius:13px; box-shadow: 0 3px 10px rgba(15,23,42,0.06); }
@@ -36,14 +36,13 @@
     tbody tr:hover{ background: var(--accent); }
     @media (prefers-color-scheme: dark){ tbody tr:hover{ background:#0b1a38; } }
 
-    /* Column widths for tighter fit */
-    /* 주소 | 훈련기관(넓게) | 훈련과정 | 시작 | 종료 | 링크 */
+    /* Column widths */
     colgroup col:nth-child(1){ width:12%; }   /* 주소 */
-      colgroup col:nth-child(2){ width:14%; }  /* 훈련기관: 요청 반영 */
-      colgroup col:nth-child(3){ width:40%; }  /* 훈련과정: 요청 반영 */
-      colgroup col:nth-child(4){ width:12%; }   /* 시작일자 */
-      colgroup col:nth-child(5){ width:12%; }   /* 종료일자 */
-      colgroup col:nth-child(6){ width:10%; }   /* 세부정보 */
+    colgroup col:nth-child(2){ width:14%; }  /* 훈련기관 */
+    colgroup col:nth-child(3){ width:44%; }  /* 훈련과정 */
+    colgroup col:nth-child(4){ width:10%; }  /* 시작일자 */
+    colgroup col:nth-child(5){ width:10%; }  /* 종료일자 */
+    colgroup col:nth-child(6){ width:10%; }  /* 세부정보 */
 
     /* Cells */
     .wrap{ white-space:normal; overflow-wrap:anywhere; word-break:keep-all; }
@@ -58,9 +57,9 @@
 </head>
 <body>
   <div class="wrap">
-    <div class="card">
+    <div class="card" id="cardRoot">
       <div class="card-header">
-        <h2 class="title">현재 운영 중 훈련정보</h2>
+        <h2 class="title">훈련정보</h2>
         <div class="meta" id="meta">불러오는 중…</div>
       </div>
       <div class="card-body">
@@ -76,10 +75,14 @@
   const $ = (s)=>document.querySelector(s);
   const meta = $('#meta');
   const tableWrap = $('#tableWrap');
+  const cardRoot = $('#cardRoot');
 
+  // ===== URL 구성 (C: 프록시 토글 지원) =====
   const DEFAULT_API = 'https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L01.do?authKey=24e8735a-f4b5-4537-9527-73759314444a&returnType=XML&outType=1&pageNum=1&pageSize=100&srchTraArea1=50&crseTracseSe=C0102&sort=ASC&sortCol=TRNG_BGDE';
   const qs = new URLSearchParams(location.search);
   const apiUrl = decodeURIComponent(qs.get('api')||'').trim() || DEFAULT_API;
+  const proxyBase = qs.get('proxy'); // 예: https://your-domain.kr/proxy/work24?url=
+  const finalUrl = proxyBase ? (proxyBase + encodeURIComponent(apiUrl)) : apiUrl;
 
   const COLUMNS = [
     { key:'address',      label:'주소',       cls:'text-ellipsis' },
@@ -149,20 +152,44 @@
       <col><col><col><col><col><col>
     </colgroup>${thead}${tbody}</table>`;
 
-    // 높이 최소화 반영
-    requestAnimationFrame(postHeight);
+    queueHeight();
   }
 
+  // ====== 자동 높이 조정 ======
+  let rafId = null;
+  function computeHeight(){
+    const rect = cardRoot.getBoundingClientRect();
+    return Math.ceil(rect.height + 1);
+  }
   function postHeight(){
-    const h = document.documentElement.scrollHeight;
-    try { parent.postMessage({ type:'rsc-widget-height', height:h }, '*'); } catch (e) {}
+    try { parent.postMessage({ type:'rsc-widget-height', height: computeHeight() }, '*'); } catch (e) {}
+  }
+  function queueHeight(){
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(postHeight);
+  }
+
+  const ro = new ResizeObserver(queueHeight);
+  ro.observe(cardRoot);
+  ro.observe(tableWrap);
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(queueHeight).catch(()=>{});
   }
 
   async function fetchData(){
     meta.textContent='불러오는 중…';
     try{
-      const res = await fetch(apiUrl, { method:'GET' });
+      // (A) fetch 옵션 보강
+      const res = await fetch(finalUrl, {
+        method: 'GET',
+        cache: 'no-store',
+        referrerPolicy: 'no-referrer',
+        credentials: 'omit',
+      });
       if (!res.ok) throw new Error('HTTP '+res.status);
+
+      // (B) 유연 파싱: JSON → XML → (실패 시) 안내
       const ct = (res.headers.get('content-type')||'').toLowerCase();
       let rows = [];
       if (ct.includes('json')){
@@ -170,8 +197,13 @@
         rows = normalizeFromJSON(json);
       } else {
         const text = await res.text();
-        rows = normalizeFromXML(text);
+        try {
+          rows = normalizeFromXML(text);
+        } catch (e) {
+          throw new Error('정상 XML/JSON 응답이 아닙니다. (모바일 보안/차단 페이지 가능)');
+        }
       }
+
       const pruned = rows.map(o=>{
         const r={};
         COLUMNS.forEach(c=> r[c.key] = o[c.key] ?? '');
@@ -181,14 +213,14 @@
       meta.textContent = `최종 갱신: ${new Date().toLocaleString()} · ${pruned.length.toLocaleString()}건`;
     }catch(err){
       console.error(err);
-      tableWrap.innerHTML = '<div style="padding:8px; color:#b91c1c;">데이터를 불러오지 못했습니다.</div>';
+      tableWrap.innerHTML = '<div style="padding:8px; color:#b91c1c;">데이터를 불러오지 못했습니다. '+ (err && err.message ? err.message : '') + '</div>';
       meta.textContent = '오류 발생';
-      requestAnimationFrame(postHeight);
+      queueHeight();
     }
   }
 
-  window.addEventListener('resize', postHeight);
-  window.addEventListener('load', postHeight);
+  window.addEventListener('resize', queueHeight);
+  window.addEventListener('load', queueHeight);
   fetchData();
 })();
 </script>
