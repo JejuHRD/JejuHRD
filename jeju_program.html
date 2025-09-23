@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>훈련정보API 임베드 위젯</title>
+  <style>
+    :root { --fg:#0b1324; --muted:#667085; --bd:#e5e7eb; --bg:#f8fafc; --primary:#2563eb; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun 고딕", "맑은 고딕", sans-serif; color: var(--fg); background:#fff; }
+    .wrap { padding:12px 14px; }
+    .status { display:flex; gap:8px; align-items:center; justify-content: space-between; margin-bottom:8px; }
+    .title { font-size:16px; font-weight:600; margin:0; }
+    .note { color: var(--muted); font-size:12px; }
+    .spinner { width:16px; height:16px; border:2px solid var(--bd); border-top-color: var(--primary); border-radius:50%; animation: spin 0.8s linear infinite; display:none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    table { width:100%; border-collapse: collapse; margin:0; border-spacing:0; }
+    thead, tbody { margin:0; padding:0; border-spacing:0; }
+    th, td { padding:8px; border-bottom:1px solid var(--bd); text-align:left; vertical-align: middle; font-size:13px; }
+    th { background:#fff; position: sticky; top:0; z-index:5; }
+    tr:hover { background: var(--bg); }
+    .footer { color: var(--muted); font-size:12px; margin-top:6px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="status">
+      <h2 class="title">훈련정보</h2>
+      <div class="note" id="meta">불러오는 중…</div>
+    </div>
+    <div id="tableWrap"></div>
+    <div class="footer" id="footerNote"></div>
+    <div class="spinner" id="spinner"></div>
+  </div>
+
+<script>
+(function(){
+  const $ = (s)=>document.querySelector(s);
+  const meta = $('#meta');
+  const tableWrap = $('#tableWrap');
+  const footerNote = $('#footerNote');
+  const spinner = $('#spinner');
+
+  // ====== 설정 ======
+  const DEFAULT_API = 'https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L01.do?authKey=24e8735a-f4b5-4537-9527-73759314444a&returnType=XML&outType=1&pageNum=1&pageSize=100&srchTraArea1=50&crseTracseSe=C0102&sort=ASC&sortCol=TRNG_BGDE';
+  // 쿼리스트링으로 api= 전달 시 해당 값 사용 (예: widget.html?api=ENCODED_URL)
+  const qs = new URLSearchParams(location.search);
+  const apiUrl = decodeURIComponent(qs.get('api')||'').trim() || DEFAULT_API;
+
+  // 고정 컬럼(한글 헤더)
+  const COLUMNS = [
+    { key:'address',      label:'주소' },
+    { key:'subTitle',     label:'훈련기관' },
+    { key:'title',        label:'훈련과정' },
+    { key:'traStartDate', label:'시작일자' },
+    { key:'traEndDate',   label:'종료일자' },
+    { key:'titleLink',    label:'세부정보' },
+  ];
+
+  const showSpinner = (b)=> spinner.style.display = b? 'inline-block':'none';
+
+  // XML → 반복 아이템 자동 탐지 후 평탄화
+  function normalizeFromXML(xmlText){
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(xmlText, 'application/xml');
+    if (xml.querySelector('parsererror')) throw new Error('XML 파싱 오류');
+    const all = [...xml.getElementsByTagName('*')];
+    let best = null, bestScore = -1;
+    const count = new Map();
+    all.forEach(n => count.set(n.tagName, (count.get(n.tagName)||0)+1));
+    count.forEach((cnt, name)=>{
+      const nodes = xml.getElementsByTagName(name);
+      if (!nodes.length) return;
+      const sample = [...nodes].slice(0, Math.min(nodes.length, 10));
+      const avgKids = sample.reduce((s,n)=>s+n.children.length,0)/sample.length;
+      const score = cnt + avgKids*50;
+      if (avgKids>=3 && cnt>=5 && name!==xml.documentElement.tagName && score>bestScore){
+        best = name; bestScore = score;
+      }
+    });
+    const items = best? [...xml.getElementsByTagName(best)] : [];
+    return items.map(node=>{
+      const obj = {};
+      [...node.children].forEach(ch=>{
+        obj[ch.tagName] = ch.children.length? ch.textContent.trim() : (ch.textContent||'').trim();
+      });
+      return obj;
+    });
+  }
+
+  function normalizeFromJSON(json){
+    let arr = Array.isArray(json) ? json : null;
+    if (!arr){
+      const stack=[json];
+      while(stack.length && !arr){
+        const cur = stack.pop();
+        for (const [k,v] of Object.entries(cur||{})){
+          if (Array.isArray(v) && v.length){ arr = v; break; }
+          else if (v && typeof v==='object') stack.push(v);
+        }
+      }
+    }
+    if (!arr) throw new Error('JSON에서 목록을 찾지 못했습니다');
+    return arr;
+  }
+
+  function render(rows){
+    if (!rows.length){
+      tableWrap.innerHTML = '<div class="note">표시할 데이터가 없습니다.</div>';
+      footerNote.textContent = '';
+      postHeight();
+      return;
+    }
+    const thead = '<thead><tr>' + COLUMNS.map(c=>`<th>${c.label}</th>`).join('') + '</tr></thead>';
+    const tbody = '<tbody>' + rows.map(r=>{
+      const tds = COLUMNS.map(c=>{
+        if (c.key==='titleLink' && r[c.key]){
+          const url = String(r[c.key]).trim();
+          return `<td><a href="${url}" target="_blank" rel="noopener">자세히</a></td>`;
+        }
+        const v = r[c.key] ?? '';
+        return `<td>${v}</td>`;
+      }).join('');
+      return `<tr>${tds}</tr>`;
+    }).join('') + '</tbody>';
+
+    tableWrap.innerHTML = `<table>${thead}${tbody}</table>`;
+    footerNote.textContent = `총 ${rows.length.toLocaleString()}건 표시`;
+    postHeight();
+  }
+
+  function postHeight(){
+    // 부모(게시판)에 현재 문서 높이를 전달하여 iframe 자동 높이 조절을 유도
+    const h = document.documentElement.scrollHeight;
+    try {
+      parent.postMessage({ type:'rsc-widget-height', height:h }, '*');
+    } catch (e) {}
+  }
+
+  async function fetchData(){
+    showSpinner(true); meta.textContent='불러오는 중…';
+    try{
+      const res = await fetch(apiUrl, { method:'GET' });
+      if (!res.ok) throw new Error('HTTP '+res.status);
+      const ct = (res.headers.get('content-type')||'').toLowerCase();
+      let rows = [];
+      if (ct.includes('json')){
+        const json = await res.json();
+        rows = normalizeFromJSON(json);
+      } else {
+        const text = await res.text();
+        rows = normalizeFromXML(text);
+      }
+      // 최소 컬럼만 남기기 (없으면 빈칸)
+      const pruned = rows.map(o=>{
+        const r={};
+        COLUMNS.forEach(c=> r[c.key] = o[c.key] ?? '');
+        return r;
+      });
+      render(pruned);
+      meta.textContent = `최종 갱신: ${new Date().toLocaleString()} / ${pruned.length.toLocaleString()}건`;
+    }catch(err){
+      console.error(err);
+      tableWrap.innerHTML = `<div class="note" style="color:#b91c1c">데이터를 불러오지 못했습니다. ${err.message} (게시판에서 스크립트/CORS가 차단될 수 있습니다)</div>`;
+      footerNote.textContent = '';
+      meta.textContent = '오류 발생';
+      postHeight();
+    }finally{
+      showSpinner(false);
+    }
+  }
+
+  // 초기 로드 및 리사이즈 시 높이 전달
+  window.addEventListener('resize', ()=> postHeight());
+  // 폰트 로딩/이미지 등 렌더링 후 한번 더
+  window.addEventListener('load', ()=> postHeight());
+
+  fetchData();
+})();
+</script>
+</body>
+</html>
