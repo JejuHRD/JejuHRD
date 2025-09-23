@@ -38,12 +38,12 @@
 
     /* Column widths for tighter fit */
     /* 주소 | 훈련기관(넓게) | 훈련과정 | 시작 | 종료 | 링크 */
-    colgroup col:nth-child(1){ width:16%; }
-    colgroup col:nth-child(2){ width:48%; } /* 훈련기관 2배(정규화) */
-    colgroup col:nth-child(3){ width:15%; } /* 훈련과정 2/3(정규화) */
-    colgroup col:nth-child(4){ width:8%; }
-    colgroup col:nth-child(5){ width:8%; }
-    colgroup col:nth-child(6){ width:5%; }
+    colgroup col:nth-child(1){ width:9%; }   /* 주소 */
+      colgroup col:nth-child(2){ width:70%; }  /* 훈련기관: 요청 반영 */
+      colgroup col:nth-child(3){ width:10%; }  /* 훈련과정: 요청 반영 */
+      colgroup col:nth-child(4){ width:4%; }   /* 시작일자 */
+      colgroup col:nth-child(5){ width:4%; }   /* 종료일자 */
+      colgroup col:nth-child(6){ width:3%; }   /* 세부정보 */
 
     /* Cells */
     .text-ellipsis{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
