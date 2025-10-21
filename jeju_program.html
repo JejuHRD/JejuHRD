@@ -36,12 +36,12 @@
     tbody tr:hover{ background: var(--accent); }
     @media (prefers-color-scheme: dark){ tbody tr:hover{ background:#0b1a38; } }
 
-    /* Column widths */
+    /* Column widths (compact preset) */
     colgroup col:nth-child(1){ width:12%; }   /* 주소 */
     colgroup col:nth-child(2){ width:14%; }  /* 훈련기관 */
-    colgroup col:nth-child(3){ width:40%; }  /* 훈련과정 */
-    colgroup col:nth-child(4){ width:12%; }  /* 시작일자 */
-    colgroup col:nth-child(5){ width:12%; }  /* 종료일자 */
+    colgroup col:nth-child(3){ width:44%; }  /* 훈련과정 */
+    colgroup col:nth-child(4){ width:10%; }  /* 시작일자 */
+    colgroup col:nth-child(5){ width:10%; }  /* 종료일자 */
     colgroup col:nth-child(6){ width:10%; }  /* 세부정보 */
 
     /* Cells */
@@ -77,12 +77,16 @@
   const tableWrap = $('#tableWrap');
   const cardRoot = $('#cardRoot');
 
-  // ===== URL 구성 (C: 프록시 토글 지원) =====
+  // ===== API URL (XML 고정) =====
   const DEFAULT_API = 'https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L01.do?authKey=24e8735a-f4b5-4537-9527-73759314444a&returnType=XML&outType=1&pageNum=1&pageSize=100&srchTraArea1=50&crseTracseSe=C0102&sort=ASC&sortCol=TRNG_BGDE';
   const qs = new URLSearchParams(location.search);
   const apiUrl = decodeURIComponent(qs.get('api')||'').trim() || DEFAULT_API;
-  const proxyBase = qs.get('proxy'); // 예: https://your-domain.kr/proxy/work24?url=
-  const finalUrl = proxyBase ? (proxyBase + encodeURIComponent(apiUrl)) : apiUrl;
+
+  // ===== 프록시: 무조건 사용(모바일 차단 회피) =====
+  // - 쿼리로 proxy= 를 주면 그걸 우선
+  // - 아니면 기본값 '/proxy/work24?url=' 사용
+  const proxyBase = qs.get('proxy') || '/proxy/work24?url=';
+  const finalUrl = proxyBase + encodeURIComponent(apiUrl);
 
   const COLUMNS = [
     { key:'address',      label:'주소',       cls:'text-ellipsis' },
@@ -93,10 +97,31 @@
     { key:'titleLink',    label:'세부정보' }
   ];
 
+  // ===== XML 안전 파싱 =====
+  // - TextDecoder로 UTF-8 강제
+  // - 보안/차단 HTML이 섞여와도 최대한 깨끗하게 정리
+  function decodeUtf8(buf){
+    try { return new TextDecoder('utf-8', { fatal:false }).decode(buf); }
+    catch { return new TextDecoder().decode(buf); }
+  }
+
+  function cleanXmlText(t){
+    // 흔한 차단/HTML 꼬임 정리
+    // 1) BOM/제어문자 제거, 2) 잘못된 NBSP, 3) 스크립트/스타일 제거
+    t = t.replace(/^\uFEFF/, '');
+    t = t.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+    t = t.replace(/\u00A0/g, ' ');
+    t = t.replace(/<script[\s\S]*?<\/script>/gi, '');
+    t = t.replace(/<style[\s\S]*?<\/style>/gi, '');
+    return t.trim();
+  }
+
   function normalizeFromXML(xmlText){
     const parser = new DOMParser();
     const xml = parser.parseFromString(xmlText, 'application/xml');
     if (xml.querySelector('parsererror')) throw new Error('XML 파싱 오류');
+
+    // 최다 반복 + 하위 노드 많은 엘리먼트를 목록으로 추정(기존 로직)
     const all = [...xml.getElementsByTagName('*')];
     let best = null, bestScore = -1;
     const count = new Map();
@@ -110,27 +135,15 @@
       if (avgKids>=3 && cnt>=5 && name!==xml.documentElement.tagName && score>bestScore){ best=name; bestScore=score; }
     });
     const items = best? [...xml.getElementsByTagName(best)] : [];
+
+    // 개별 아이템 → 평탄화 오브젝트
     return items.map(node=>{
       const obj = {};
-      [...node.children].forEach(ch=>{ obj[ch.tagName] = ch.children.length? ch.textContent.trim() : (ch.textContent||'').trim(); });
+      [...node.children].forEach(ch=>{
+        obj[ch.tagName] = ch.textContent ? ch.textContent.trim() : '';
+      });
       return obj;
     });
-  }
-
-  function normalizeFromJSON(json){
-    let arr = Array.isArray(json) ? json : null;
-    if (!arr){
-      const stack=[json];
-      while(stack.length && !arr){
-        const cur = stack.pop();
-        for (const [k,v] of Object.entries(cur||{})){
-          if (Array.isArray(v) && v.length){ arr = v; break; }
-          else if (v && typeof v==='object') stack.push(v);
-        }
-      }
-    }
-    if (!arr) throw new Error('JSON에서 목록을 찾지 못했습니다');
-    return arr;
   }
 
   function render(rows){
@@ -139,10 +152,10 @@
       const tds = COLUMNS.map(c=>{
         if (c.key==='titleLink' && r[c.key]){
           const url = String(r[c.key]).trim();
-          return `<td><a class=\"link-btn\" href=\"${url}\" target=\"_blank\" rel=\"noopener\" aria-label=\"세부정보 자세히 이동\">자세히</a></td>`;
+          return `<td><a class="link-btn" href="${url}" target="_blank" rel="noopener" aria-label="세부정보 자세히 이동">자세히</a></td>`;
         }
         const v = r[c.key] ?? '';
-        const cls = c.cls? ` class=\"${c.cls}\"` : '';
+        const cls = c.cls? ` class="${c.cls}"` : '';
         return `<td${cls}>${v}</td>`;
       }).join('');
       return `<tr>${tds}</tr>`;
@@ -155,72 +168,78 @@
     queueHeight();
   }
 
-  // ====== 자동 높이 조정 ======
+  // ===== 자동 높이 조정 =====
   let rafId = null;
-  function computeHeight(){
-    const rect = cardRoot.getBoundingClientRect();
-    return Math.ceil(rect.height + 1);
-  }
-  function postHeight(){
-    try { parent.postMessage({ type:'rsc-widget-height', height: computeHeight() }, '*'); } catch (e) {}
-  }
-  function queueHeight(){
-    if (rafId) cancelAnimationFrame(rafId);
-    rafId = requestAnimationFrame(postHeight);
-  }
-
+  function computeHeight(){ return Math.ceil(cardRoot.getBoundingClientRect().height + 1); }
+  function postHeight(){ try { parent.postMessage({ type:'rsc-widget-height', height: computeHeight() }, '*'); } catch (e) {} }
+  function queueHeight(){ if (rafId) cancelAnimationFrame(rafId); rafId = requestAnimationFrame(postHeight); }
   const ro = new ResizeObserver(queueHeight);
   ro.observe(cardRoot);
   ro.observe(tableWrap);
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(queueHeight).catch(()=>{}); }
+  window.addEventListener('resize', queueHeight);
+  window.addEventListener('load', queueHeight);
 
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(queueHeight).catch(()=>{});
+  // ===== fetch + 타임아웃 =====
+  async function fetchSafe(url, opts={}, timeoutMs=15000){
+    const ctrl = new AbortController();
+    const t = setTimeout(()=>ctrl.abort(), timeoutMs);
+    try {
+      return await fetch(url, { ...opts, signal: ctrl.signal });
+    } finally {
+      clearTimeout(t);
+    }
   }
 
   async function fetchData(){
     meta.textContent='불러오는 중…';
     try{
-      // (A) fetch 옵션 보강
-      const res = await fetch(finalUrl, {
+      const res = await fetchSafe(finalUrl, {
         method: 'GET',
         cache: 'no-store',
         referrerPolicy: 'no-referrer',
         credentials: 'omit',
-      });
+        // XML 선호(일부 WAF은 text/html만 주는 경우가 있어 content-type에 덜 의존)
+        headers: { 'Accept': 'application/xml, text/xml;q=0.9, */*;q=0.8' }
+      }, 18000);
+
       if (!res.ok) throw new Error('HTTP '+res.status);
 
-      // (B) 유연 파싱: JSON → XML → (실패 시) 안내
-      const ct = (res.headers.get('content-type')||'').toLowerCase();
-      let rows = [];
-      if (ct.includes('json')){
-        const json = await res.json();
-        rows = normalizeFromJSON(json);
-      } else {
-        const text = await res.text();
-        try {
-          rows = normalizeFromXML(text);
-        } catch (e) {
-          throw new Error('정상 XML/JSON 응답이 아닙니다. (모바일 보안/차단 페이지 가능)');
-        }
+      // iOS Safari용: arrayBuffer → UTF-8 디코딩
+      const buf = await res.arrayBuffer();
+      let text = decodeUtf8(buf);
+      text = cleanXmlText(text);
+
+      // 혹시 차단/로그인/보안 안내 HTML이면 즉시 에러 처리
+      if (/<html[\s>]/i.test(text) && !/<\?xml/i.test(text)) {
+        throw new Error('정상 XML이 아닙니다. (보안/차단 또는 CORS 문제)');
       }
 
-      const pruned = rows.map(o=>{
+      const rowsRaw = normalizeFromXML(text);
+
+      // 표 컬럼에 맞춰 필드만 추출 (키가 없으면 빈 값)
+      const rows = rowsRaw.map(o=>{
         const r={};
         COLUMNS.forEach(c=> r[c.key] = o[c.key] ?? '');
         return r;
       });
-      render(pruned);
-      meta.textContent = `최종 갱신: ${new Date().toLocaleString()} · ${pruned.length.toLocaleString()}건`;
+
+      render(rows);
+      meta.textContent = `최종 갱신: ${new Date().toLocaleString()} · ${rows.length.toLocaleString()}건`;
     }catch(err){
       console.error(err);
-      tableWrap.innerHTML = '<div style="padding:8px; color:#b91c1c;">데이터를 불러오지 못했습니다. '+ (err && err.message ? err.message : '') + '</div>';
+      tableWrap.innerHTML = `
+        <div style="padding:8px; color:#b91c1c;">
+          데이터를 불러오지 못했습니다. ${err && err.message ? err.message : '네트워크 오류'}
+          <div style="margin-top:6px; color:#6b7280; font-size:12px;">
+            모바일 브라우저에서 API 차단(CORS/WAF) 가능성. 동일 출처 프록시(/proxy/work24) 경유를 권장합니다.
+          </div>
+        </div>`;
       meta.textContent = '오류 발생';
       queueHeight();
     }
   }
 
-  window.addEventListener('resize', queueHeight);
-  window.addEventListener('load', queueHeight);
   fetchData();
 })();
 </script>
