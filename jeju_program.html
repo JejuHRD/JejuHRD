@@ -78,7 +78,8 @@
   const cardRoot = $('#cardRoot');
 
   // ===== URL 구성 (C: 프록시 토글 지원) =====
-  const DEFAULT_API = 'https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L01.do?authKey=24e8735a-f4b5-4537-9527-73759314444a&returnType=XML&outType=1&pageNum=1&pageSize=100&srchTraArea1=50&crseTracseSe=C0102&sort=ASC&sortCol=TRNG_BGDE';
+  const PROXY_URL = 'https://jejuhrd.ehdvosxl.workers.dev/?url=';
+const finalUrl = PROXY_URL + encodeURIComponent(DEFAULT_API);
   const qs = new URLSearchParams(location.search);
   const apiUrl = decodeURIComponent(qs.get('api')||'').trim() || DEFAULT_API;
   const proxyBase = qs.get('proxy'); // 예: https://your-domain.kr/proxy/work24?url=
