@@ -77,13 +77,16 @@
   const tableWrap = $('#tableWrap');
   const cardRoot = $('#cardRoot');
 
-  // ===== URL 구성 (C: 프록시 토글 지원) =====
-  const PROXY_URL = 'https://jejuhrd.ehdvosxl.workers.dev/?url=';
-const finalUrl = PROXY_URL + encodeURIComponent(DEFAULT_API);
+  // ===== Cloudflare Workers 프록시 설정 =====
+  const WORKERS_PROXY = 'https://jejuhrd.ehdvosxl.workers.dev/?url='; // ⚠️ 여기에 실제 Workers URL 입력
+  const DEFAULT_API = 'https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L01.do?authKey=24e8735a-f4b5-4537-9527-73759314444a&returnType=XML&outType=1&pageNum=1&pageSize=100&srchTraArea1=50&crseTracseSe=C0102&sort=ASC&sortCol=TRNG_BGDE';
+  
   const qs = new URLSearchParams(location.search);
-  const apiUrl = decodeURIComponent(qs.get('api')||'').trim() || DEFAULT_API;
-  const proxyBase = qs.get('proxy'); // 예: https://your-domain.kr/proxy/work24?url=
-  const finalUrl = proxyBase ? (proxyBase + encodeURIComponent(apiUrl)) : apiUrl;
+  const customApi = decodeURIComponent(qs.get('api')||'').trim();
+  const apiUrl = customApi || DEFAULT_API;
+  const finalUrl = WORKERS_PROXY + encodeURIComponent(apiUrl);
+
+  console.log('🔍 최종 요청 URL:', finalUrl);
 
   const COLUMNS = [
     { key:'address',      label:'주소',       cls:'text-ellipsis' },
@@ -95,55 +98,69 @@ const finalUrl = PROXY_URL + encodeURIComponent(DEFAULT_API);
   ];
 
   function normalizeFromXML(xmlText){
+    console.log('📄 XML 파싱 시작, 길이:', xmlText.length);
+    console.log('📄 XML 앞부분:', xmlText.substring(0, 500));
+    
     const parser = new DOMParser();
     const xml = parser.parseFromString(xmlText, 'application/xml');
-    if (xml.querySelector('parsererror')) throw new Error('XML 파싱 오류');
+    
+    if (xml.querySelector('parsererror')) {
+      console.error('❌ XML 파싱 에러');
+      throw new Error('XML 파싱 오류');
+    }
+    
     const all = [...xml.getElementsByTagName('*')];
+    console.log('📊 전체 태그 수:', all.length);
+    
     let best = null, bestScore = -1;
     const count = new Map();
     all.forEach(n => count.set(n.tagName, (count.get(n.tagName)||0)+1));
+    
+    console.log('🏷️ 태그 개수:', Object.fromEntries(count));
+    
     count.forEach((cnt, name)=>{
       const nodes = xml.getElementsByTagName(name);
       if (!nodes.length) return;
       const sample = [...nodes].slice(0, Math.min(nodes.length, 10));
       const avgKids = sample.reduce((s,n)=>s+n.children.length,0)/sample.length;
       const score = cnt + avgKids*50;
-      if (avgKids>=3 && cnt>=5 && name!==xml.documentElement.tagName && score>bestScore){ best=name; bestScore=score; }
+      if (avgKids>=3 && cnt>=5 && name!==xml.documentElement.tagName && score>bestScore){ 
+        best=name; 
+        bestScore=score; 
+        console.log(`✅ 후보 태그: ${name}, 개수: ${cnt}, 평균 자식: ${avgKids}`);
+      }
     });
+    
+    console.log('🎯 선택된 태그:', best);
+    
     const items = best? [...xml.getElementsByTagName(best)] : [];
+    console.log('📦 아이템 수:', items.length);
+    
+    if (items.length > 0) {
+      console.log('📝 첫 번째 아이템 샘플:', items[0].textContent.substring(0, 200));
+    }
+    
     return items.map(node=>{
       const obj = {};
-      [...node.children].forEach(ch=>{ obj[ch.tagName] = ch.children.length? ch.textContent.trim() : (ch.textContent||'').trim(); });
+      [...node.children].forEach(ch=>{ 
+        obj[ch.tagName] = ch.children.length? ch.textContent.trim() : (ch.textContent||'').trim(); 
+      });
       return obj;
     });
   }
 
-  function normalizeFromJSON(json){
-    let arr = Array.isArray(json) ? json : null;
-    if (!arr){
-      const stack=[json];
-      while(stack.length && !arr){
-        const cur = stack.pop();
-        for (const [k,v] of Object.entries(cur||{})){
-          if (Array.isArray(v) && v.length){ arr = v; break; }
-          else if (v && typeof v==='object') stack.push(v);
-        }
-      }
-    }
-    if (!arr) throw new Error('JSON에서 목록을 찾지 못했습니다');
-    return arr;
-  }
-
   function render(rows){
+    console.log('🎨 렌더링 시작, 행 수:', rows.length);
+    
     const thead = '<thead><tr>' + COLUMNS.map(c=>`<th>${c.label}</th>`).join('') + '</tr></thead>';
     const tbody = '<tbody>' + (rows.length? rows.map(r=>{
       const tds = COLUMNS.map(c=>{
         if (c.key==='titleLink' && r[c.key]){
           const url = String(r[c.key]).trim();
-          return `<td><a class=\"link-btn\" href=\"${url}\" target=\"_blank\" rel=\"noopener\" aria-label=\"세부정보 자세히 이동\">자세히</a></td>`;
+          return `<td><a class="link-btn" href="${url}" target="_blank" rel="noopener" aria-label="세부정보 자세히 이동">자세히</a></td>`;
         }
         const v = r[c.key] ?? '';
-        const cls = c.cls? ` class=\"${c.cls}\"` : '';
+        const cls = c.cls? ` class="${c.cls}"` : '';
         return `<td${cls}>${v}</td>`;
       }).join('');
       return `<tr>${tds}</tr>`;
@@ -180,29 +197,37 @@ const finalUrl = PROXY_URL + encodeURIComponent(DEFAULT_API);
 
   async function fetchData(){
     meta.textContent='불러오는 중…';
+    console.log('🚀 데이터 요청 시작');
+    
     try{
-      // (A) fetch 옵션 보강
+      console.log('📡 fetch 호출:', finalUrl);
+      
       const res = await fetch(finalUrl, {
         method: 'GET',
         cache: 'no-store',
         referrerPolicy: 'no-referrer',
         credentials: 'omit',
       });
+      
+      console.log('📥 응답 상태:', res.status, res.statusText);
+      console.log('📥 응답 헤더:', [...res.headers.entries()]);
+      
       if (!res.ok) throw new Error('HTTP '+res.status);
 
-      // (B) 유연 파싱: JSON → XML → (실패 시) 안내
-      const ct = (res.headers.get('content-type')||'').toLowerCase();
+      const text = await res.text();
+      console.log('📄 응답 텍스트 길이:', text.length);
+      console.log('📄 응답 앞부분:', text.substring(0, 300));
+
       let rows = [];
-      if (ct.includes('json')){
-        const json = await res.json();
-        rows = normalizeFromJSON(json);
-      } else {
-        const text = await res.text();
-        try {
-          rows = normalizeFromXML(text);
-        } catch (e) {
-          throw new Error('정상 XML/JSON 응답이 아닙니다. (모바일 보안/차단 페이지 가능)');
-        }
+      const ct = (res.headers.get('content-type')||'').toLowerCase();
+      console.log('📋 Content-Type:', ct);
+      
+      // XML 파싱 시도
+      rows = normalizeFromXML(text);
+      console.log('✅ 파싱된 행 수:', rows.length);
+
+      if (rows.length > 0) {
+        console.log('📦 첫 번째 데이터:', rows[0]);
       }
 
       const pruned = rows.map(o=>{
@@ -210,11 +235,28 @@ const finalUrl = PROXY_URL + encodeURIComponent(DEFAULT_API);
         COLUMNS.forEach(c=> r[c.key] = o[c.key] ?? '');
         return r;
       });
+      
+      console.log('✂️ 정리된 데이터 샘플:', pruned[0]);
+      
       render(pruned);
       meta.textContent = `최종 갱신: ${new Date().toLocaleString()} · ${pruned.length.toLocaleString()}건`;
+      console.log('✅ 렌더링 완료');
+      
     }catch(err){
-      console.error(err);
-      tableWrap.innerHTML = '<div style="padding:8px; color:#b91c1c;">데이터를 불러오지 못했습니다. '+ (err && err.message ? err.message : '') + '</div>';
+      console.error('❌ 전체 에러:', err);
+      console.error('❌ 에러 스택:', err.stack);
+      
+      let errorMsg = '데이터를 불러오지 못했습니다. ';
+      if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
+        errorMsg += '네트워크 오류. Workers URL을 확인하세요.';
+      } else {
+        errorMsg += (err && err.message ? err.message : '알 수 없는 오류');
+      }
+      
+      tableWrap.innerHTML = `<div style="padding:12px; color:#b91c1c; line-height:1.6;">
+        <strong>⚠️ ${errorMsg}</strong><br>
+        <small style="color:#6b7280;">브라우저 콘솔(F12)에서 상세 로그를 확인하세요.</small>
+      </div>`;
       meta.textContent = '오류 발생';
       queueHeight();
     }
