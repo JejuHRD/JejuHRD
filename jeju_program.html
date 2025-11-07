@@ -292,7 +292,8 @@
   async function fetchData(){
     meta.textContent='불러오는 중…';
     try{
-      const raw = await fetchRobust(apiUrl);
+      const PROXY = 'https://jejuhrd.ehdvosxl.workers.dev/';
+      const raw = await fetchRobust(PROXY + encodeURIComponent(apiUrl));
 
       // 우선 XML 파싱 시도(정확 매핑)
       let rows = null;
