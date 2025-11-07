@@ -72,33 +72,48 @@
 
 <script>
 (function(){
-  const $ = (s)=>document.querySelector(s);
+  const $ = s => document.querySelector(s);
   const meta = $('#meta');
   const tableWrap = $('#tableWrap');
   const cardRoot = $('#cardRoot');
 
-  // ===== URL 구성 (C: 프록시 토글 지원) =====
-  const DEFAULT_API = 'https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L01.do?authKey=24e8735a-f4b5-4537-9527-73759314444a&returnType=XML&outType=1&pageNum=1&pageSize=100&srchTraArea1=50&crseTracseSe=C0102&sort=ASC&sortCol=TRNG_BGDE';
+  // ── 고용24 XML API (사용 중인 URL 넣으세요) ──
+  const DEFAULT_API =
+    'https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L01.do?authKey=YOUR_KEY&returnType=XML&outType=1&pageNum=1&pageSize=100&srchTraArea1=50&crseTracseSe=C0102&sort=ASC&sortCol=TRNG_BGDE';
   const qs = new URLSearchParams(location.search);
   const apiUrl = decodeURIComponent(qs.get('api')||'').trim() || DEFAULT_API;
-  const proxyBase = qs.get('proxy'); // 예: https://your-domain.kr/proxy/work24?url=
-  const finalUrl = proxyBase ? (proxyBase + encodeURIComponent(apiUrl)) : apiUrl;
 
+  // ── 표 컬럼(필드 키 고정) ──
   const COLUMNS = [
-    { key:'address',      label:'주소',       cls:'text-ellipsis' },
-    { key:'subTitle',     label:'훈련기관',   cls:'org' },
-    { key:'title',        label:'훈련과정',   cls:'text-ellipsis' },
+    { key:'address',      label:'주소' },
+    { key:'subTitle',     label:'훈련기관' },
+    { key:'title',        label:'훈련과정' },
     { key:'traStartDate', label:'시작일자' },
     { key:'traEndDate',   label:'종료일자' },
     { key:'titleLink',    label:'세부정보' }
   ];
 
-  function normalizeFromXML(xmlText){
+  // ── 유틸 ──
+  function clean(t){
+    t = t.replace(/^\uFEFF/, '');
+    t = t.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+    t = t.replace(/\u00A0/g, ' ');
+    return t.trim();
+  }
+  function decodeUtf8(buf){
+    try { return new TextDecoder('utf-8', { fatal:false }).decode(buf); }
+    catch { return new TextDecoder().decode(buf); }
+  }
+
+  // ── 1) 정상 XML 파싱: 실제 태그명에 정확 매핑 ──
+  function parseXmlExact(xmlText){
     const parser = new DOMParser();
     const xml = parser.parseFromString(xmlText, 'application/xml');
-    if (xml.querySelector('parsererror')) throw new Error('XML 파싱 오류');
+    if (xml.querySelector('parsererror')) return null;
+
+    // 목록 노드 자동 탐색(반복/자식 수 기반)
     const all = [...xml.getElementsByTagName('*')];
-    let best = null, bestScore = -1;
+    let best=null, bestScore=-1;
     const count = new Map();
     all.forEach(n => count.set(n.tagName, (count.get(n.tagName)||0)+1));
     count.forEach((cnt, name)=>{
@@ -110,117 +125,201 @@
       if (avgKids>=3 && cnt>=5 && name!==xml.documentElement.tagName && score>bestScore){ best=name; bestScore=score; }
     });
     const items = best? [...xml.getElementsByTagName(best)] : [];
+    if (!items.length) return null;
+
+    // 실제 태그명 → 표 컬럼 매핑
+    // (제공해주신 예시)
     return items.map(node=>{
-      const obj = {};
-      [...node.children].forEach(ch=>{ obj[ch.tagName] = ch.children.length? ch.textContent.trim() : (ch.textContent||'').trim(); });
-      return obj;
+      const pick = tag => {
+        const el = node.getElementsByTagName(tag)[0];
+        return el ? (el.textContent||'').trim() : '';
+      };
+      const address      = pick('address');
+      const subTitle     = pick('subTitle');
+      const title        = pick('title');
+      const traStartDate = pick('traStartDate'); // 예: 2025-11-14
+      const traEndDate   = pick('traEndDate');   // 예: 2025-11-25
+      const titleLink    = pick('titleLink') || pick('subTitleLink'); // 둘 중 하나라도
+      return { address, subTitle, title, traStartDate, traEndDate, titleLink };
     });
   }
 
-  function normalizeFromJSON(json){
-    let arr = Array.isArray(json) ? json : null;
-    if (!arr){
-      const stack=[json];
-      while(stack.length && !arr){
-        const cur = stack.pop();
-        for (const [k,v] of Object.entries(cur||{})){
-          if (Array.isArray(v) && v.length){ arr = v; break; }
-          else if (v && typeof v==='object') stack.push(v);
-        }
+  // ── 2) 평문 스트림 폴백 파서(모바일에 태그가 날아간 경우) ──
+  // 패턴 단서:
+  //  - PCOCO/PCOBO 링크
+  //  - 날짜 YYYY-MM-DD 2개
+  //  - 전화번호 0xx-xxx-xxxx
+  //  - "제주 제주시|서귀포시" 주소 패턴
+  function parsePlainStream(text){
+    const t = text.replace(/\s+/g, ' ').trim();
+
+    // 항목 시작을 PCOCO 링크로 구분
+    const cocoRe = /https?:\/\/hrd\.work24\.go\.kr\/hrdp\/co\/pcoco\/PCOCO0100P\.do\?[^ \t]+/gi;
+    const cocoMatches = [...t.matchAll(cocoRe)];
+    if (!cocoMatches.length) return [];
+
+    const items = [];
+    for (let i=0;i<cocoMatches.length;i++){
+      const m = cocoMatches[i];
+      const start = Math.max(0, m.index - 220); // 링크 앞쪽 일부 포함
+      const end   = (i+1 < cocoMatches.length ? cocoMatches[i+1].index : t.length);
+      const chunk = t.slice(start, end);
+
+      const cocoLink = m[0];
+      const coboMatch = chunk.match(/https?:\/\/hrd\.work24\.go\.kr\/hrdp\/co\/pcobo\/PCOBO0100P\.do\?[^ \t]+/i);
+      const coboLink = coboMatch ? coboMatch[0] : '';
+
+      // 날짜 2개(시작/종료)
+      const dates = [...chunk.matchAll(/20\d{2}-\d{2}-\d{2}/g)].map(x=>x[0]);
+      const traStartDate = dates.length>=2 ? dates[dates.length-2] : (dates[0]||'');
+      const traEndDate   = dates.length   ? dates[dates.length-1] : '';
+
+      // 전화
+      const tel = (chunk.match(/\(?0\d{1,2}-\d{3,4}-\d{4}\)?/g)||[]).pop() || '';
+
+      // 주소(간단 패턴)
+      const addrMatch = chunk.match(/제주\s+(제주시|서귀포시)/);
+      const address = addrMatch ? `제주 ${addrMatch[1]}` : '';
+
+      // 기관: cocoLink 바로 앞 한글/영문/숫자 덩어리
+      let subTitle = '';
+      {
+        const before = chunk.slice(0, chunk.indexOf(cocoLink));
+        const orgCand = (before.match(/[\p{sc=Hangul}A-Za-z0-9\(\)·\-\s]{3,}$/u)||[])[0] || '';
+        subTitle = orgCand.replace(/\s{2,}/g,' ').trim();
       }
+
+      // 제목: 전화 이후 ~ coboLink 이전의 한글 덩어리 (전화 없으면 cocoLink 이후 ~ coboLink 이전)
+      let title = '';
+      {
+        let fromIdx = tel ? chunk.indexOf(tel) + tel.length : chunk.indexOf(cocoLink) + cocoLink.length;
+        let toIdx = coboLink ? chunk.indexOf(coboLink) : chunk.length;
+        if (fromIdx<0) fromIdx = 0;
+        if (toIdx<fromIdx) toIdx = chunk.length;
+        const mid = chunk.slice(fromIdx, toIdx);
+        const titleCand = (mid.match(/[\p{sc=Hangul}0-9A-Za-z\(\)\[\]·\-\s]{6,}?/u)||[])[0] || '';
+        title = titleCand.replace(/\s{2,}/g,' ').trim();
+      }
+
+      items.push({
+        address,
+        subTitle,
+        title,
+        traStartDate,
+        traEndDate,
+        titleLink: coboLink || cocoLink // 모집/상세 중 하나라도
+      });
     }
-    if (!arr) throw new Error('JSON에서 목록을 찾지 못했습니다');
-    return arr;
+    return items;
   }
 
+  // ── 테이블 렌더 ──
   function render(rows){
     const thead = '<thead><tr>' + COLUMNS.map(c=>`<th>${c.label}</th>`).join('') + '</tr></thead>';
     const tbody = '<tbody>' + (rows.length? rows.map(r=>{
-      const tds = COLUMNS.map(c=>{
-        if (c.key==='titleLink' && r[c.key]){
-          const url = String(r[c.key]).trim();
-          return `<td><a class=\"link-btn\" href=\"${url}\" target=\"_blank\" rel=\"noopener\" aria-label=\"세부정보 자세히 이동\">자세히</a></td>`;
-        }
-        const v = r[c.key] ?? '';
-        const cls = c.cls? ` class=\"${c.cls}\"` : '';
-        return `<td${cls}>${v}</td>`;
-      }).join('');
-      return `<tr>${tds}</tr>`;
+      const linkTd = r.titleLink ? `<a class="link-btn" href="${r.titleLink}" target="_blank" rel="noopener">자세히</a>` : '';
+      return `<tr>
+        <td>${r.address||''}</td>
+        <td>${r.subTitle||''}</td>
+        <td>${r.title||''}</td>
+        <td>${r.traStartDate||''}</td>
+        <td>${r.traEndDate||''}</td>
+        <td>${linkTd}</td>
+      </tr>`;
     }).join('') : '<tr><td colspan="6">표시할 데이터가 없습니다.</td></tr>') + '</tbody>';
-
-    tableWrap.innerHTML = `<table><colgroup>
-      <col><col><col><col><col><col>
-    </colgroup>${thead}${tbody}</table>`;
-
+    tableWrap.innerHTML = `<table><colgroup><col><col><col><col><col><col></colgroup>${thead}${tbody}</table>`;
     queueHeight();
   }
 
-  // ====== 자동 높이 조정 ======
-  let rafId = null;
-  function computeHeight(){
-    const rect = cardRoot.getBoundingClientRect();
-    return Math.ceil(rect.height + 1);
-  }
-  function postHeight(){
-    try { parent.postMessage({ type:'rsc-widget-height', height: computeHeight() }, '*'); } catch (e) {}
-  }
-  function queueHeight(){
-    if (rafId) cancelAnimationFrame(rafId);
-    rafId = requestAnimationFrame(postHeight);
-  }
-
+  // ── 높이 연동(기존) ──
+  let rafId=null;
+  function h(){ return Math.ceil(cardRoot.getBoundingClientRect().height + 1); }
+  function postH(){ try{ parent.postMessage({ type:'rsc-widget-height', height:h() }, '*'); }catch(e){} }
+  function queueHeight(){ if (rafId) cancelAnimationFrame(rafId); rafId = requestAnimationFrame(postH); }
   const ro = new ResizeObserver(queueHeight);
-  ro.observe(cardRoot);
-  ro.observe(tableWrap);
+  ro.observe(cardRoot); ro.observe(tableWrap);
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(queueHeight).catch(()=>{}); }
+  window.addEventListener('resize', queueHeight);
+  window.addEventListener('load', queueHeight);
 
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(queueHeight).catch(()=>{});
+  // ── 가져오기(3단계 폴백) ──
+  async function fetchRobust(url){
+    // 1) fetch(arrayBuffer)
+    try{
+      const r = await fetch(url, {
+        method:'GET', cache:'no-store', credentials:'omit',
+        referrerPolicy:'no-referrer', mode:'cors', redirect:'follow',
+        headers:{ 'Accept':'application/xml, text/xml;q=0.9, */*;q=0.8' }
+      });
+      if (!r.ok) throw new Error('HTTP '+r.status);
+      const buf = await r.arrayBuffer();
+      return clean(decodeUtf8(buf));
+    }catch(_){
+      // 2) fetch(text)
+      try{
+        const r2 = await fetch(url, {
+          method:'GET', cache:'no-store', credentials:'omit',
+          referrerPolicy:'no-referrer', mode:'cors', redirect:'follow',
+          headers:{ 'Accept':'application/xml, text/xml;q=0.9, */*;q=0.8' }
+        });
+        if (!r2.ok) throw new Error('HTTP '+r2.status);
+        return clean(await r2.text());
+      }catch(__){
+        // 3) XHR(document)
+        return await new Promise((resolve, reject)=>{
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', url, true);
+          try{ xhr.responseType='document'; }catch(_){}
+          try{ xhr.overrideMimeType('text/xml'); }catch(_){}
+          xhr.setRequestHeader('Accept','application/xml, text/xml;q=0.9, */*;q=0.8');
+          xhr.onload=()=>{
+            if (xhr.status>=200 && xhr.status<300){
+              if (xhr.responseXML){
+                resolve(new XMLSerializer().serializeToString(xhr.responseXML));
+              }else if (xhr.responseText){
+                resolve(clean(xhr.responseText));
+              }else reject(new Error('빈 응답'));
+            }else reject(new Error('HTTP '+xhr.status));
+          };
+          xhr.onerror=()=>reject(new Error('XHR 네트워크 오류'));
+          xhr.send();
+        });
+      }
+    }
   }
 
+  // ── 메인 ──
   async function fetchData(){
     meta.textContent='불러오는 중…';
     try{
-      // (A) fetch 옵션 보강
-      const res = await fetch(finalUrl, {
-        method: 'GET',
-        cache: 'no-store',
-        referrerPolicy: 'no-referrer',
-        credentials: 'omit',
-      });
-      if (!res.ok) throw new Error('HTTP '+res.status);
+      const raw = await fetchRobust(apiUrl);
 
-      // (B) 유연 파싱: JSON → XML → (실패 시) 안내
-      const ct = (res.headers.get('content-type')||'').toLowerCase();
-      let rows = [];
-      if (ct.includes('json')){
-        const json = await res.json();
-        rows = normalizeFromJSON(json);
-      } else {
-        const text = await res.text();
-        try {
-          rows = normalizeFromXML(text);
-        } catch (e) {
-          throw new Error('정상 XML/JSON 응답이 아닙니다. (모바일 보안/차단 페이지 가능)');
-        }
+      // 우선 XML 파싱 시도(정확 매핑)
+      let rows = null;
+      if (raw.includes('<')) {
+        rows = parseXmlExact(raw);
+      }
+      // XML이 아니거나 실패하면 평문 파서
+      if (!rows || !rows.length){
+        rows = parsePlainStream(raw);
       }
 
-      const pruned = rows.map(o=>{
-        const r={};
-        COLUMNS.forEach(c=> r[c.key] = o[c.key] ?? '');
-        return r;
-      });
-      render(pruned);
-      meta.textContent = `최종 갱신: ${new Date().toLocaleString()} · ${pruned.length.toLocaleString()}건`;
+      render(rows || []);
+      meta.textContent = `최종 갱신: ${new Date().toLocaleString()} · ${(rows||[]).length.toLocaleString()}건`;
     }catch(err){
       console.error(err);
-      tableWrap.innerHTML = '<div style="padding:8px; color:#b91c1c;">데이터를 불러오지 못했습니다. '+ (err && err.message ? err.message : '') + '</div>';
+      tableWrap.innerHTML = `
+        <div style="padding:8px; color:#b91c1c;">
+          데이터를 불러오지 못했습니다. ${err?.message || '네트워크/파싱 오류'}
+          <div style="margin-top:6px; color:#6b7280; font-size:12px;">
+            모바일에서 XML이 평문으로 변형되는 경우를 대비해 폴백 파서를 적용했습니다. 포맷이 바뀌면 규칙 보강이 필요할 수 있습니다.
+          </div>
+        </div>`;
       meta.textContent = '오류 발생';
       queueHeight();
     }
   }
 
-  window.addEventListener('resize', queueHeight);
-  window.addEventListener('load', queueHeight);
   fetchData();
 })();
 </script>
