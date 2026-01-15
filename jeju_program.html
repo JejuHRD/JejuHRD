@@ -77,12 +77,18 @@
   const tableWrap = $('#tableWrap');
   const cardRoot = $('#cardRoot');
 
-  // ===== URL 구성 (C: 프록시 토글 지원) =====
+  // ===== URL 구성 (C: 프록시 적용 버전) =====
   const DEFAULT_API = 'https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L01.do?authKey=24e8735a-f4b5-4537-9527-73759314444a&returnType=XML&outType=1&pageNum=1&pageSize=100&srchTraArea1=50&crseTracseSe=C0102&sort=ASC&sortCol=TRNG_BGDE';
+
+  // 무료 프록시 서비스 'allorigins'를 사용합니다. 
+  // 이 서비스는 CORS 제한을 우회하여 데이터를 전달해줍니다.
+  const proxyBase = 'https://api.allorigins.win/raw?url='; 
+
   const qs = new URLSearchParams(location.search);
   const apiUrl = decodeURIComponent(qs.get('api')||'').trim() || DEFAULT_API;
-  const proxyBase = qs.get('proxy'); // 예: https://your-domain.kr/proxy/work24?url=
-  const finalUrl = proxyBase ? (proxyBase + encodeURIComponent(apiUrl)) : apiUrl;
+
+  // 프록시 주소와 API 주소를 결합합니다.
+  const finalUrl = proxyBase + encodeURIComponent(apiUrl);
   const COLUMNS = [
     { key:'address',      label:'주소',       cls:'text-ellipsis' },
     { key:'subTitle',     label:'훈련기관',   cls:'org' },
