@@ -181,9 +181,9 @@
       const res = await fetch(finalUrl, {
         method: 'GET',
         cache: 'no-store',
-        referrerPolicy: 'no-referrer',
-        credentials: 'omit',
-      });
+        // referrerPolicy를 삭제하거나 아래와 같이 설정
+        referrerPolicy: 'strict-origin-when-cross-origin', 
+  });
       if (!res.ok) throw new Error('HTTP '+res.status);
 
       // (B) 유연 파싱: JSON → XML → (실패 시) 안내
