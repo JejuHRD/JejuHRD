@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>제주지역 산대특 직업능력개발훈련 기관 지도</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-primary: #1B3A5C;
+    --color-accent: #FF6B35;
+    --color-bg: #F5F3EF;
+    --color-card: #FFFFFF;
+    --color-text: #2C2C2C;
+    --color-text-light: #6B7280;
+    --color-border: #E5E1DB;
+    --shadow-sm: 0 1px 3px rgba(27,58,92,0.08);
+    --shadow-md: 0 4px 16px rgba(27,58,92,0.12);
+    --shadow-lg: 0 8px 32px rgba(27,58,92,0.16);
+    --radius: 12px;
+
+    /* 기관별 색상 */
+    --c-drone-aviation: #E74C3C;
+    --c-skyfarm: #3498DB;
+    --c-dronebus: #2ECC71;
+    --c-jewon: #9B59B6;
+    --c-jungang: #F39C12;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #2A5580 100%);
+    color: white;
+    padding: 24px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255,107,53,0.1);
+    border-radius: 50%;
+  }
+  .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .header-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .header p {
+    font-size: 13px;
+    opacity: 0.8;
+    margin-top: 4px;
+    font-weight: 300;
+  }
+
+  /* ── Stats Bar ── */
+  .stats-bar {
+    background: var(--color-card);
+    border-bottom: 1px solid var(--color-border);
+    padding: 14px 32px;
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .stat-number {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--color-primary);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--color-text-light);
+    font-weight: 400;
+  }
+  .stat-divider {
+    width: 1px;
+    height: 28px;
+    background: var(--color-border);
+  }
+
+  /* ── Main Layout ── */
+  .main-container {
+    display: flex;
+    height: calc(100vh - 145px);
+    max-width: 100%;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 380px;
+    min-width: 380px;
+    background: var(--color-card);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar-header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .filter-btn {
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--color-border);
+    background: transparent;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .filter-btn:hover {
+    border-color: var(--color-primary);
+    background: rgba(27,58,92,0.04);
+  }
+  .filter-btn.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+
+  .search-box {
+    position: relative;
+    margin-top: 10px;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 9px 14px 9px 36px;
+    border: 1.5px solid var(--color-border);
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+    background: var(--color-bg);
+  }
+  .search-box input:focus {
+    border-color: var(--color-primary);
+  }
+  .search-box svg {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-light);
+  }
+
+  /* ── Card List ── */
+  .card-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
+  }
+  .card-list::-webkit-scrollbar { width: 5px; }
+  .card-list::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+  }
+
+  .inst-card {
+    background: var(--color-card);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+  }
+  .inst-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 12px;
+    bottom: 12px;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    background: var(--inst-color, var(--color-primary));
+  }
+  .inst-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  .inst-card.active {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-md);
+    background: #FAFBFF;
+  }
+  .inst-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    padding-left: 10px;
+  }
+  .inst-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1.3;
+  }
+  .inst-field-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    color: white;
+    background: var(--inst-color, var(--color-primary));
+    flex-shrink: 0;
+  }
+  .inst-course {
+    margin-top: 8px;
+    padding-left: 10px;
+    font-size: 13px;
+    color: var(--color-text);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+  .inst-meta {
+    margin-top: 10px;
+    padding-left: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--color-text-light);
+  }
+  .inst-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* ── Map ── */
+  .map-container {
+    flex: 1;
+    position: relative;
+  }
+  #map {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Leaflet Popup Custom */
+  .leaflet-popup-content-wrapper {
+    border-radius: var(--radius) !important;
+    box-shadow: var(--shadow-lg) !important;
+    padding: 0 !important;
+    overflow: hidden;
+  }
+  .leaflet-popup-content {
+    margin: 0 !important;
+    min-width: 280px;
+    max-width: 320px;
+  }
+  .leaflet-popup-tip {
+    box-shadow: var(--shadow-sm) !important;
+  }
+  .popup-inner {
+    font-family: 'Pretendard', sans-serif;
+  }
+  .popup-header {
+    padding: 14px 16px;
+    color: white;
+    position: relative;
+  }
+  .popup-header h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .popup-header .popup-field {
+    font-size: 11px;
+    opacity: 0.9;
+    font-weight: 400;
+  }
+  .popup-body {
+    padding: 14px 16px;
+  }
+  .popup-course {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text);
+    margin-bottom: 12px;
+    line-height: 1.5;
+    padding-left: 10px;
+    border-left: 3px solid var(--color-border);
+  }
+  .popup-info-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--color-text-light);
+    margin-bottom: 6px;
+  }
+  .popup-info-row svg {
+    flex-shrink: 0;
+  }
+  .popup-info-row a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .popup-info-row a:hover {
+    text-decoration: underline;
+  }
+
+  /* ── Legend (Map Overlay) ── */
+  .map-legend {
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    box-shadow: var(--shadow-md);
+    z-index: 1000;
+    font-size: 12px;
+    border: 1px solid var(--color-border);
+  }
+  .map-legend h4 {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-text-light);
+    margin-bottom: 8px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .legend-item:hover { opacity: 0.7; }
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .legend-label {
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  /* ── Mobile ── */
+  .mobile-toggle {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    padding: 12px 28px;
+    border-radius: 30px;
+    border: none;
+    background: var(--color-primary);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+  }
+
+  @media (max-width: 768px) {
+    .header { padding: 16px 20px; }
+    .header h1 { font-size: 18px; }
+    .stats-bar { padding: 10px 20px; gap: 16px; }
+    .stat-number { font-size: 18px; }
+    .main-container {
+      flex-direction: column;
+      height: auto;
+    }
+    .sidebar {
+      width: 100%;
+      min-width: 100%;
+      max-height: 50vh;
+      display: none;
+    }
+    .sidebar.show { display: flex; }
+    .map-container {
+      height: 55vh;
+      min-height: 300px;
+    }
+    .mobile-toggle { display: block; }
+    .map-legend {
+      bottom: 70px;
+      left: 12px;
+      padding: 10px 14px;
+      font-size: 11px;
+    }
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .inst-card {
+    animation: fadeInUp 0.4s ease forwards;
+    opacity: 0;
+  }
+  .inst-card:nth-child(1) { animation-delay: 0.05s; }
+  .inst-card:nth-child(2) { animation-delay: 0.1s; }
+  .inst-card:nth-child(3) { animation-delay: 0.15s; }
+  .inst-card:nth-child(4) { animation-delay: 0.2s; }
+  .inst-card:nth-child(5) { animation-delay: 0.25s; }
+  .inst-card:nth-child(6) { animation-delay: 0.3s; }
+
+  .no-results {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--color-text-light);
+  }
+  .no-results svg {
+    margin-bottom: 12px;
+    opacity: 0.4;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-content">
+    <div class="header-badge">산업구조변화대응 특화훈련</div>
+    <h1>제주지역 직업능력개발훈련 기관 현황</h1>
+    <p>제주지역인적자원개발위원회 · 2025년 산대특 훈련기관 및 과정 안내</p>
+  </div>
+</div>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div>
+      <div class="stat-number">5</div>
+      <div class="stat-label">훈련기관</div>
+    </div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-item">
+    <div>
+      <div class="stat-number">6</div>
+      <div class="stat-label">훈련과정</div>
+    </div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-item">
+    <div>
+      <div class="stat-number">4</div>
+      <div class="stat-label">훈련분야</div>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main-container">
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="기관명 또는 과정명 검색..." />
+      </div>
+      <div class="filter-group">
+        <button class="filter-btn active" data-filter="all">전체</button>
+        <button class="filter-btn" data-filter="드론콘텐츠제작">드론콘텐츠</button>
+        <button class="filter-btn" data-filter="소형무인기운용조종">소형무인기</button>
+        <button class="filter-btn" data-filter="마케팅전략기획">마케팅</button>
+        <button class="filter-btn" data-filter="전자상거래">전자상거래</button>
+      </div>
+    </div>
+    <div class="card-list" id="cardList"></div>
+  </div>
+
+  <!-- Map -->
+  <div class="map-container">
+    <div id="map"></div>
+    <div class="map-legend">
+      <h4>훈련기관</h4>
+      <div class="legend-item" data-inst="drone-aviation">
+        <div class="legend-dot" style="background:var(--c-drone-aviation)"></div>
+        <span class="legend-label">드론항공평생교육원</span>
+      </div>
+      <div class="legend-item" data-inst="skyfarm">
+        <div class="legend-dot" style="background:var(--c-skyfarm)"></div>
+        <span class="legend-label">스카이팜에듀교육원</span>
+      </div>
+      <div class="legend-item" data-inst="dronebus">
+        <div class="legend-dot" style="background:var(--c-dronebus)"></div>
+        <span class="legend-label">드론버스</span>
+      </div>
+      <div class="legend-item" data-inst="jewon">
+        <div class="legend-dot" style="background:var(--c-jewon)"></div>
+        <span class="legend-label">㈜제원직업전문학교</span>
+      </div>
+      <div class="legend-item" data-inst="jungang">
+        <div class="legend-dot" style="background:var(--c-jungang)"></div>
+        <span class="legend-label">중앙컴퓨터직업전문학원</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Toggle -->
+<button class="mobile-toggle" id="mobileToggle" onclick="toggleSidebar()">
+  📋 기관 목록 보기
+</button>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── Data ──
+const institutions = [
+  {
+    id: 'drone-aviation',
+    name: '드론항공평생교육원',
+    address: '제주특별자치도 서귀포시 성산읍 서성일로 488',
+    phone: '064-783-0691',
+    website: 'https://www.드론항공평생교육원.com/',
+    courses: ['(산대특) 드론을 활용한 제주관광 영상콘텐츠 제작 실무자 양성과정'],
+    field: '드론콘텐츠제작',
+    color: '#E74C3C',
+    lat: 33.4381,
+    lng: 126.9117
+  },
+  {
+    id: 'skyfarm',
+    name: '스카이팜에듀교육원',
+    address: '제주특별자치도 제주시 구좌읍 행원로7길 18-12',
+    phone: '064-713-1919',
+    website: null,
+    courses: ['(산대특) 드론정비자격 취득을 위한 유지보수 실무자 향상과정'],
+    field: '소형무인기운용조종',
+    color: '#3498DB',
+    lat: 33.4589,
+    lng: 126.8032
+  },
+  {
+    id: 'dronebus',
+    name: '드론버스',
+    address: '제주특별자치도 제주시 애월읍 광상로 241',
+    phone: '064-746-7277',
+    website: 'https://dronebus.co.kr/',
+    courses: ['(산대특) 드론과 3D모델링 기술을 활용한 제주 관광자원 디지털화 향상과정'],
+    field: '소형무인기운용조종',
+    color: '#2ECC71',
+    lat: 33.4620,
+    lng: 126.3560
+  },
+  {
+    id: 'jewon',
+    name: '㈜제원직업전문학교',
+    address: '제주특별자치도 제주시 연동 노연로 119 3층',
+    phone: '064-747-5252',
+    website: 'http://jejujewon.com/',
+    courses: [
+      '(산대특) 챗GPT를 활용한 SNS마케팅과 빅데이터의 이해',
+      '(산대특) 제주 소상공인을 위한 AI활용 실전 브랜드 마케팅'
+    ],
+    field: '마케팅전략기획',
+    color: '#9B59B6',
+    lat: 33.4890,
+    lng: 126.4960
+  },
+  {
+    id: 'jungang',
+    name: '중앙컴퓨터직업전문학원',
+    address: '제주특별자치도 서귀포시 태평로 446 2층',
+    phone: '064-762-0377',
+    website: null,
+    courses: ['(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정'],
+    field: '전자상거래',
+    color: '#F39C12',
+    lat: 33.2520,
+    lng: 126.5650
+  }
+];
+
+// ── Map Init ──
+const map = L.map('map', {
+  zoomControl: false,
+  attributionControl: true
+}).setView([33.38, 126.58], 10);
+
+L.control.zoom({ position: 'topright' }).addTo(map);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19
+}).addTo(map);
+
+// ── Custom Marker Icon ──
+function createIcon(color) {
+  return L.divIcon({
+    className: 'custom-marker',
+    html: `<svg width="32" height="42" viewBox="0 0 32 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 26 16 26s16-14 16-26C32 7.163 24.837 0 16 0z" fill="${color}"/>
+      <circle cx="16" cy="15" r="7" fill="white" opacity="0.9"/>
+      <circle cx="16" cy="15" r="3.5" fill="${color}"/>
+    </svg>`,
+    iconSize: [32, 42],
+    iconAnchor: [16, 42],
+    popupAnchor: [0, -42]
+  });
+}
+
+// ── Add Markers ──
+const markers = {};
+institutions.forEach(inst => {
+  const coursesHtml = inst.courses.map(c =>
+    `<div class="popup-course">${c.replace('(산대특) ', '')}</div>`
+  ).join('');
+
+  const websiteRow = inst.website
+    ? `<div class="popup-info-row">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <a href="${inst.website}" target="_blank" rel="noopener">홈페이지 방문 →</a>
+      </div>`
+    : '';
+
+  const popup = `
+    <div class="popup-inner">
+      <div class="popup-header" style="background:${inst.color}">
+        <h3>${inst.name}</h3>
+        <div class="popup-field">${inst.field}</div>
+      </div>
+      <div class="popup-body">
+        ${coursesHtml}
+        <div class="popup-info-row">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span style="word-break:keep-all">${inst.address}</span>
+        </div>
+        <div class="popup-info-row">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span>${inst.phone}</span>
+        </div>
+        ${websiteRow}
+      </div>
+    </div>`;
+
+  const marker = L.marker([inst.lat, inst.lng], { icon: createIcon(inst.color) })
+    .addTo(map)
+    .bindPopup(popup, { maxWidth: 320, closeButton: true });
+
+  markers[inst.id] = marker;
+});
+
+// ── Cards ──
+const cardList = document.getElementById('cardList');
+
+function renderCards(filter = 'all', search = '') {
+  cardList.innerHTML = '';
+  const searchLower = search.toLowerCase();
+
+  let filtered = institutions.filter(inst => {
+    const matchFilter = filter === 'all' || inst.field === filter;
+    const matchSearch = !search ||
+      inst.name.toLowerCase().includes(searchLower) ||
+      inst.courses.some(c => c.toLowerCase().includes(searchLower)) ||
+      inst.field.toLowerCase().includes(searchLower);
+    return matchFilter && matchSearch;
+  });
+
+  if (filtered.length === 0) {
+    cardList.innerHTML = `
+      <div class="no-results">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <p>검색 결과가 없습니다</p>
+      </div>`;
+    return;
+  }
+
+  filtered.forEach(inst => {
+    const card = document.createElement('div');
+    card.className = 'inst-card';
+    card.style.setProperty('--inst-color', inst.color);
+    card.dataset.id = inst.id;
+
+    const coursesHtml = inst.courses
+      .map(c => c.replace('(산대특) ', ''))
+      .join('<br>');
+
+    card.innerHTML = `
+      <div class="inst-card-header">
+        <span class="inst-name">${inst.name}</span>
+        <span class="inst-field-tag" style="background:${inst.color}">${inst.field}</span>
+      </div>
+      <div class="inst-course">${coursesHtml}</div>
+      <div class="inst-meta">
+        <span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          ${inst.phone}
+        </span>
+        ${inst.website ? `<span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>
+          홈페이지
+        </span>` : ''}
+      </div>`;
+
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.inst-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      map.flyTo([inst.lat, inst.lng], 14, { duration: 0.8 });
+      setTimeout(() => markers[inst.id].openPopup(), 800);
+    });
+
+    cardList.appendChild(card);
+  });
+
+  // Update marker visibility
+  Object.keys(markers).forEach(id => {
+    const isVisible = filtered.some(i => i.id === id);
+    if (isVisible) {
+      markers[id].addTo(map);
+    } else {
+      map.removeLayer(markers[id]);
+    }
+  });
+}
+
+// ── Filter Buttons ──
+let currentFilter = 'all';
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderCards(currentFilter, document.getElementById('searchInput').value);
+  });
+});
+
+// ── Search ──
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  renderCards(currentFilter, e.target.value);
+});
+
+// ── Mobile Toggle ──
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const btn = document.getElementById('mobileToggle');
+  sidebar.classList.toggle('show');
+  btn.textContent = sidebar.classList.contains('show') ? '🗺️ 지도 보기' : '📋 기관 목록 보기';
+}
+
+// ── Init ──
+renderCards();
+</script>
+</body>
+</html>
