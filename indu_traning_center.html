@@ -30,11 +30,19 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
   body {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--color-bg);
     color: var(--color-text);
     line-height: 1.6;
+    display: flex;
+    flex-direction: column;
   }
 
   /* ── Header ── */
@@ -120,8 +128,9 @@
   /* ── Main Layout ── */
   .main-container {
     display: flex;
-    height: calc(100vh - 145px);
-    max-width: 100%;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
   }
 
   /* ── Sidebar ── */
@@ -285,10 +294,17 @@
   .map-container {
     flex: 1;
     position: relative;
+    min-height: 0;
   }
   #map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
     height: 100%;
+    z-index: 1;
   }
 
   /* Leaflet Popup Custom */
@@ -366,7 +382,7 @@
     border-radius: var(--radius);
     padding: 14px 18px;
     box-shadow: var(--shadow-md);
-    z-index: 1000;
+    z-index: 1001;
     font-size: 12px;
     border: 1px solid var(--color-border);
   }
@@ -425,9 +441,11 @@
     .header h1 { font-size: 18px; }
     .stats-bar { padding: 10px 20px; gap: 16px; }
     .stat-number { font-size: 18px; }
+    body { overflow: auto; }
     .main-container {
       flex-direction: column;
-      height: auto;
+      flex: 1;
+      min-height: 500px;
     }
     .sidebar {
       width: 100%;
@@ -437,8 +455,8 @@
     }
     .sidebar.show { display: flex; }
     .map-container {
-      height: 55vh;
-      min-height: 300px;
+      flex: 1;
+      min-height: 350px;
     }
     .mobile-toggle { display: block; }
     .map-legend {
@@ -807,6 +825,12 @@ function toggleSidebar() {
 
 // ── Init ──
 renderCards();
+
+// iframe 내에서 지도 타일이 안 보이는 문제 해결
+setTimeout(function() { map.invalidateSize(); }, 100);
+setTimeout(function() { map.invalidateSize(); }, 500);
+window.addEventListener('resize', function() { map.invalidateSize(); });
+
 </script>
 </body>
 </html>
