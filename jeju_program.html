@@ -79,7 +79,7 @@
 
   // ===== 설정: API 및 프록시 =====
   const DEFAULT_API = 'https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L01.do?authKey=24e8735a-f4b5-4537-9527-73759314444a&returnType=XML&outType=1&pageNum=1&pageSize=100&srchTraArea1=50&crseTracseSe=C0102&sort=ASC&sortCol=TRNG_BGDE';
-  const proxyBase = 'https://api.allorigins.win/raw?url='; // 무료 프록시
+  const proxyBase = 'https://corsproxy.io/?';
   const qs = new URLSearchParams(location.search);
   const apiUrl = decodeURIComponent(qs.get('api')||'').trim() || DEFAULT_API;
   const finalUrl = proxyBase + encodeURIComponent(apiUrl);
