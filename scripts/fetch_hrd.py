@@ -37,44 +37,71 @@ def fetch_and_parse():
     with urllib.request.urlopen(req, timeout=30) as resp:
         xml_bytes = resp.read()
 
+    # ===== 디버그: 응답 앞부분 출력 =====
+    xml_text = xml_bytes.decode("utf-8", errors="replace")
+    print(f"📡 응답 길이: {len(xml_text)}자")
+    print(f"📡 응답 앞 2000자:\n{xml_text[:2000]}")
+    print("=" * 60)
+
     root = ET.fromstring(xml_bytes)
 
-    # 반복 요소 자동 감지: 자식이 3개 이상이고 5회 이상 반복되는 태그
+    # ===== 디버그: 태그 구조 출력 =====
     tag_count = {}
     for elem in root.iter():
         tag = elem.tag
         tag_count[tag] = tag_count.get(tag, 0) + 1
 
+    print("📋 XML 태그 목록 (태그: 출현횟수, 평균자식수):")
+    for tag, cnt in sorted(tag_count.items(), key=lambda x: -x[1]):
+        nodes = list(root.iter(tag))
+        sample = nodes[:min(len(nodes), 3)]
+        avg_kids = sum(len(list(n)) for n in sample) / len(sample) if sample else 0
+        print(f"  {tag}: 출현={cnt}, 평균자식={avg_kids:.1f}")
+    print("=" * 60)
+
+    # ===== 반복 요소 감지 (완화된 조건) =====
     best_tag = None
     best_score = -1
+
     for tag, cnt in tag_count.items():
         if tag == root.tag:
             continue
-        nodes = root.iter(tag)
-        sample = []
-        for i, n in enumerate(nodes):
-            if i >= 10:
-                break
-            sample.append(n)
+        nodes = list(root.iter(tag))
+        sample = nodes[:min(len(nodes), 10)]
         if not sample:
             continue
         avg_kids = sum(len(list(n)) for n in sample) / len(sample)
         score = cnt + avg_kids * 50
-        if avg_kids >= 3 and cnt >= 5 and score > best_score:
+
+        # 완화된 조건: 자식 2개 이상, 반복 1회 이상
+        if avg_kids >= 2 and cnt >= 1 and score > best_score:
             best_tag = tag
             best_score = score
 
     if not best_tag:
+        # 최후 시도: 자식이 가장 많은 태그
+        for tag, cnt in sorted(tag_count.items(), key=lambda x: -x[1]):
+            if tag == root.tag:
+                continue
+            nodes = list(root.iter(tag))
+            avg_kids = sum(len(list(n)) for n in nodes[:3]) / min(len(nodes), 3) if nodes else 0
+            if avg_kids >= 1:
+                best_tag = tag
+                break
+
+    if not best_tag:
         raise ValueError("반복 요소를 찾을 수 없습니다. API 응답을 확인하세요.")
+
+    print(f"✅ 감지된 반복 요소: <{best_tag}> (출현 {tag_count.get(best_tag, 0)}회)")
 
     rows = []
     for item in root.iter(best_tag):
         row = {}
         for child in item:
             row[child.tag] = (child.text or "").strip()
-        # 필요한 필드만 추출
         filtered = {f: row.get(f, "") for f in FIELDS}
-        rows.append(filtered)
+        if filtered.get("title"):
+            rows.append(filtered)
 
     return rows
 
@@ -86,13 +113,11 @@ def main():
         rows = fetch_and_parse()
     except Exception as e:
         print(f"❌ API 호출 실패: {e}")
-        # 기존 파일이 있으면 유지, 없으면 빈 배열 저장
         if os.path.exists(OUTPUT_FILE):
             print("ℹ️  기존 데이터를 유지합니다.")
             return
         rows = []
 
-    # KST 타임스탬프
     kst = timezone(timedelta(hours=9))
     now = datetime.now(kst)
 
