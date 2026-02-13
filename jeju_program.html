@@ -75,11 +75,11 @@
     .card-header {
       background: var(--header-bg);
       color: var(--header-fg);
-      padding: 14px 18px;
+      padding: 10px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
     }
     .header-left {
       display: flex;
@@ -154,36 +154,39 @@
       table-layout: fixed;
     }
 
-    colgroup col:nth-child(1) { width: 11%; }  /* 주소 */
-    colgroup col:nth-child(2) { width: 15%; }  /* 훈련기관 */
-    colgroup col:nth-child(3) { width: 38%; }  /* 훈련과정 */
-    colgroup col:nth-child(4) { width: 12%; }  /* 시작일자 */
-    colgroup col:nth-child(5) { width: 12%; }  /* 종료일자 */
-    colgroup col:nth-child(6) { width: 12%; }  /* 세부정보 */
+    colgroup col:nth-child(1) { width: 9%; }   /* 주소 */
+    colgroup col:nth-child(2) { width: 13%; }  /* 훈련기관 */
+    colgroup col:nth-child(3) { width: 40%; }  /* 훈련과정 */
+    colgroup col:nth-child(4) { width: 11%; }  /* 시작일자 */
+    colgroup col:nth-child(5) { width: 11%; }  /* 종료일자 */
+    colgroup col:nth-child(6) { width: 9%; }   /* 세부정보 — 버튼만 들어가므로 축소 */
+
+    /* 나머지 7%는 브라우저가 자동 분배 */
 
     thead th {
       position: sticky;
       top: 0;
       z-index: 2;
       background: var(--accent-lighter);
-      padding: 10px 12px;
-      font-size: 11px;
+      padding: 7px 6px;
+      font-size: 10.5px;
       font-weight: 600;
       color: var(--fg-secondary);
       text-align: left;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.02em;
       border-bottom: 2px solid var(--bd);
       white-space: nowrap;
     }
 
     tbody td {
-      padding: 10px 12px;
-      font-size: 12.5px;
-      line-height: 1.5;
+      padding: 7px 6px;
+      font-size: 11.5px;
+      line-height: 1.45;
       border-bottom: 1px solid var(--bd);
       vertical-align: middle;
       color: var(--fg);
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     tbody tr { background: var(--card-bg); }
@@ -192,25 +195,29 @@
 
     .cell-address {
       color: var(--muted);
-      font-size: 11.5px;
-      word-break: keep-all;
+      font-size: 10.5px;
+      word-break: break-all;
+      overflow-wrap: anywhere;
     }
 
     .cell-org {
       font-weight: 500;
-      word-break: keep-all;
+      word-break: break-all;
+      overflow-wrap: anywhere;
       line-height: 1.4;
+      font-size: 11px;
     }
 
     .cell-course {
       word-break: keep-all;
       overflow-wrap: anywhere;
-      line-height: 1.45;
+      line-height: 1.4;
+      font-size: 11.5px;
     }
 
     .cell-date {
       font-variant-numeric: tabular-nums;
-      font-size: 11.5px;
+      font-size: 10.5px;
       white-space: nowrap;
       color: var(--fg-secondary);
     }
@@ -219,9 +226,9 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 3px;
-      padding: 5px 12px;
-      font-size: 11px;
+      gap: 2px;
+      padding: 4px 8px;
+      font-size: 10px;
       font-weight: 600;
       font-family: inherit;
       color: var(--accent);
