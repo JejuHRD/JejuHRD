@@ -344,7 +344,7 @@
         const tds = COLUMNS.map(c => {
           if (c.key === 'titleLink' && r[c.key]) {
             const url = String(r[c.key]).trim();
-            return `<td><a class="detail-btn" href="${url}" target="_blank" rel="noopener">상세보기</a></td>`;
+            return `<td><a class="detail-btn" href="${url}" target="_blank" rel="noopener">자세히</a></td>`;
           }
           return `<td class="${c.cls || ''}">${r[c.key] ?? ''}</td>`;
         }).join('');
