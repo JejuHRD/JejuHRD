@@ -1,0 +1,2441 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026년 지역·산업 맞춤형 인력양성사업 훈련과정</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #1B4965;
+  --primary-light: #2D6A8F;
+  --primary-dark: #0F2D3F;
+  --accent: #FF6B35;
+  --accent-light: #FF8A5C;
+  --accent-warm: #F7931E;
+  --success: #2ECC71;
+  --info: #3498DB;
+  --warning: #F39C12;
+  --danger: #E74C3C;
+  --bg-main: #F0F4F8;
+  --bg-card: #FFFFFF;
+  --bg-dark: #1a1a2e;
+  --text-primary: #1a1a2e;
+  --text-secondary: #5a6677;
+  --text-light: #8896a7;
+  --border: #e2e8f0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.15);
+  --shadow-xl: 0 20px 60px rgba(0,0,0,0.2);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+  background: var(--bg-main);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== HERO SECTION ===== */
+.hero {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 40%, var(--primary-light) 100%);
+  padding: 56px 24px 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(255,107,53,0.15) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(52,152,219,0.12) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.hero-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 6px 16px;
+  border-radius: 50px;
+  color: rgba(255,255,255,0.9);
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  animation: fadeInDown 0.6s ease;
+}
+
+.hero-badge .dot {
+  width: 7px;
+  height: 7px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.hero h1 {
+  font-size: 32px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.3;
+  margin-bottom: 12px;
+  animation: fadeInUp 0.6s ease;
+}
+
+.hero h1 span {
+  color: var(--accent-light);
+}
+
+.hero-sub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.7);
+  font-weight: 400;
+  animation: fadeInUp 0.7s ease;
+}
+
+/* ===== STATS BAR ===== */
+.stats-bar {
+  max-width: 1200px;
+  margin: -28px auto 0;
+  padding: 0 24px;
+  position: relative;
+  z-index: 10;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  background: var(--bg-card);
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-item {
+  text-align: center;
+  padding: 8px;
+}
+
+.stat-number {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1.2;
+}
+
+.stat-number .unit {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-light);
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+/* ===== ADMIN MODE ===== */
+.admin-toggle-btn {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.7);
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: inherit;
+  z-index: 5;
+}
+
+.admin-toggle-btn:hover {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+.admin-toggle-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* Admin modal */
+.admin-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+}
+
+.admin-modal-overlay.active {
+  display: flex;
+}
+
+.admin-modal {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  width: 90%;
+  max-width: 360px;
+  box-shadow: var(--shadow-xl);
+  animation: modalIn 0.3s ease;
+  text-align: center;
+}
+
+.admin-modal h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+
+.admin-modal p {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 20px;
+}
+
+.admin-modal input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-family: inherit;
+  text-align: center;
+  letter-spacing: 4px;
+  margin-bottom: 12px;
+  transition: all 0.3s;
+}
+
+.admin-modal input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(27,73,101,0.1);
+}
+
+.admin-modal .error-msg {
+  color: var(--danger);
+  font-size: 13px;
+  margin-bottom: 12px;
+  display: none;
+}
+
+.admin-modal-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-modal-btns button {
+  flex: 1;
+  padding: 11px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  transition: all 0.3s;
+}
+
+.admin-modal-btns .btn-cancel {
+  background: var(--bg-main);
+  color: var(--text-secondary);
+}
+
+.admin-modal-btns .btn-confirm {
+  background: var(--primary);
+  color: #fff;
+}
+
+.admin-modal-btns .btn-confirm:hover {
+  background: var(--primary-dark);
+}
+
+/* Hide upload buttons when not admin */
+body:not(.admin-mode) .image-upload-btn {
+  display: none !important;
+}
+
+/* Admin indicator bar */
+.admin-bar {
+  display: none;
+  background: var(--accent);
+  color: #fff;
+  text-align: center;
+  padding: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.admin-bar .admin-bar-close {
+  background: rgba(255,255,255,0.25);
+  border: none;
+  color: #fff;
+  padding: 2px 12px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 12px;
+  font-family: inherit;
+}
+
+body.admin-mode .admin-bar {
+  display: block;
+}
+
+/* ===== FILTER SECTION ===== */
+.filter-section {
+  max-width: 1200px;
+  margin: 24px auto 0;
+  padding: 0 24px;
+}
+
+.filter-container {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.search-box {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 14px 20px 14px 48px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-family: inherit;
+  background: var(--bg-main);
+  transition: all 0.3s;
+  color: var(--text-primary);
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(27,73,101,0.1);
+}
+
+.search-box input::placeholder {
+  color: var(--text-light);
+}
+
+.search-box .search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  font-size: 18px;
+}
+
+.filter-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filter-group label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-tag {
+  padding: 7px 16px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.25s;
+  font-family: inherit;
+}
+
+.filter-tag:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(27,73,101,0.04);
+}
+
+.filter-tag.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.result-count {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.result-count strong {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* ===== INSTITUTION TABS ===== */
+.tabs-section {
+  max-width: 1200px;
+  margin: 20px auto 0;
+  padding: 0 24px;
+}
+
+.tabs-container {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.tabs-container::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  flex-shrink: 0;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid transparent;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: inherit;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab-btn .count {
+  background: var(--bg-main);
+  padding: 2px 8px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tab-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.tab-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(27,73,101,0.3);
+}
+
+.tab-btn.active .count {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+/* ===== CARDS GRID ===== */
+.cards-section {
+  max-width: 1200px;
+  margin: 20px auto 0;
+  padding: 0 24px 60px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+/* ===== COURSE CARD ===== */
+.course-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  cursor: pointer;
+  position: relative;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+.course-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card-image {
+  height: 180px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-image .placeholder-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.5);
+}
+
+.card-image .placeholder-icon svg {
+  width: 40px;
+  height: 40px;
+}
+
+.card-image .placeholder-icon span {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.card-image .image-upload-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.3s;
+  font-family: inherit;
+  opacity: 0;
+}
+
+.course-card:hover .image-upload-btn {
+  opacity: 1;
+}
+
+.image-upload-btn:hover {
+  background: rgba(0,0,0,0.75);
+}
+
+.card-badges {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  z-index: 2;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 50px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.badge.type-양성 {
+  background: linear-gradient(135deg, #FF6B35, #F7931E);
+  color: #fff;
+}
+
+.badge.type-향상 {
+  background: linear-gradient(135deg, #3498DB, #2980B9);
+  color: #fff;
+}
+
+.badge.new {
+  background: #2ECC71;
+  color: #fff;
+}
+
+.badge.popular {
+  background: #E74C3C;
+  color: #fff;
+}
+
+.badge.ai {
+  background: linear-gradient(135deg, #8E44AD, #6C3483);
+  color: #fff;
+}
+
+.badge.closing {
+  background: #F39C12;
+  color: #fff;
+  animation: pulse 2s infinite;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.card-institution {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary-light);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.card-institution::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  background: var(--primary-light);
+  border-radius: 50%;
+}
+
+.card-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-tagline {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.card-meta {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  background: var(--bg-main);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.meta-item {
+  text-align: center;
+  position: relative;
+}
+
+.meta-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background: var(--border);
+}
+
+.meta-item .meta-icon {
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+.meta-item .meta-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.meta-item .meta-label {
+  font-size: 11px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.card-tag {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 50px;
+  background: rgba(27,73,101,0.06);
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.card-footer {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-detail {
+  flex: 1;
+  padding: 11px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-detail.primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn-detail.primary:hover {
+  background: var(--primary-dark);
+  box-shadow: 0 4px 12px rgba(27,73,101,0.3);
+}
+
+.btn-detail.outline {
+  background: transparent;
+  color: var(--primary);
+  border: 1.5px solid var(--border);
+}
+
+.btn-detail.outline:hover {
+  border-color: var(--primary);
+  background: rgba(27,73,101,0.04);
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 680px;
+  margin: 40px auto;
+  overflow: hidden;
+  box-shadow: var(--shadow-xl);
+  animation: modalIn 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.modal-header-image {
+  height: 220px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+}
+
+.modal-header-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modal-header-image .overlay-gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+}
+
+.modal-header-image .modal-title-area {
+  position: absolute;
+  bottom: 20px;
+  left: 24px;
+  right: 24px;
+  z-index: 2;
+}
+
+.modal-header-image .modal-title-area h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+
+.modal-header-image .modal-institution-name {
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+  font-weight: 500;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(8px);
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  transition: all 0.3s;
+}
+
+.modal-close:hover { background: rgba(0,0,0,0.6); }
+
+.modal-body {
+  padding: 28px 24px;
+}
+
+/* Modal Meta Grid */
+.modal-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.modal-meta-card {
+  background: var(--bg-main);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-meta-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.modal-meta-icon.time { background: rgba(52,152,219,0.12); }
+.modal-meta-icon.people { background: rgba(46,204,113,0.12); }
+.modal-meta-icon.count { background: rgba(243,156,18,0.12); }
+.modal-meta-icon.type { background: rgba(142,68,173,0.12); }
+
+.modal-meta-text .meta-val {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modal-meta-text .meta-lbl {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+/* Modal Sections */
+.modal-section {
+  margin-bottom: 24px;
+}
+
+.modal-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-section-title::before {
+  content: '';
+  display: block;
+  width: 3px;
+  height: 16px;
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+.recommend-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recommend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--bg-main);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.recommend-item .icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.curriculum-timeline {
+  position: relative;
+  padding-left: 24px;
+}
+
+.curriculum-timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(var(--primary), var(--accent));
+  border-radius: 2px;
+}
+
+.timeline-item {
+  position: relative;
+  padding: 12px 0 12px 20px;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: 18px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 3px rgba(27,73,101,0.2);
+}
+
+.timeline-item .step-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+
+.timeline-item .step-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.expected-outcomes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.outcome-tag {
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 500;
+  background: rgba(46,204,113,0.1);
+  color: #27AE60;
+  border: 1px solid rgba(46,204,113,0.2);
+}
+
+.modal-footer-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+/* Contact Box */
+.contact-box {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg-main);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+}
+
+.contact-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(27,73,101,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.contact-dept {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.contact-phone {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+  letter-spacing: 0.3px;
+}
+
+.contact-phone:hover {
+  color: var(--accent);
+}
+
+.btn-modal {
+  flex: 1;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  transition: all 0.3s;
+  text-align: center;
+}
+
+.btn-modal.primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn-modal.primary:hover {
+  background: var(--primary-dark);
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  grid-column: 1 / -1;
+}
+
+.empty-state .empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-state h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  font-size: 14px;
+  color: var(--text-light);
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.card-enter {
+  animation: fadeInUp 0.5s ease forwards;
+  opacity: 0;
+}
+
+/* ===== HIDDEN FILE INPUT ===== */
+.hidden-input { display: none; }
+
+/* ===== IMAGE GUIDE STEPS ===== */
+.guide-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.guide-step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.guide-step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.guide-step-content {
+  flex: 1;
+}
+
+.guide-step-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.guide-step-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.guide-step-desc code {
+  background: rgba(27,73,101,0.08);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.guide-code-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-top: 8px;
+}
+
+.guide-code-box code {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
+}
+
+.guide-copy-btn {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.guide-copy-btn:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .hero { padding: 40px 20px 36px; }
+  .hero h1 { font-size: 24px; }
+  .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat-number { font-size: 22px; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .modal-meta-grid { grid-template-columns: 1fr; }
+  .modal { margin: 20px auto; }
+}
+
+@media (max-width: 480px) {
+  .cards-grid { grid-template-columns: 1fr; }
+  .stats-grid { padding: 16px; }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+</style>
+</head>
+<body>
+
+<!-- ADMIN BAR -->
+<div class="admin-bar" id="adminBar">
+  🔓 관리자 모드 — 카드 이미지를 추가하거나 변경할 수 있습니다
+  <button class="admin-bar-close" onclick="exitAdminMode()">모드 해제</button>
+</div>
+
+<!-- ADMIN PASSWORD MODAL -->
+<div class="admin-modal-overlay" id="adminModalOverlay" onclick="closeAdminModal(event)">
+  <div class="admin-modal" onclick="event.stopPropagation()">
+    <h3>🔐 관리자 인증</h3>
+    <p>이미지 관리를 위해 비밀번호를 입력하세요</p>
+    <input type="password" id="adminPassword" placeholder="••••••" onkeydown="if(event.key==='Enter')verifyAdmin()">
+    <div class="error-msg" id="adminError">비밀번호가 일치하지 않습니다</div>
+    <div class="admin-modal-btns">
+      <button class="btn-cancel" onclick="closeAdminModalDirect()">취소</button>
+      <button class="btn-confirm" onclick="verifyAdmin()">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- HERO SECTION -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      2026년 수강생 모집 중
+    </div>
+    <h1>제주지역 <span>맞춤형</span><br>인력양성 훈련과정</h1>
+    <p class="hero-sub">지역·산업 맞춤형 인력양성사업 | 3개 훈련기관 · 35개 과정</p>
+    <button class="admin-toggle-btn" id="adminToggle" onclick="toggleAdminPrompt()">🔒 관리자</button>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stats-grid">
+    <div class="stat-item">
+      <div class="stat-number">35<span class="unit">개</span></div>
+      <div class="stat-label">훈련과정</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">3<span class="unit">개</span></div>
+      <div class="stat-label">훈련기관</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">1,537<span class="unit">명</span></div>
+      <div class="stat-label">연간 양성인원</div>
+    </div>
+  </div>
+</div>
+
+<!-- FILTER SECTION -->
+<div class="filter-section">
+  <div class="filter-container">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="과정명, 키워드로 검색하세요..." oninput="filterCourses()">
+    </div>
+    <div class="filter-groups">
+      <div class="filter-group">
+        <label>훈련분야</label>
+        <div class="filter-tags" id="categoryFilters">
+          <button class="filter-tag active" data-category="all" onclick="setFilter('category','all',this)">전체</button>
+          <button class="filter-tag" data-category="관광·서비스" onclick="setFilter('category','관광·서비스',this)">관광·서비스</button>
+          <button class="filter-tag" data-category="IT·AI" onclick="setFilter('category','IT·AI',this)">IT·AI</button>
+          <button class="filter-tag" data-category="식음료·조리" onclick="setFilter('category','식음료·조리',this)">식음료·조리</button>
+          <button class="filter-tag" data-category="건설·설비" onclick="setFilter('category','건설·설비',this)">건설·설비</button>
+          <button class="filter-tag" data-category="의료·복지" onclick="setFilter('category','의료·복지',this)">의료·복지</button>
+          <button class="filter-tag" data-category="기계·운전" onclick="setFilter('category','기계·운전',this)">기계·운전</button>
+        </div>
+      </div>
+      <div class="filter-group">
+        <label>훈련형태</label>
+        <div class="filter-tags" id="typeFilters">
+          <button class="filter-tag active" data-type="all" onclick="setFilter('type','all',this)">전체</button>
+          <button class="filter-tag" data-type="양성" onclick="setFilter('type','양성',this)">양성과정</button>
+          <button class="filter-tag" data-type="향상" onclick="setFilter('type','향상',this)">향상과정</button>
+        </div>
+      </div>
+    </div>
+    <div class="result-count">
+      <span>검색결과 <strong id="resultCount">35</strong>개 과정</span>
+      <button class="filter-tag" onclick="resetFilters()" style="margin:0;font-size:12px;">초기화</button>
+    </div>
+  </div>
+</div>
+
+<!-- INSTITUTION TABS -->
+<div class="tabs-section">
+  <div class="tabs-container">
+    <button class="tab-btn active" onclick="setTab('all', this)">전체 <span class="count">35</span></button>
+    <button class="tab-btn" onclick="setTab('제주관광대학교', this)">제주관광대학교 <span class="count">13</span></button>
+    <button class="tab-btn" onclick="setTab('제주한라대학교', this)">제주한라대학교 <span class="count">9</span></button>
+    <button class="tab-btn" onclick="setTab('한국폴리텍대학 제주캠퍼스', this)">한국폴리텍대학 제주캠퍼스 <span class="count">14</span></button>
+  </div>
+</div>
+
+<!-- CARDS GRID -->
+<div class="cards-section">
+  <div class="cards-grid" id="cardsGrid">
+    <!-- Cards will be rendered by JS -->
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="courseModal" onclick="event.stopPropagation()">
+    <div class="modal-header-image" id="modalHeaderImage">
+      <div class="overlay-gradient"></div>
+      <div class="modal-title-area">
+        <h2 id="modalTitle"></h2>
+        <div class="modal-institution-name" id="modalInstitution"></div>
+      </div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-meta-grid" id="modalMeta"></div>
+      <div id="modalContent"></div>
+      <div class="modal-footer-actions">
+        <button class="btn-modal primary" onclick="closeModalDirect()">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- IMAGE GUIDE MODAL -->
+<div class="modal-overlay" id="imageGuideOverlay" onclick="if(event.target===this)closeImageGuide()">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:560px">
+    <div style="padding:28px 24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <h2 style="font-size:19px;font-weight:800;color:var(--text-primary);">📸 이미지 업로드 가이드</h2>
+        <button class="modal-close" onclick="closeImageGuide()" style="position:static;width:32px;height:32px;background:var(--bg-main);color:var(--text-secondary);">✕</button>
+      </div>
+      
+      <div style="background:var(--bg-main);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:18px;">
+        <div style="font-size:12px;color:var(--text-light);font-weight:600;margin-bottom:4px;">대상 과정</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text-primary);" id="guideCourseName"></div>
+      </div>
+
+      <p style="font-size:14px;color:var(--text-secondary);margin-bottom:20px;line-height:1.7;">
+        ✅ 이미지 미리보기가 적용되었습니다.<br>
+        아래 안내에 따라 GitHub에 반영하면 모든 사용자에게 이미지가 표시됩니다.
+      </p>
+
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="guide-step-num">1</div>
+          <div class="guide-step-content">
+            <div class="guide-step-title">이미지 파일을 GitHub 저장소에 업로드</div>
+            <div class="guide-step-desc">
+              저장소의 <code>images</code> 폴더에 아래 파일명으로 업로드하세요.
+            </div>
+            <div class="guide-code-box">
+              <code id="guideFileName"></code>
+              <button class="guide-copy-btn" onclick="copyToClipboard('guideFileName')">복사</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-step-num">2</div>
+          <div class="guide-step-content">
+            <div class="guide-step-title">HTML 파일에서 해당 과정의 image 값 수정</div>
+            <div class="guide-step-desc">
+              현재 값:
+            </div>
+            <div class="guide-code-box" style="background:#FEE2E2;border-color:#FECACA;">
+              <code id="guideCurrentValue" style="color:#DC2626;"></code>
+            </div>
+            <div class="guide-step-desc" style="margin-top:8px;">
+              아래 값으로 변경:
+            </div>
+            <div class="guide-code-box" style="background:#D1FAE5;border-color:#A7F3D0;">
+              <code id="guideCodeSnippet" style="color:#059669;"></code>
+              <button class="guide-copy-btn" onclick="copyToClipboard('guideCodeSnippet')">복사</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-step-num">3</div>
+          <div class="guide-step-content">
+            <div class="guide-step-title">변경사항 Commit & Push</div>
+            <div class="guide-step-desc">
+              이미지 파일과 수정된 HTML을 커밋하면 GitHub Pages에 자동 반영됩니다.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:var(--radius-sm);padding:12px 16px;margin-top:18px;font-size:13px;color:#92400E;line-height:1.6;">
+        💡 <strong>참고:</strong> 현재 화면의 미리보기는 이 브라우저에서만 임시로 표시됩니다. GitHub에 반영해야 다른 사용자도 볼 수 있습니다.
+      </div>
+
+      <div style="margin-top:20px;display:flex;gap:8px;">
+        <button class="btn-modal primary" onclick="closeImageGuide()" style="flex:1;">확인</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HIDDEN FILE INPUT -->
+<input type="file" id="imageUpload" class="hidden-input" accept="image/*" onchange="handleImageUpload(event)">
+
+<script>
+// ===== COURSE DATA (JSON) =====
+const coursesData = [
+  // 제주관광대학교
+  {
+    id: 1, institution: "제주관광대학교", name: "웨딩이벤트 코디네이터 양성과정",
+    type: "양성", hours: 186, capacity: 15, sessions: 1, totalCapacity: 15,
+    category: "관광·서비스", tagline: "특별한 날을 완벽하게 연출하는 웨딩 전문가 양성",
+    tags: ["#웨딩", "#이벤트", "#코디네이터"],
+    badges: [],
+    recommend: ["웨딩업계 취업을 희망하는 분", "이벤트 기획에 관심 있는 분", "서비스업 경력 전환을 고려하는 분"],
+    curriculum: [
+      { title: "웨딩 기초 이론", desc: "웨딩 트렌드, 예식 유형별 특징 이해" },
+      { title: "공간 연출 실습", desc: "플라워, 테이블, 조명 등 공간 데코레이션" },
+      { title: "고객 상담 실무", desc: "예비 부부 상담 및 맞춤 기획 실습" },
+      { title: "현장 실습 및 포트폴리오", desc: "실제 웨딩 현장 운영 및 포트폴리오 제작" }
+    ],
+    outcomes: ["웨딩플래너 취업 연계", "이벤트 코디네이터 자격", "포트폴리오 완성"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 2, institution: "제주관광대학교", name: "골프캐디 양성과정",
+    type: "양성", hours: 198, capacity: 20, sessions: 1, totalCapacity: 20,
+    category: "관광·서비스", tagline: "제주 골프산업의 핵심 인력, 전문 캐디 양성",
+    tags: ["#골프", "#캐디", "#관광"],
+    badges: [],
+    recommend: ["골프산업 취업을 희망하는 분", "체력이 좋고 야외활동을 즐기는 분", "서비스 마인드를 갖춘 분"],
+    curriculum: [
+      { title: "골프 기초 이론", desc: "골프 규칙, 코스 이해, 장비 지식" },
+      { title: "캐디 서비스 실무", desc: "라운드 보조, 고객 응대 실습" },
+      { title: "코스 매니지먼트", desc: "코스 공략법, 그린 리딩 실습" },
+      { title: "현장 실습", desc: "실제 골프장 현장 실습" }
+    ],
+    outcomes: ["골프장 캐디 취업 연계", "골프 전문 서비스 역량", "체력관리 능력"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 3, institution: "제주관광대학교", name: "건축도장 직무능력 향상과정",
+    type: "향상", hours: 8, capacity: 20, sessions: 2, totalCapacity: 40,
+    category: "건설·설비", tagline: "건축 도장 전문 기술을 한 단계 업그레이드",
+    tags: ["#건축도장", "#기술향상"],
+    badges: [],
+    recommend: ["건축도장 분야 재직자", "도장 기술 향상을 원하는 분"],
+    curriculum: [
+      { title: "최신 도장 기법", desc: "친환경 도료 및 최신 도장 기법 실습" },
+      { title: "현장 실무 적용", desc: "실제 현장 사례 기반 실습" }
+    ],
+    outcomes: ["도장 기술 역량 강화", "최신 트렌드 습득"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 4, institution: "제주관광대학교", name: "건축도장 보수 직무능력 향상과정",
+    type: "향상", hours: 8, capacity: 20, sessions: 2, totalCapacity: 40,
+    category: "건설·설비", tagline: "노후 건물 도장 보수의 전문 역량 강화",
+    tags: ["#건축보수", "#도장"],
+    badges: [],
+    recommend: ["건축 보수 분야 재직자", "도장 보수 기술을 배우고 싶은 분"],
+    curriculum: [
+      { title: "보수 도장 이론", desc: "하자 유형별 보수 방법 이해" },
+      { title: "보수 실습", desc: "다양한 하자 보수 실습" }
+    ],
+    outcomes: ["보수 도장 전문 역량", "하자 진단 능력"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 5, institution: "제주관광대학교", name: "제주담은 한식디저트 실무과정",
+    type: "향상", hours: 8, capacity: 20, sessions: 4, totalCapacity: 80,
+    category: "식음료·조리", tagline: "제주 특산물로 만드는 트렌디한 한식 디저트",
+    tags: ["#제주특산물", "#한식디저트", "#조리"],
+    badges: ["popular"],
+    recommend: ["카페·베이커리 종사자", "제주 로컬 식재료에 관심 있는 분", "디저트 창업을 준비하는 분"],
+    curriculum: [
+      { title: "제주 식재료 이해", desc: "감귤, 녹차, 흑돼지 등 로컬 소재 탐구" },
+      { title: "한식 디저트 레시피", desc: "전통 한식 기법을 활용한 디저트 실습" },
+      { title: "플레이팅 & 상품화", desc: "메뉴 상품화 및 비주얼 플레이팅" }
+    ],
+    outcomes: ["한식 디저트 레시피 습득", "메뉴 개발 역량", "제주 로컬 전문성"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 6, institution: "제주관광대학교", name: "온라인 영상편집 직무능력 향상과정",
+    type: "향상", hours: 8, capacity: 20, sessions: 3, totalCapacity: 60,
+    category: "IT·AI", tagline: "SNS 시대에 필수인 영상편집 실무 역량 강화",
+    tags: ["#영상편집", "#콘텐츠제작"],
+    badges: [],
+    recommend: ["마케팅 담당자", "1인 크리에이터를 꿈꾸는 분", "영상 콘텐츠 제작이 필요한 분"],
+    curriculum: [
+      { title: "편집 툴 기초", desc: "프리미어 프로 등 편집 소프트웨어 활용" },
+      { title: "실전 영상 제작", desc: "기획부터 편집까지 실전 프로젝트" }
+    ],
+    outcomes: ["영상편집 실무 역량", "포트폴리오 완성"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 7, institution: "제주관광대학교", name: "치과진료비 심사청구 직무능력 향상과정",
+    type: "향상", hours: 16, capacity: 20, sessions: 1, totalCapacity: 20,
+    category: "의료·복지", tagline: "치과 보험청구의 전문 역량을 키우는 실무 과정",
+    tags: ["#치과", "#보험청구", "#심사"],
+    badges: [],
+    recommend: ["치과 병·의원 재직자", "의료 행정 분야 종사자"],
+    curriculum: [
+      { title: "건강보험 청구 이론", desc: "치과 급여 기준 및 심사 원리" },
+      { title: "청구 실무 실습", desc: "실제 청구 사례 기반 실습" }
+    ],
+    outcomes: ["심사청구 실무 역량", "보험 제도 이해"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 8, institution: "제주관광대학교", name: "식품품질관리 직무능력 향상과정",
+    type: "향상", hours: 8, capacity: 20, sessions: 1, totalCapacity: 20,
+    category: "식음료·조리", tagline: "안전한 먹거리를 위한 식품 품질관리 전문가 과정",
+    tags: ["#식품안전", "#품질관리", "#HACCP"],
+    badges: [],
+    recommend: ["식품 제조·유통업 재직자", "품질관리 업무 담당자"],
+    curriculum: [
+      { title: "식품 안전 기준", desc: "HACCP, 위생 관리 기준 이해" },
+      { title: "품질 관리 실무", desc: "검사·분석 기법 실습" }
+    ],
+    outcomes: ["품질관리 역량 강화", "식품 안전 전문성"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 9, institution: "제주관광대학교", name: "골프캐디 직무능력 향상과정",
+    type: "향상", hours: 8, capacity: 30, sessions: 2, totalCapacity: 60,
+    category: "관광·서비스", tagline: "현직 캐디를 위한 서비스 품질 향상 프로그램",
+    tags: ["#골프캐디", "#서비스향상"],
+    badges: [],
+    recommend: ["현직 골프캐디", "캐디 서비스 품질 향상을 원하는 분"],
+    curriculum: [
+      { title: "고급 서비스 스킬", desc: "VIP 고객 응대 및 서비스 매너" },
+      { title: "코스 전략 심화", desc: "심화 코스 공략 및 리딩 기법" }
+    ],
+    outcomes: ["프리미엄 서비스 역량", "고객 만족도 향상"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 10, institution: "제주관광대학교", name: "생성형 AI 활용 영상편집 직무능력 향상과정",
+    type: "향상", hours: 8, capacity: 20, sessions: 4, totalCapacity: 80,
+    category: "IT·AI", tagline: "AI 도구로 영상 제작 효율을 극대화하는 최신 과정",
+    tags: ["#생성형AI", "#영상편집", "#AI활용"],
+    badges: ["ai", "popular"],
+    recommend: ["영상 콘텐츠 제작자", "AI 도구 활용에 관심 있는 분", "마케팅·홍보 담당자"],
+    curriculum: [
+      { title: "생성형 AI 도구 이해", desc: "최신 AI 영상 도구 소개 및 활용법" },
+      { title: "AI 활용 영상편집 실습", desc: "AI를 활용한 영상 제작 워크플로우" }
+    ],
+    outcomes: ["AI 영상편집 역량", "업무 효율 향상", "최신 기술 습득"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 11, institution: "제주관광대학교", name: "국외여행 인솔자 직무능력 향상과정",
+    type: "향상", hours: 16, capacity: 20, sessions: 1, totalCapacity: 20,
+    category: "관광·서비스", tagline: "해외여행 인솔의 전문성을 갖춘 여행 리더 양성",
+    tags: ["#해외여행", "#인솔자", "#관광"],
+    badges: [],
+    recommend: ["여행사 재직자", "국외여행 인솔 업무를 맡고 있는 분"],
+    curriculum: [
+      { title: "인솔 서비스 이론", desc: "여행 인솔 매뉴얼 및 위기 대응" },
+      { title: "실무 사례 연구", desc: "국가별 여행 특성 및 실전 노하우" }
+    ],
+    outcomes: ["인솔자 전문 역량", "위기관리 능력"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 12, institution: "제주관광대학교", name: "노인케어 안전예방 관리실무과정",
+    type: "향상", hours: 8, capacity: 20, sessions: 1, totalCapacity: 20,
+    category: "의료·복지", tagline: "고령화 시대, 노인 안전관리의 핵심 실무",
+    tags: ["#노인케어", "#안전관리", "#복지"],
+    badges: ["new"],
+    recommend: ["요양시설 종사자", "노인 돌봄 서비스 제공자"],
+    curriculum: [
+      { title: "안전사고 예방", desc: "낙상, 화재 등 사고 유형별 예방법" },
+      { title: "응급 대응 실습", desc: "노인 응급상황 대응 실습" }
+    ],
+    outcomes: ["안전관리 실무 역량", "응급 대응 능력"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 13, institution: "제주관광대학교", name: "치과 3D프린터 출력을 위한 아날로그 홀모델 디자인",
+    type: "향상", hours: 8, capacity: 20, sessions: 2, totalCapacity: 40,
+    category: "의료·복지", tagline: "디지털 치과 시대를 위한 아날로그 기반 3D 모델링",
+    tags: ["#치과기공", "#3D프린터", "#디지털치과"],
+    badges: ["new"],
+    recommend: ["치과기공사", "디지털 치과 전환에 관심 있는 분"],
+    curriculum: [
+      { title: "홀모델 디자인 이론", desc: "아날로그 모델링과 3D 프린팅 연계" },
+      { title: "디자인 실습", desc: "실습을 통한 홀모델 디자인 완성" }
+    ],
+    outcomes: ["3D 프린팅 연계 역량", "디지털 전환 적응력"],
+    priority: 0,
+    image: null
+  },
+
+  // 제주한라대학교
+  {
+    id: 14, institution: "제주한라대학교", name: "카지노 딜러 양성과정",
+    type: "양성", hours: 144, capacity: 15, sessions: 2, totalCapacity: 30,
+    category: "관광·서비스", tagline: "제주 카지노 산업을 이끄는 전문 딜러 양성",
+    tags: ["#카지노", "#딜러", "#관광"],
+    badges: [],
+    recommend: ["카지노 업계 취업을 희망하는 분", "서비스업에 관심 있는 분", "영어 커뮤니케이션이 가능한 분"],
+    curriculum: [
+      { title: "카지노 게임 이론", desc: "블랙잭, 바카라, 룰렛 등 게임 규칙" },
+      { title: "딜링 기술 실습", desc: "카드, 칩 핸들링 및 딜링 실습" },
+      { title: "고객 서비스", desc: "VIP 고객 응대 및 매너 교육" },
+      { title: "현장 실습", desc: "모의 카지노 환경 실전 실습" }
+    ],
+    outcomes: ["카지노 딜러 취업 연계", "딜링 전문 기술", "서비스 역량"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 15, institution: "제주한라대학교", name: "제주로컬 특산품을 활용한 슬로우푸드 과정",
+    type: "향상", hours: 16, capacity: 16, sessions: 8, totalCapacity: 128,
+    category: "식음료·조리", tagline: "제주의 맛과 이야기를 담은 슬로우푸드 전문가 과정",
+    tags: ["#제주로컬", "#슬로우푸드", "#특산품"],
+    badges: ["popular"],
+    recommend: ["식음료업 종사자", "제주 로컬 푸드에 관심 있는 분", "레스토랑·카페 창업 예정자"],
+    curriculum: [
+      { title: "제주 로컬 식재료 탐구", desc: "계절별 제주 특산물 이해" },
+      { title: "슬로우푸드 철학", desc: "느린 음식 문화와 지속가능한 식생활" },
+      { title: "레시피 개발 실습", desc: "제주 식재료 기반 메뉴 개발" },
+      { title: "상품화 전략", desc: "메뉴 브랜딩 및 마케팅 전략" }
+    ],
+    outcomes: ["로컬 푸드 전문성", "메뉴 개발 역량", "슬로우푸드 철학 이해"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 16, institution: "제주한라대학교", name: "인공지능을 활용한 제주관광 빅데이터과정",
+    type: "향상", hours: 8, capacity: 15, sessions: 4, totalCapacity: 60,
+    category: "IT·AI", tagline: "AI와 빅데이터로 제주 관광의 미래를 읽다",
+    tags: ["#인공지능", "#빅데이터", "#관광데이터"],
+    badges: ["ai"],
+    recommend: ["관광업 종사자", "데이터 분석에 관심 있는 분", "관광정책 관련 업무자"],
+    curriculum: [
+      { title: "빅데이터 기초", desc: "관광 데이터 수집·분석 기초" },
+      { title: "AI 분석 도구 활용", desc: "AI 도구를 활용한 관광 트렌드 분석" }
+    ],
+    outcomes: ["데이터 분석 역량", "AI 도구 활용 능력", "관광 트렌드 인사이트"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 17, institution: "제주한라대학교", name: "영유아교사의 생태적 감수성 증진을 위한 제주 자연놀이과정",
+    type: "향상", hours: 16, capacity: 16, sessions: 6, totalCapacity: 96,
+    category: "의료·복지", tagline: "제주 자연 속에서 배우는 생태 감수성 교육",
+    tags: ["#영유아교육", "#생태감수성", "#자연놀이"],
+    badges: ["popular"],
+    recommend: ["어린이집·유치원 교사", "영유아 교육에 관심 있는 분", "자연친화 교육을 실천하고 싶은 분"],
+    curriculum: [
+      { title: "생태교육 이론", desc: "자연친화 교육의 이론적 기반" },
+      { title: "제주 자연환경 탐구", desc: "곶자왈, 오름, 해안 등 제주 생태 이해" },
+      { title: "자연놀이 프로그램 설계", desc: "계절·환경별 자연놀이 활동 설계" },
+      { title: "현장 적용 실습", desc: "제주 자연 환경에서의 실습" }
+    ],
+    outcomes: ["생태 감수성 향상", "자연놀이 프로그램 역량", "제주 자연환경 이해"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 18, institution: "제주한라대학교", name: "관광업 종사자 CRM과정",
+    type: "향상", hours: 8, capacity: 15, sessions: 3, totalCapacity: 45,
+    category: "관광·서비스", tagline: "고객 관계 관리로 관광 서비스 품질 향상",
+    tags: ["#CRM", "#고객관리", "#관광서비스"],
+    badges: [],
+    recommend: ["관광업 재직자", "고객 서비스 향상을 원하는 분"],
+    curriculum: [
+      { title: "CRM 전략 이론", desc: "고객 데이터 관리 및 CRM 개념" },
+      { title: "CRM 실무 적용", desc: "관광업 맞춤 CRM 사례 실습" }
+    ],
+    outcomes: ["CRM 활용 역량", "고객 만족도 관리"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 19, institution: "제주한라대학교", name: "생성형 AI 활용과정",
+    type: "향상", hours: 8, capacity: 15, sessions: 3, totalCapacity: 45,
+    category: "IT·AI", tagline: "생성형 AI의 기초부터 업무 활용까지",
+    tags: ["#생성형AI", "#ChatGPT", "#AI활용"],
+    badges: ["popular", "ai"],
+    recommend: ["AI 기술에 관심 있는 모든 직장인", "업무 효율화를 원하는 분"],
+    curriculum: [
+      { title: "생성형 AI 이해", desc: "ChatGPT, 이미지 AI 등 핵심 도구 소개" },
+      { title: "업무 활용 실습", desc: "직무별 AI 활용 사례 실습" }
+    ],
+    outcomes: ["AI 리터러시 향상", "업무 자동화 역량"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 20, institution: "제주한라대학교", name: "사회복지분야 심리·정서지원과정",
+    type: "향상", hours: 8, capacity: 15, sessions: 2, totalCapacity: 30,
+    category: "의료·복지", tagline: "사회복지 현장의 심리·정서 지원 전문성 강화",
+    tags: ["#사회복지", "#심리지원", "#정서케어"],
+    badges: [],
+    recommend: ["사회복지사", "심리상담 업무 종사자"],
+    curriculum: [
+      { title: "심리·정서 지원 이론", desc: "대상자별 심리 이해 및 지원 기법" },
+      { title: "사례 기반 실습", desc: "실제 사례 분석 및 대응 실습" }
+    ],
+    outcomes: ["심리지원 전문성", "정서 케어 역량"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 21, institution: "제주한라대학교", name: "물리치료사 직무능력 향상과정",
+    type: "향상", hours: 8, capacity: 16, sessions: 3, totalCapacity: 48,
+    category: "의료·복지", tagline: "물리치료사의 전문성을 업그레이드하는 실무 과정",
+    tags: ["#물리치료", "#재활", "#의료"],
+    badges: [],
+    recommend: ["현직 물리치료사", "재활의학 관련 종사자"],
+    curriculum: [
+      { title: "최신 물리치료 기법", desc: "근거 기반 최신 치료 기법 학습" },
+      { title: "임상 사례 실습", desc: "실제 사례 기반 치료 실습" }
+    ],
+    outcomes: ["치료 기술 향상", "최신 트렌드 습득"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 22, institution: "제주한라대학교", name: "드론 운영과정",
+    type: "향상", hours: 8, capacity: 15, sessions: 2, totalCapacity: 30,
+    category: "IT·AI", tagline: "드론 조종부터 촬영까지, 실전 드론 운영 역량",
+    tags: ["#드론", "#항공촬영", "#운영"],
+    badges: ["new"],
+    recommend: ["드론 촬영에 관심 있는 분", "관광·농업 분야 드론 활용 희망자"],
+    curriculum: [
+      { title: "드론 기초 이론", desc: "비행 원리, 관련 법규, 안전 수칙" },
+      { title: "비행 실습", desc: "실외 드론 비행 및 촬영 실습" }
+    ],
+    outcomes: ["드론 운영 역량", "항공 촬영 기술"],
+    priority: 0,
+    image: null
+  },
+
+  // 한국폴리텍대학 제주캠퍼스
+  {
+    id: 23, institution: "한국폴리텍대학 제주캠퍼스", name: "냉동공조설비",
+    type: "향상", hours: 16, capacity: 15, sessions: 2, totalCapacity: 30,
+    category: "건설·설비", tagline: "냉동·공조 설비의 핵심 기술을 마스터",
+    tags: ["#냉동공조", "#설비"],
+    badges: [],
+    recommend: ["설비 분야 재직자", "냉동공조 기술 향상을 원하는 분"],
+    curriculum: [
+      { title: "냉동공조 이론", desc: "냉매 순환, 시스템 구성 이해" },
+      { title: "설비 실습", desc: "냉동공조 설비 설치·점검 실습" }
+    ],
+    outcomes: ["냉동공조 기술 역량", "설비 점검 능력"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 24, institution: "한국폴리텍대학 제주캠퍼스", name: "보일러배관설비",
+    type: "향상", hours: 16, capacity: 15, sessions: 2, totalCapacity: 30,
+    category: "건설·설비", tagline: "보일러 및 배관설비의 전문 기술 향상",
+    tags: ["#보일러", "#배관설비"],
+    badges: [],
+    recommend: ["배관 설비 재직자", "보일러 기술 향상을 원하는 분"],
+    curriculum: [
+      { title: "보일러 시스템 이해", desc: "보일러 구조 및 배관 이론" },
+      { title: "배관 실습", desc: "배관 시공 및 보수 실습" }
+    ],
+    outcomes: ["보일러 배관 기술", "시공 실무 역량"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 25, institution: "한국폴리텍대학 제주캠퍼스", name: "TIG용접실무",
+    type: "향상", hours: 8, capacity: 15, sessions: 2, totalCapacity: 30,
+    category: "건설·설비", tagline: "정밀 TIG 용접의 실무 기술 향상",
+    tags: ["#TIG용접", "#용접실무"],
+    badges: [],
+    recommend: ["용접 분야 재직자", "TIG 용접 기술을 배우고 싶은 분"],
+    curriculum: [
+      { title: "TIG 용접 이론", desc: "아르곤 가스 용접 원리 이해" },
+      { title: "용접 실습", desc: "다양한 소재별 TIG 용접 실습" }
+    ],
+    outcomes: ["TIG 용접 기술", "정밀 용접 역량"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 26, institution: "한국폴리텍대학 제주캠퍼스", name: "CO2용접실무",
+    type: "향상", hours: 8, capacity: 15, sessions: 2, totalCapacity: 30,
+    category: "건설·설비", tagline: "CO2 용접의 기초부터 실전까지",
+    tags: ["#CO2용접", "#용접"],
+    badges: [],
+    recommend: ["용접 분야 재직자", "CO2 용접 기술 향상을 원하는 분"],
+    curriculum: [
+      { title: "CO2 용접 이론", desc: "CO2 가스 용접 원리 및 안전" },
+      { title: "용접 실습", desc: "실전 CO2 용접 실습" }
+    ],
+    outcomes: ["CO2 용접 기술", "용접 실무 역량"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 27, institution: "한국폴리텍대학 제주캠퍼스", name: "태양광설비시공",
+    type: "향상", hours: 16, capacity: 15, sessions: 2, totalCapacity: 30,
+    category: "건설·설비", tagline: "신재생에너지 핵심, 태양광 설비 시공 전문가",
+    tags: ["#태양광", "#신재생에너지", "#설비시공"],
+    badges: [],
+    recommend: ["전기·설비 분야 재직자", "태양광 산업 진출을 원하는 분"],
+    curriculum: [
+      { title: "태양광 시스템 이론", desc: "태양광 발전 원리 및 시스템 이해" },
+      { title: "설비 시공 실습", desc: "태양광 패널 설치 및 시공 실습" }
+    ],
+    outcomes: ["태양광 시공 역량", "신재생에너지 전문성"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 28, institution: "한국폴리텍대학 제주캠퍼스", name: "태양광 계통연계설비 운영",
+    type: "향상", hours: 16, capacity: 15, sessions: 2, totalCapacity: 30,
+    category: "건설·설비", tagline: "태양광 계통연계의 전문 운영 역량 강화",
+    tags: ["#태양광", "#계통연계", "#설비운영"],
+    badges: [],
+    recommend: ["태양광 설비 운영자", "전기 분야 재직자"],
+    curriculum: [
+      { title: "계통연계 이론", desc: "전력 계통 연계 원리 이해" },
+      { title: "운영 실습", desc: "계통연계 설비 운영 및 점검 실습" }
+    ],
+    outcomes: ["계통연계 운영 역량", "설비 관리 능력"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 29, institution: "한국폴리텍대학 제주캠퍼스", name: "전기설비시공관리",
+    type: "향상", hours: 8, capacity: 15, sessions: 2, totalCapacity: 30,
+    category: "건설·설비", tagline: "전기설비 시공의 안전하고 효율적인 관리",
+    tags: ["#전기설비", "#시공관리"],
+    badges: [],
+    recommend: ["전기공사 재직자", "시공관리 역량 향상을 원하는 분"],
+    curriculum: [
+      { title: "시공관리 이론", desc: "전기설비 시공 기준 및 관리 기법" },
+      { title: "관리 실습", desc: "현장 사례 기반 시공관리 실습" }
+    ],
+    outcomes: ["시공관리 역량", "안전관리 능력"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 30, institution: "한국폴리텍대학 제주캠퍼스", name: "스마트전기유지보수",
+    type: "향상", hours: 16, capacity: 15, sessions: 2, totalCapacity: 30,
+    category: "건설·설비", tagline: "스마트 기술 기반 전기 유지보수 전문가",
+    tags: ["#스마트전기", "#유지보수"],
+    badges: [],
+    recommend: ["전기 유지보수 재직자", "스마트 기술에 관심 있는 전기 분야 종사자"],
+    curriculum: [
+      { title: "스마트 기술 이론", desc: "IoT, 스마트 센서 기반 전기 관리" },
+      { title: "유지보수 실습", desc: "스마트 도구 활용 유지보수 실습" }
+    ],
+    outcomes: ["스마트 전기 역량", "유지보수 효율화"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 31, institution: "한국폴리텍대학 제주캠퍼스", name: "전기발전기설비시공",
+    type: "향상", hours: 16, capacity: 15, sessions: 2, totalCapacity: 30,
+    category: "건설·설비", tagline: "발전기 설비 시공의 전문 기술 습득",
+    tags: ["#발전기", "#설비시공"],
+    badges: [],
+    recommend: ["발전 설비 분야 재직자", "전기 시공 기술 향상을 원하는 분"],
+    curriculum: [
+      { title: "발전기 시스템 이론", desc: "발전기 구조 및 시공 기준" },
+      { title: "시공 실습", desc: "발전기 설비 설치·시공 실습" }
+    ],
+    outcomes: ["발전기 시공 역량", "설비 전문성"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 32, institution: "한국폴리텍대학 제주캠퍼스", name: "소방시설유지보수",
+    type: "향상", hours: 8, capacity: 15, sessions: 1, totalCapacity: 15,
+    category: "건설·설비", tagline: "안전한 건물을 위한 소방시설 유지보수 전문 과정",
+    tags: ["#소방", "#유지보수", "#안전"],
+    badges: [],
+    recommend: ["소방시설 관리 재직자", "건물 안전 관리 업무 종사자"],
+    curriculum: [
+      { title: "소방시설 이론", desc: "소방 설비 종류 및 점검 기준" },
+      { title: "유지보수 실습", desc: "소방시설 점검·보수 실습" }
+    ],
+    outcomes: ["소방시설 관리 역량", "안전 점검 능력"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 33, institution: "한국폴리텍대학 제주캠퍼스", name: "소방경보설비시공",
+    type: "향상", hours: 8, capacity: 15, sessions: 1, totalCapacity: 15,
+    category: "건설·설비", tagline: "소방경보 설비의 정확한 시공 기술",
+    tags: ["#소방경보", "#설비시공"],
+    badges: [],
+    recommend: ["소방시설 시공 재직자", "경보설비 기술을 배우고 싶은 분"],
+    curriculum: [
+      { title: "경보설비 이론", desc: "소방경보 시스템 구성 이해" },
+      { title: "시공 실습", desc: "경보설비 설치·시공 실습" }
+    ],
+    outcomes: ["경보설비 시공 역량", "소방 전문성"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 34, institution: "한국폴리텍대학 제주캠퍼스", name: "굴착기운전",
+    type: "향상", hours: 16, capacity: 15, sessions: 1, totalCapacity: 15,
+    category: "기계·운전", tagline: "건설현장의 필수 장비, 굴착기 운전 실무",
+    tags: ["#굴착기", "#건설장비", "#운전"],
+    badges: [],
+    recommend: ["건설현장 종사자", "굴착기 운전 기술을 배우고 싶은 분"],
+    curriculum: [
+      { title: "굴착기 운전 이론", desc: "장비 구조, 안전 수칙, 관련 법규" },
+      { title: "운전 실습", desc: "실제 굴착기 조작 및 작업 실습" }
+    ],
+    outcomes: ["굴착기 운전 역량", "건설 장비 활용 능력"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 35, institution: "한국폴리텍대학 제주캠퍼스", name: "지게차운전",
+    type: "향상", hours: 16, capacity: 15, sessions: 11, totalCapacity: 165,
+    category: "기계·운전", tagline: "물류·건설 현장의 필수 자격, 지게차 운전",
+    tags: ["#지게차", "#물류", "#운전면허"],
+    badges: ["popular"],
+    recommend: ["물류·유통업 종사자", "건설현장 재직자", "자격증 취득을 원하는 분"],
+    curriculum: [
+      { title: "지게차 운전 이론", desc: "장비 구조, 안전 수칙, 관련 법규" },
+      { title: "운전 실습", desc: "지게차 조작 및 적재·운반 실습" }
+    ],
+    outcomes: ["지게차 운전 역량", "자격증 취득 연계"],
+    priority: 0,
+    image: null
+  },
+  {
+    id: 36, institution: "한국폴리텍대학 제주캠퍼스", name: "AI를 활용한 스마트앱디자인실무",
+    type: "향상", hours: 16, capacity: 15, sessions: 2, totalCapacity: 30,
+    category: "IT·AI", tagline: "AI 기술로 앱 디자인의 새로운 가능성을 열다",
+    tags: ["#AI", "#앱디자인", "#UX/UI"],
+    badges: ["new", "ai"],
+    recommend: ["디자인 분야 종사자", "앱 개발에 관심 있는 분", "AI 디자인 도구를 활용하고 싶은 분"],
+    curriculum: [
+      { title: "AI 디자인 도구 이해", desc: "최신 AI 디자인 도구 소개 및 활용" },
+      { title: "스마트앱 디자인 실습", desc: "AI 활용 앱 UI/UX 디자인 실습" }
+    ],
+    outcomes: ["AI 디자인 역량", "앱 디자인 포트폴리오"],
+    priority: 0,
+    image: null
+  }
+];
+
+// ===== ADMIN MODE =====
+const ADMIN_PASSWORD = 'jeju21651!';
+let isAdminMode = false;
+
+function toggleAdminPrompt() {
+  if (isAdminMode) {
+    exitAdminMode();
+  } else {
+    document.getElementById('adminModalOverlay').classList.add('active');
+    document.getElementById('adminPassword').value = '';
+    document.getElementById('adminError').style.display = 'none';
+    setTimeout(() => document.getElementById('adminPassword').focus(), 100);
+  }
+}
+
+function verifyAdmin() {
+  const pw = document.getElementById('adminPassword').value;
+  if (pw === ADMIN_PASSWORD) {
+    isAdminMode = true;
+    document.body.classList.add('admin-mode');
+    document.getElementById('adminToggle').classList.add('active');
+    document.getElementById('adminToggle').textContent = '🔓 관리자';
+    closeAdminModalDirect();
+    filterCourses(); // re-render cards
+  } else {
+    document.getElementById('adminError').style.display = 'block';
+    document.getElementById('adminPassword').value = '';
+    document.getElementById('adminPassword').focus();
+  }
+}
+
+function exitAdminMode() {
+  isAdminMode = false;
+  document.body.classList.remove('admin-mode');
+  document.getElementById('adminToggle').classList.remove('active');
+  document.getElementById('adminToggle').textContent = '🔒 관리자';
+  filterCourses();
+}
+
+function closeAdminModal(event) {
+  if (event.target === document.getElementById('adminModalOverlay')) {
+    closeAdminModalDirect();
+  }
+}
+
+function closeAdminModalDirect() {
+  document.getElementById('adminModalOverlay').classList.remove('active');
+}
+
+// ===== STATE =====
+let currentFilters = {
+  category: 'all',
+  type: 'all',
+  institution: 'all',
+  search: ''
+};
+let uploadTargetId = null;
+let courseImages = {}; // Store uploaded images (local preview)
+
+// ===== FILTER FUNCTIONS =====
+function setFilter(group, value, btn) {
+  currentFilters[group] = value;
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  filterCourses();
+}
+
+function setTab(institution, btn) {
+  currentFilters.institution = institution;
+  document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  filterCourses();
+}
+
+function resetFilters() {
+  currentFilters = { category: 'all', type: 'all', institution: 'all', search: '' };
+  document.getElementById('searchInput').value = '';
+  document.querySelectorAll('.filter-tag').forEach(t => {
+    t.classList.toggle('active', t.dataset.category === 'all' || t.dataset.type === 'all');
+  });
+  document.querySelectorAll('.tab-btn').forEach((t, i) => {
+    t.classList.toggle('active', i === 0);
+  });
+  filterCourses();
+}
+
+function filterCourses() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  currentFilters.search = search;
+
+  const filtered = coursesData.filter(course => {
+    if (currentFilters.category !== 'all' && course.category !== currentFilters.category) return false;
+    if (currentFilters.type !== 'all' && course.type !== currentFilters.type) return false;
+    if (currentFilters.institution !== 'all' && course.institution !== currentFilters.institution) return false;
+    if (search) {
+      const searchStr = (course.name + course.tags.join('') + course.category + course.institution + course.tagline).toLowerCase();
+      if (!searchStr.includes(search.toLowerCase())) return false;
+    }
+    return true;
+  });
+
+  document.getElementById('resultCount').textContent = filtered.length;
+  filtered.sort((a, b) => (b.priority || 0) - (a.priority || 0));
+  renderCards(filtered);
+}
+
+// ===== RENDER CARDS =====
+function renderCards(courses) {
+  const grid = document.getElementById('cardsGrid');
+
+  if (courses.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>검색 결과가 없습니다</h3>
+        <p>다른 키워드나 필터로 다시 검색해보세요</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = courses.map((course, idx) => {
+    const imgSrc = courseImages[course.id] || course.image;
+    const badgesHtml = generateBadges(course);
+    const delay = Math.min(idx * 0.06, 0.8);
+
+    return `
+      <div class="course-card card-enter" style="animation-delay: ${delay}s">
+        <div class="card-image" style="${imgSrc ? '' : getGradient(course.category)}">
+          ${imgSrc 
+            ? `<img src="${imgSrc}" alt="${course.name}">`
+            : `<div class="placeholder-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <path d="M21 15l-5-5L5 21"/>
+                </svg>
+                <span>이미지를 추가하세요</span>
+              </div>`}
+          <div class="card-badges">${badgesHtml}</div>
+          <button class="image-upload-btn" onclick="event.stopPropagation(); triggerUpload(${course.id})">
+            📷 이미지 ${imgSrc ? '변경' : '추가'}
+          </button>
+        </div>
+        <div class="card-body" onclick="openModal(${course.id})">
+          <div class="card-institution">${course.institution}</div>
+          <div class="card-title">${course.name}</div>
+          <div class="card-tagline">${course.tagline}</div>
+          <div class="card-meta">
+            <div class="meta-item">
+              <div class="meta-icon">⏱️</div>
+              <div class="meta-value">${course.hours}<span style="font-size:12px;font-weight:400;">시간</span></div>
+              <div class="meta-label">훈련시간</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-icon">👥</div>
+              <div class="meta-value">${course.capacity}<span style="font-size:12px;font-weight:400;">명</span></div>
+              <div class="meta-label">정원</div>
+            </div>
+          </div>
+          <div class="card-tags">
+            ${course.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}
+          </div>
+          <div class="card-footer">
+            <button class="btn-detail primary" onclick="event.stopPropagation(); openModal(${course.id})">자세히 보기 →</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function generateBadges(course) {
+  let badges = `<span class="badge type-${course.type}">${course.type === '양성' ? '양성과정' : '향상과정'}</span>`;
+  if (course.badges.includes('new')) badges += `<span class="badge new">신규</span>`;
+  if (course.badges.includes('popular')) badges += `<span class="badge popular">🔥 인기</span>`;
+  if (course.badges.includes('ai')) badges += `<span class="badge ai">🤖 AI</span>`;
+  if (course.badges.includes('closing')) badges += `<span class="badge closing">마감임박</span>`;
+  return badges;
+}
+
+function getGradient(category) {
+  const gradients = {
+    '관광·서비스': 'background: linear-gradient(135deg, #1B4965, #2D6A8F)',
+    'IT·AI': 'background: linear-gradient(135deg, #6C3483, #8E44AD)',
+    '식음료·조리': 'background: linear-gradient(135deg, #E67E22, #F39C12)',
+    '건설·설비': 'background: linear-gradient(135deg, #2C3E50, #34495E)',
+    '의료·복지': 'background: linear-gradient(135deg, #16A085, #1ABC9C)',
+    '교육': 'background: linear-gradient(135deg, #2980B9, #3498DB)',
+    '기계·운전': 'background: linear-gradient(135deg, #7F8C8D, #95A5A6)'
+  };
+  return gradients[category] || 'background: linear-gradient(135deg, #1B4965, #2D6A8F)';
+}
+
+// ===== IMAGE UPLOAD =====
+function triggerUpload(courseId) {
+  uploadTargetId = courseId;
+  document.getElementById('imageUpload').click();
+}
+
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file || !uploadTargetId) return;
+
+  const course = coursesData.find(c => c.id === uploadTargetId);
+  if (!course) return;
+
+  // 파일명 규칙: course_{id}_{확장자}
+  const ext = file.name.split('.').pop().toLowerCase();
+  const fileName = `course_${uploadTargetId}.${ext}`;
+  const githubPath = `images/${fileName}`;
+
+  // 로컬 미리보기 적용
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    courseImages[uploadTargetId] = e.target.result;
+    filterCourses();
+
+    // 가이드 모달 표시 (DOM 재렌더링 후 실행)
+    setTimeout(() => showImageGuide(course, fileName, githubPath), 100);
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+function showImageGuide(course, fileName, githubPath) {
+  const guideModal = document.getElementById('imageGuideOverlay');
+  document.getElementById('guideCourseName').textContent = course.name;
+  document.getElementById('guideFileName').textContent = fileName;
+  document.getElementById('guideCodeSnippet').textContent = `image: "images/${fileName}"`;
+  
+  // 현재 image 값 표시
+  const currentVal = course.image ? `"${course.image}"` : 'null';
+  document.getElementById('guideCurrentValue').textContent = `image: ${currentVal}`;
+  
+  guideModal.classList.add('active');
+}
+
+function closeImageGuide() {
+  document.getElementById('imageGuideOverlay').classList.remove('active');
+}
+
+function copyToClipboard(elementId) {
+  const text = document.getElementById(elementId).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const original = btn.textContent;
+    btn.textContent = '✓ 복사됨';
+    btn.style.background = '#2ECC71';
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.style.background = '';
+    }, 1500);
+  });
+}
+
+// ===== MODAL =====
+function openModal(courseId) {
+  const course = coursesData.find(c => c.id === courseId);
+  if (!course) return;
+
+  const imgSrc = courseImages[course.id] || course.image;
+  const headerImg = document.getElementById('modalHeaderImage');
+  headerImg.style = imgSrc ? '' : getGradient(course.category);
+  
+  const existingImg = headerImg.querySelector('img');
+  if (existingImg) existingImg.remove();
+  if (imgSrc) {
+    const img = document.createElement('img');
+    img.src = imgSrc;
+    img.alt = course.name;
+    headerImg.insertBefore(img, headerImg.firstChild);
+  }
+
+  document.getElementById('modalTitle').textContent = course.name;
+  document.getElementById('modalInstitution').textContent = course.institution;
+
+  document.getElementById('modalMeta').innerHTML = `
+    <div class="modal-meta-card">
+      <div class="modal-meta-icon time">⏱️</div>
+      <div class="modal-meta-text">
+        <div class="meta-val">${course.hours}시간</div>
+        <div class="meta-lbl">훈련시간</div>
+      </div>
+    </div>
+    <div class="modal-meta-card">
+      <div class="modal-meta-icon people">👥</div>
+      <div class="modal-meta-text">
+        <div class="meta-val">${course.capacity}명</div>
+        <div class="meta-lbl">회당 정원</div>
+      </div>
+    </div>
+    <div class="modal-meta-card">
+      <div class="modal-meta-icon type">📋</div>
+      <div class="modal-meta-text">
+        <div class="meta-val">${course.type === '양성' ? '양성과정' : '향상과정'}</div>
+        <div class="meta-lbl">훈련형태</div>
+      </div>
+    </div>`;
+
+  let contentHtml = '';
+
+  // 이런 분께 추천해요
+  contentHtml += `
+    <div class="modal-section">
+      <div class="modal-section-title">이런 분께 추천해요</div>
+      <div class="recommend-list">
+        ${course.recommend.map(r => `
+          <div class="recommend-item">
+            <span class="icon">✅</span>
+            <span>${r}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  // 커리큘럼
+  contentHtml += `
+    <div class="modal-section">
+      <div class="modal-section-title">커리큘럼</div>
+      <div class="curriculum-timeline">
+        ${course.curriculum.map(c => `
+          <div class="timeline-item">
+            <div class="step-title">${c.title}</div>
+            <div class="step-desc">${c.desc}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  // 수료 후 기대효과
+  contentHtml += `
+    <div class="modal-section">
+      <div class="modal-section-title">수료 후 기대효과</div>
+      <div class="expected-outcomes">
+        ${course.outcomes.map(o => `<span class="outcome-tag">✨ ${o}</span>`).join('')}
+      </div>
+    </div>`;
+
+  // 신청 문의
+  const contactInfo = {
+    '제주관광대학교': { dept: '공동훈련센터', phone: '064-754-5860' },
+    '제주한라대학교': { dept: '직업훈련센터', phone: '064-741-6725~8' },
+    '한국폴리텍대학 제주캠퍼스': { dept: '산학협력처', phone: '064-754-7157~8' }
+  };
+  const contact = contactInfo[course.institution];
+  if (contact) {
+    contentHtml += `
+      <div class="modal-section">
+        <div class="modal-section-title">신청 문의</div>
+        <div class="contact-box">
+          <div class="contact-icon">📞</div>
+          <div class="contact-info">
+            <div class="contact-dept">${course.institution} ${contact.dept}</div>
+            <a href="tel:${contact.phone.split('~')[0]}" class="contact-phone">${contact.phone}</a>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  document.getElementById('modalContent').innerHTML = contentHtml;
+  document.getElementById('modalOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(event) {
+  if (event.target === document.getElementById('modalOverlay')) {
+    closeModalDirect();
+  }
+}
+
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// ESC key to close modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModalDirect();
+});
+
+// ===== INIT =====
+renderCards([...coursesData].sort((a, b) => (b.priority || 0) - (a.priority || 0)));
+</script>
+</body>
+</html>
