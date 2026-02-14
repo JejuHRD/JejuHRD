@@ -799,18 +799,17 @@ body.admin-mode .admin-bar {
 /* ===== MODAL ===== */
 .modal-overlay {
   display: none;
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  min-height: 100%;
   background: rgba(0,0,0,0.6);
   backdrop-filter: blur(4px);
   z-index: 1000;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   padding: 20px;
-  overflow-y: auto;
 }
 
 .modal-overlay.active {
@@ -822,12 +821,11 @@ body.admin-mode .admin-bar {
   border-radius: var(--radius-xl);
   width: 100%;
   max-width: 560px;
-  margin: auto;
+  margin: 0 auto;
   overflow: hidden;
-  overflow-y: auto;
-  max-height: 90vh;
   box-shadow: var(--shadow-xl);
   animation: modalIn 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
 }
 
 .modal-header-image {
@@ -1286,7 +1284,7 @@ body.admin-mode .admin-bar {
   .stat-number { font-size: 22px; }
   .cards-grid { grid-template-columns: 1fr; }
   .modal-meta-grid { grid-template-columns: 1fr; }
-  .modal { margin: auto; }
+  .modal { max-width: 95%; }
 }
 
 @media (max-width: 480px) {
@@ -2426,8 +2424,19 @@ function openModal(courseId) {
   }
 
   document.getElementById('modalContent').innerHTML = contentHtml;
-  document.getElementById('modalOverlay').classList.add('active');
-  document.body.style.overflow = 'hidden';
+  
+  // 클릭 위치 기준으로 모달 배치
+  const overlay = document.getElementById('modalOverlay');
+  const modal = document.getElementById('courseModal');
+  const clickY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+  
+  overlay.classList.add('active');
+  overlay.style.top = '0px';
+  overlay.style.minHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) + 'px';
+  
+  // 모달을 클릭한 스크롤 위치 + 약간의 여백에 배치
+  modal.style.marginTop = (clickY + 20) + 'px';
+  modal.style.marginBottom = '40px';
 }
 
 function closeModal(event) {
@@ -2438,7 +2447,6 @@ function closeModal(event) {
 
 function closeModalDirect() {
   document.getElementById('modalOverlay').classList.remove('active');
-  document.body.style.overflow = '';
 }
 
 // ESC key to close modal
