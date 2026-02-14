@@ -2210,7 +2210,7 @@ function renderCards(courses) {
             📷 이미지 ${imgSrc ? '변경' : '추가'}
           </button>
         </div>
-        <div class="card-body" onclick="openModal(${course.id})">
+        <div class="card-body" onclick="openModal(${course.id}, event)">
           <div class="card-institution">${course.institution}</div>
           <div class="card-title">${course.name}</div>
           <div class="card-tagline">${course.tagline}</div>
@@ -2230,7 +2230,7 @@ function renderCards(courses) {
             ${course.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}
           </div>
           <div class="card-footer">
-            <button class="btn-detail primary" onclick="event.stopPropagation(); openModal(${course.id})">자세히 보기 →</button>
+            <button class="btn-detail primary" onclick="event.stopPropagation(); openModal(${course.id}, event)">자세히 보기 →</button>
           </div>
         </div>
       </div>`;
@@ -2322,7 +2322,7 @@ function copyToClipboard(elementId) {
 }
 
 // ===== MODAL =====
-function openModal(courseId) {
+function openModal(courseId, e) {
   const course = coursesData.find(c => c.id === courseId);
   if (!course) return;
 
@@ -2425,17 +2425,28 @@ function openModal(courseId) {
 
   document.getElementById('modalContent').innerHTML = contentHtml;
   
-  // 클릭 위치 기준으로 모달 배치
+  // 클릭한 카드/버튼의 위치 기준으로 모달 배치
   const overlay = document.getElementById('modalOverlay');
   const modal = document.getElementById('courseModal');
-  const clickY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+  
+  // 클릭한 요소에서 가장 가까운 카드를 찾아 위치 계산
+  let targetY = 0;
+  if (e && e.target) {
+    const card = e.target.closest('.course-card');
+    if (card) {
+      const cardRect = card.getBoundingClientRect();
+      targetY = card.offsetTop;
+    } else {
+      targetY = window.scrollY || window.pageYOffset || 0;
+    }
+  }
   
   overlay.classList.add('active');
   overlay.style.top = '0px';
   overlay.style.minHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) + 'px';
   
-  // 모달을 클릭한 스크롤 위치 + 약간의 여백에 배치
-  modal.style.marginTop = (clickY + 20) + 'px';
+  // 카드의 상단 위치에 맞춰 모달 배치
+  modal.style.marginTop = Math.max(targetY - 20, 0) + 'px';
   modal.style.marginBottom = '40px';
 }
 
