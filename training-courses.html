@@ -528,6 +528,8 @@ body.admin-mode .admin-bar {
   cursor: pointer;
   position: relative;
   border: 1px solid rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
 }
 
 .course-card:hover {
@@ -650,6 +652,9 @@ body.admin-mode .admin-bar {
 
 .card-body {
   padding: 10px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .card-institution {
@@ -751,6 +756,7 @@ body.admin-mode .admin-bar {
 .card-footer {
   display: flex;
   gap: 8px;
+  margin-top: auto;
 }
 
 .btn-detail {
@@ -802,7 +808,7 @@ body.admin-mode .admin-bar {
   backdrop-filter: blur(4px);
   z-index: 1000;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   padding: 20px;
   overflow-y: auto;
 }
@@ -816,8 +822,10 @@ body.admin-mode .admin-bar {
   border-radius: var(--radius-xl);
   width: 100%;
   max-width: 560px;
-  margin: 20px auto;
+  margin: auto;
   overflow: hidden;
+  overflow-y: auto;
+  max-height: 90vh;
   box-shadow: var(--shadow-xl);
   animation: modalIn 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
@@ -1278,7 +1286,7 @@ body.admin-mode .admin-bar {
   .stat-number { font-size: 22px; }
   .cards-grid { grid-template-columns: 1fr; }
   .modal-meta-grid { grid-template-columns: 1fr; }
-  .modal { margin: 20px auto; }
+  .modal { margin: auto; }
 }
 
 @media (max-width: 480px) {
