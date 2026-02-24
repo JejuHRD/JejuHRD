@@ -2207,7 +2207,7 @@ function renderCards(courses) {
                 <span>이미지를 추가하세요</span>
               </div>`}
           <div class="card-badges">${badgesHtml}</div>
-          <button class="image-upload-btn" onclick="event.stopPropagation(); triggerUpload(${course.id})">
+          <button class="image-upload-btn" onclick="event.stopPropagation(); triggerUpload(${course.id}, event)">
             📷 이미지 ${imgSrc ? '변경' : '추가'}
           </button>
         </div>
@@ -2261,8 +2261,17 @@ function getGradient(category) {
 }
 
 // ===== IMAGE UPLOAD =====
-function triggerUpload(courseId) {
+let uploadTargetCardY = 0;
+
+function triggerUpload(courseId, e) {
   uploadTargetId = courseId;
+  // 클릭한 카드의 위치 저장
+  if (e && e.target) {
+    const card = e.target.closest('.course-card');
+    if (card) {
+      uploadTargetCardY = card.offsetTop;
+    }
+  }
   document.getElementById('imageUpload').click();
 }
 
@@ -2293,6 +2302,7 @@ function handleImageUpload(event) {
 
 function showImageGuide(course, fileName, githubPath) {
   const guideModal = document.getElementById('imageGuideOverlay');
+  const modal = guideModal.querySelector('.modal');
   document.getElementById('guideCourseName').textContent = course.name;
   document.getElementById('guideFileName').textContent = fileName;
   document.getElementById('guideCodeSnippet').textContent = `image: "images/${fileName}"`;
@@ -2302,6 +2312,12 @@ function showImageGuide(course, fileName, githubPath) {
   document.getElementById('guideCurrentValue').textContent = `image: ${currentVal}`;
   
   guideModal.classList.add('active');
+  guideModal.style.top = '0px';
+  guideModal.style.minHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) + 'px';
+  
+  // 카드 위치 기준으로 모달 배치
+  modal.style.marginTop = Math.max(uploadTargetCardY - 20, 0) + 'px';
+  modal.style.marginBottom = '40px';
 }
 
 function closeImageGuide() {
