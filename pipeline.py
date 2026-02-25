@@ -216,12 +216,14 @@ def parse_api_course(api_item):
         trpr_degr = api_item.get("trprDegr", "")
 
         # ── 비용 정보 ──
-        course_cost = format_cost(api_item.get("courseMan", ""))   # 전체 수강비
-        real_cost = format_cost(api_item.get("realMan", ""))       # 실제 훈련비
+        raw_course_man = api_item.get("courseMan", "")
+        course_cost = format_cost(raw_course_man)   # 전체 수강비
 
-        # 두 값이 동일하면 중복 표시 방지 (훈련비 하나만 표시)
-        if real_cost and real_cost == course_cost:
-            real_cost = ""
+        # 자부담 10% 계산
+        try:
+            self_cost = format_cost(str(round(int(raw_course_man) * 0.1)))
+        except (ValueError, TypeError):
+            self_cost = ""
 
         course = {
             "trprId": trpr_id,
@@ -233,9 +235,9 @@ def parse_api_course(api_item):
             "institution": institution,
             "period": period,
             "courseCost": course_cost,   # 전체 수강비
-            "realCost": real_cost,        # 실제 훈련비 (자부담)
+            "selfCost": self_cost,        # 자부담금 (10%)
             "capacity": f"{api_item.get('yardMan', '?')}명",
-            "target": "내일배움카드 있으면 누구나",
+            "target": "국민내일배움카드 있으면 누구나",
             "benefits": "",
             "curriculum": [],
             "outcome": "",
