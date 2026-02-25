@@ -19,7 +19,12 @@ def get_benefits_text(course_data):
     """
     혜택 요약 (카드뉴스용, 파이프 구분)
     """
-    return "자부담 10% | 훈련장려금 월 최대 20만원 (140시간 이상 과정)"
+    return "자부담 10%"
+
+
+def get_benefits_footnote():
+    """카드뉴스 하단 ※ 주석 문구"""
+    return "※ 140시간 이상 과정은 훈련장려금 월 최대 20만원 지급"
 
 
 def get_benefits_detail_lines(course_data):
