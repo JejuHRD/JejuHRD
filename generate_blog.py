@@ -46,8 +46,8 @@ def generate_blog_post(course_data, output_dir="output"):
     period = course_data.get("period", "")
     capacity = course_data.get("capacity", "")
     course_cost = course_data.get("courseCost", "")
-    real_cost = course_data.get("realCost", "")
-    target = course_data.get("target", "내일배움카드 있으면 누구나")
+    self_cost = course_data.get("selfCost", "")
+    target = course_data.get("target", "국민내일배움카드 있으면 누구나")
     curriculum = course_data.get("curriculum", [])
     outcome = course_data.get("outcome", "")
     contact = course_data.get("contact", "")
@@ -105,7 +105,7 @@ def generate_blog_post(course_data, output_dir="output"):
 | **어디서 배우나요** | {institution} |
 | **배움 기간** | {period} |
 | **수강비** | {course_cost} |
-| **실제 훈련비** | {real_cost} |
+| **자부담금 (10%)** | **{self_cost}** |
 | **모집 인원** | {capacity} |
 | **누가 들을 수 있나요** | {target} |
 
@@ -136,7 +136,7 @@ def generate_blog_post(course_data, output_dir="output"):
 
 ## 이렇게 신청하세요
 
-### STEP 1. 내일배움카드 만들기
+### STEP 1. 국민내일배움카드 만들기
 아직 카드가 없다면, **고용24(hrd.go.kr)**에서 온라인으로 신청하거나
 가까운 **고용센터**에 방문하면 돼요. 발급까지 약 1~2주 걸리니 서둘러 신청하세요!
 
@@ -256,7 +256,7 @@ def _build_seo_section(course_data, field, year):
 
 {year}년, 기술 변화가 빠르게 진행되면서 새로운 역량을 갖춘 인재에 대한 수요가 높아지고 있어요. 제주에서도 관련 분야의 전문 인력이 필요한 상황이고, 이 과정은 제주 지역의 산업 수요에 맞춰 기획되었습니다.
 
-내일배움카드로 자부담 10%만 내고 체계적으로 배울 수 있으니, 새로운 도전을 준비하고 계시다면 이 기회를 활용해보세요.
+국민내일배움카드로 자부담 10%만 내고 체계적으로 배울 수 있으니, 새로운 도전을 준비하고 계시다면 이 기회를 활용해보세요.
 """)
 
 
@@ -348,9 +348,9 @@ def markdown_to_naver_html(md_content, title):
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="description" content="{title} - 제주 국비지원 무료교육, 내일배움카드 자부담 10%">
+<meta name="description" content="{title} - 제주 국비지원 무료교육, 국민내일배움카드 자부담 10%">
 <meta property="og:title" content="{title}">
-<meta property="og:description" content="제주에서 내일배움카드로 자부담 10%만 내고 배울 수 있는 특화훈련">
+<meta property="og:description" content="제주에서 국민내일배움카드로 자부담 10%만 내고 배울 수 있는 특화훈련">
 <meta property="og:type" content="article">
 <title>{title}</title>
 </head>
