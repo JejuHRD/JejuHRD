@@ -5,20 +5,16 @@
   python pipeline.py                    # 전체 실행 (API 호출 + 콘텐츠 생성)
   python pipeline.py --json data.json   # JSON 파일에서 데이터 로드
 
-v2 개선사항 (SEO/마케팅 최적화):
-- 블로그 포스트: SEO 최적화 제목, 공감형 도입부, 확장된 본문
-- 인스타그램: 캡션 + 해시태그(20개) 자동 생성
-- 릴스: 15~30초 숏폼 대본 자동 생성
-- 게시 가이드: 타이밍, 시리즈 전략, 체크리스트
-
-v3 변경사항 (API 엔드포인트 마이그레이션):
-- HRD-Net → 고용24(work24.go.kr) 통합에 따라 API URL 변경
+v3 변경사항:
+- HRD-Net → 고용24(work24.go.kr) API 엔드포인트 마이그레이션
+- 산업구조변화대응 등 특화훈련(C0102) 과정만 조회
 - 제주 지역코드 49 → 50 변경
-- 필수 파라미터 추가: srchTraEndDt, sort, sortCol
+- 날짜 파싱 강화 (다양한 형식 대응)
 """
 
 import json
 import os
+import re
 import sys
 from datetime import datetime, timedelta
 
@@ -60,21 +56,17 @@ def make_course_key(course):
     별도의 콘텐츠로 취급합니다.
 
     키 구성: {과정ID}_{회차}_{훈련시작일}_{훈련종료일}
-    예시: "AIG20250001_1_20260315_20260614"
     """
     parts = []
 
-    # 과정 ID
     course_id = course.get("trprId", course.get("id", ""))
     if course_id:
         parts.append(str(course_id))
 
-    # 회차
     degr = course.get("trprDegr", "")
     if degr:
         parts.append(str(degr))
 
-    # 훈련기간 (시작일~종료일)
     start = course.get("traStartDate", "")
     end = course.get("traEndDate", "")
     if start:
@@ -82,12 +74,10 @@ def make_course_key(course):
     if end:
         parts.append(end)
 
-    # period 필드에서 날짜 추출 (위 필드가 없을 경우 폴백)
     if not start and not end and course.get("period"):
         period_clean = course["period"].replace(".", "").replace(" ", "")
         parts.append(period_clean[:20])
 
-    # 아무 정보도 없으면 과정명 + 기관명으로 대체
     if not parts:
         parts.append(course.get("title", "unknown"))
         parts.append(course.get("institution", ""))
@@ -95,13 +85,39 @@ def make_course_key(course):
     return "_".join(parts)
 
 
+def format_date(raw):
+    """
+    API 응답의 날짜 문자열을 YYYY.MM.DD 형식으로 변환합니다.
+
+    다양한 입력 형식 대응:
+    - '20260315'        → '2026.03.15'
+    - '2026-03-15'      → '2026.03.15'
+    - '2026.03.15'      → '2026.03.15' (그대로)
+    - 그 외 / 빈값      → 원본 반환
+    """
+    if not raw:
+        return ""
+    raw = str(raw).strip()
+
+    # YYYYMMDD (8자리 숫자)
+    if re.match(r"^\d{8}$", raw):
+        return f"{raw[:4]}.{raw[4:6]}.{raw[6:8]}"
+
+    # YYYY-MM-DD
+    if re.match(r"^\d{4}-\d{2}-\d{2}", raw):
+        return raw[:10].replace("-", ".")
+
+    # 이미 YYYY.MM.DD 형식이거나 기타
+    return raw
+
+
 def fetch_courses_from_api():
     """
-    고용24 API(work24.go.kr)에서 제주지역 훈련과정을 조회합니다.
+    고용24 API에서 제주지역 산업구조변화대응 등 특화훈련 과정을 조회합니다.
 
-    2024년 9월 HRD-Net → 고용24 통합에 따라 API 엔드포인트 변경:
-    - 기존: https://www.hrd.go.kr/hrdp/api/prmtApi.do
-    - 현재: https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L01.do
+    - 엔드포인트: work24.go.kr (2024.09 HRD-Net 통합)
+    - 훈련유형: C0102 (산업구조변화대응 등 특화훈련)
+    - 지역: 50 (제주)
     """
     import requests
 
@@ -112,30 +128,27 @@ def fetch_courses_from_api():
 
     url = "https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L01.do"
 
-    # 검색 기간: 오늘부터 6개월 후까지
     today = datetime.now()
     end_date = today + timedelta(days=180)
 
     params = {
         "authKey": api_key,
         "returnType": "JSON",
-        "outType": "1",            # 1=리스트
+        "outType": "1",
         "pageNum": "1",
         "pageSize": "100",
-        "srchTraStDt": today.strftime("%Y%m%d"),       # 필수: 훈련시작일 From
-        "srchTraEndDt": end_date.strftime("%Y%m%d"),   # 필수: 훈련시작일 To
-        "srchTraArea1": "50",      # 제주 (고용24에서 50으로 변경됨)
-        "sort": "ASC",             # 필수: 정렬방법
-        "sortCol": "2",            # 필수: 정렬컬럼 (2=훈련시작일)
+        "srchTraStDt": today.strftime("%Y%m%d"),
+        "srchTraEndDt": end_date.strftime("%Y%m%d"),
+        "srchTraArea1": "50",           # 제주
+        "crseTracseSe": "C0102",        # 산업구조변화대응 등 특화훈련
+        "sort": "ASC",
+        "sortCol": "2",
     }
 
     try:
         response = requests.get(url, params=params, timeout=30)
-
-        # 디버깅: 응답 상태 확인
         print(f"  응답 코드: {response.status_code}")
 
-        # HTML 응답 감지 (API 오류 또는 URL 변경)
         content_type = response.headers.get("Content-Type", "")
         if "text/html" in content_type:
             print(f"  ⚠️  HTML 응답 수신 — API URL이 변경되었거나 인증키가 유효하지 않습니다.")
@@ -144,10 +157,8 @@ def fetch_courses_from_api():
 
         data = response.json()
 
-        # 응답 구조 확인
         srch_list = data.get("srchList", [])
         if not srch_list:
-            # 대체 키 확인 (API 버전에 따라 다를 수 있음)
             srch_list = data.get("scn_list", data.get("returnList", []))
 
         courses = []
@@ -156,7 +167,7 @@ def fetch_courses_from_api():
             if course:
                 courses.append(course)
 
-        print(f"  API에서 {len(courses)}개 과정 조회 완료")
+        print(f"  API에서 {len(courses)}개 특화훈련 과정 조회 완료")
         return courses
 
     except requests.exceptions.JSONDecodeError:
@@ -171,41 +182,27 @@ def fetch_courses_from_api():
 def parse_api_course(api_item):
     """
     API 응답 데이터를 콘텐츠 생성기 형식으로 변환합니다.
-
-    고용24 API 출력 필드 (camelCase):
-    - trprId: 훈련과정ID
-    - trprDegr: 훈련과정 순차(회차)
-    - title: 제목
-    - subTitle: 부제목
-    - traStartDate: 훈련시작일자 (YYYYMMDD)
-    - traEndDate: 훈련종료일자 (YYYYMMDD)
-    - trainstCstId: 훈련기관ID
-    - courseMan: 수강비
-    - yardMan: 정원
-    - realMan: 실제 훈련비
-    - telNo: 전화번호
-    - address: 주소
-    - trainTargetCd: 훈련구분
     """
     try:
-        start = api_item.get("traStartDate", "")
-        end = api_item.get("traEndDate", "")
-        if start and end:
-            period = f"{start[:4]}.{start[4:6]}.{start[6:8]} ~ {end[:4]}.{end[4:6]}.{end[6:8]}"
+        start_raw = api_item.get("traStartDate", "")
+        end_raw = api_item.get("traEndDate", "")
+
+        start_fmt = format_date(start_raw)
+        end_fmt = format_date(end_raw)
+
+        if start_fmt and end_fmt:
+            period = f"{start_fmt} ~ {end_fmt}"
         else:
             period = ""
 
-        # 훈련기관명: subTitle 또는 title에서 추출
         institution = api_item.get("subTitle", "")
 
         course = {
-            # 원본 필드 보존 (고유 키 생성에 사용)
             "trprId": api_item.get("trprId", ""),
             "trprDegr": api_item.get("trprDegr", ""),
-            "traStartDate": start,
-            "traEndDate": end,
+            "traStartDate": str(start_raw),
+            "traEndDate": str(end_raw),
 
-            # 콘텐츠 생성용 필드
             "title": api_item.get("title", ""),
             "institution": institution,
             "period": period,
@@ -213,7 +210,7 @@ def parse_api_course(api_item):
             "courseMan": api_item.get("courseMan", ""),
             "capacity": f"{api_item.get('yardMan', '?')}명",
             "target": "내일배움카드 있으면 누구나",
-            "benefits": "",  # 비워두면 benefits_helper가 시간 기반으로 자동 결정
+            "benefits": "",
             "curriculum": [],
             "outcome": "",
             "contact": f"{institution} Tel: {api_item.get('telNo', '')}",
@@ -239,17 +236,14 @@ def generate_content_for_course(course, output_dir):
         print(f"  📅 ({course['period']})")
     print(f"{'─' * 50}")
 
-    # 카드뉴스 생성 (Pexels API 키가 있으면 v2, 없으면 v1)
     use_v2 = HAS_V2 and os.environ.get("PEXELS_API_KEY", "")
     if use_v2:
         cardnews_paths = generate_cardnews_v2(course, output_dir)
     else:
         cardnews_paths = generate_cardnews(course, output_dir)
 
-    # 블로그 포스트 생성 (인스타 캡션, 릴스 대본, 게시 가이드도 함께 생성됨)
     blog_md, blog_html = generate_blog_post(course, output_dir)
 
-    # 생성된 부가 파일 경로 조합
     safe_name = course["title"][:30].replace(" ", "_").replace("/", "_")
     caption_path = os.path.join(output_dir, f"{safe_name}_instagram_caption.txt")
     reels_path = os.path.join(output_dir, f"{safe_name}_reels_script.txt")
@@ -299,7 +293,6 @@ def run_pipeline(courses):
     print(f"  ✅ 실행 결과: 새 과정 {new_count}건 생성, {skip_count}건 스킵")
     print(f"{'=' * 60}")
 
-    # 생성된 파일 요약
     if new_count > 0:
         print(f"\n  📁 출력 디렉토리: {OUTPUT_DIR}/")
         print(f"  과정당 생성 파일:")
@@ -319,6 +312,7 @@ if __name__ == "__main__":
     print("=" * 60)
     print("  🚀 특화훈련 콘텐츠 자동 생성 파이프라인 v3")
     print(f"  📅 실행 시각: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    print("  🎯 대상: 산업구조변화대응 등 특화훈련 (C0102) / 제주")
     print("=" * 60)
 
     if "--json" in sys.argv:
