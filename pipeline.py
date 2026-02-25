@@ -10,12 +10,17 @@ v2 개선사항 (SEO/마케팅 최적화):
 - 인스타그램: 캡션 + 해시태그(20개) 자동 생성
 - 릴스: 15~30초 숏폼 대본 자동 생성
 - 게시 가이드: 타이밍, 시리즈 전략, 체크리스트
+
+v3 변경사항 (API 엔드포인트 마이그레이션):
+- HRD-Net → 고용24(work24.go.kr) 통합에 따라 API URL 변경
+- 제주 지역코드 49 → 50 변경
+- 필수 파라미터 추가: srchTraEndDt, sort, sortCol
 """
 
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from generate_cardnews import generate_cardnews
 from generate_blog import generate_blog_post
@@ -92,8 +97,11 @@ def make_course_key(course):
 
 def fetch_courses_from_api():
     """
-    고용24 API에서 제주지역 특화훈련 과정을 조회합니다.
-    기존 GitHub Actions 워크플로우의 API 호출 방식에 맞춰 수정해주세요.
+    고용24 API(work24.go.kr)에서 제주지역 훈련과정을 조회합니다.
+
+    2024년 9월 HRD-Net → 고용24 통합에 따라 API 엔드포인트 변경:
+    - 기존: https://www.hrd.go.kr/hrdp/api/prmtApi.do
+    - 현재: https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L01.do
     """
     import requests
 
@@ -102,46 +110,82 @@ def fetch_courses_from_api():
         print("HRD_API_KEY 환경변수가 설정되지 않았습니다.")
         return []
 
-    url = "https://www.hrd.go.kr/hrdp/api/prmtApi.do"
+    url = "https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L01.do"
+
+    # 검색 기간: 오늘부터 6개월 후까지
+    today = datetime.now()
+    end_date = today + timedelta(days=180)
+
     params = {
         "authKey": api_key,
         "returnType": "JSON",
-        "outType": "1",
+        "outType": "1",            # 1=리스트
         "pageNum": "1",
-        "pageSize": "50",
-        "srchTraArea1": "49",
-        "srchTraArea2": "49110",
-        "srchNcs1": "",
-        "srchTraStDt": datetime.now().strftime("%Y%m%d"),
+        "pageSize": "100",
+        "srchTraStDt": today.strftime("%Y%m%d"),       # 필수: 훈련시작일 From
+        "srchTraEndDt": end_date.strftime("%Y%m%d"),   # 필수: 훈련시작일 To
+        "srchTraArea1": "50",      # 제주 (고용24에서 50으로 변경됨)
+        "sort": "ASC",             # 필수: 정렬방법
+        "sortCol": "2",            # 필수: 정렬컬럼 (2=훈련시작일)
     }
 
     try:
         response = requests.get(url, params=params, timeout=30)
-        
-        # ── 디버깅: 응답 상태와 내용 확인 ──
-        print(f"응답 코드: {response.status_code}")
-        print(f"응답 앞 500자:\n{response.text[:500]}")
-        
+
+        # 디버깅: 응답 상태 확인
+        print(f"  응답 코드: {response.status_code}")
+
+        # HTML 응답 감지 (API 오류 또는 URL 변경)
+        content_type = response.headers.get("Content-Type", "")
+        if "text/html" in content_type:
+            print(f"  ⚠️  HTML 응답 수신 — API URL이 변경되었거나 인증키가 유효하지 않습니다.")
+            print(f"  응답 앞 300자:\n{response.text[:300]}")
+            return []
+
         data = response.json()
 
+        # 응답 구조 확인
+        srch_list = data.get("srchList", [])
+        if not srch_list:
+            # 대체 키 확인 (API 버전에 따라 다를 수 있음)
+            srch_list = data.get("scn_list", data.get("returnList", []))
+
         courses = []
-        for item in data.get("srchList", []):
+        for item in srch_list:
             course = parse_api_course(item)
             if course:
                 courses.append(course)
 
-        print(f"API에서 {len(courses)}개 과정 조회 완료")
+        print(f"  API에서 {len(courses)}개 과정 조회 완료")
         return courses
 
+    except requests.exceptions.JSONDecodeError:
+        print(f"  ⚠️  JSON 파싱 실패 — API 응답이 JSON이 아닙니다.")
+        print(f"  응답 앞 500자:\n{response.text[:500]}")
+        return []
     except Exception as e:
-        print(f"API 호출 실패: {e}")
+        print(f"  API 호출 실패: {e}")
         return []
 
 
 def parse_api_course(api_item):
     """
     API 응답 데이터를 콘텐츠 생성기 형식으로 변환합니다.
-    필드명은 고용24 API 응답 구조에 맞게 수정해주세요.
+
+    고용24 API 출력 필드 (camelCase):
+    - trprId: 훈련과정ID
+    - trprDegr: 훈련과정 순차(회차)
+    - title: 제목
+    - subTitle: 부제목
+    - traStartDate: 훈련시작일자 (YYYYMMDD)
+    - traEndDate: 훈련종료일자 (YYYYMMDD)
+    - trainstCstId: 훈련기관ID
+    - courseMan: 수강비
+    - yardMan: 정원
+    - realMan: 실제 훈련비
+    - telNo: 전화번호
+    - address: 주소
+    - trainTargetCd: 훈련구분
     """
     try:
         start = api_item.get("traStartDate", "")
@@ -151,6 +195,9 @@ def parse_api_course(api_item):
         else:
             period = ""
 
+        # 훈련기관명: subTitle 또는 title에서 추출
+        institution = api_item.get("subTitle", "")
+
         course = {
             # 원본 필드 보존 (고유 키 생성에 사용)
             "trprId": api_item.get("trprId", ""),
@@ -159,19 +206,19 @@ def parse_api_course(api_item):
             "traEndDate": end,
 
             # 콘텐츠 생성용 필드
-            "title": api_item.get("title", api_item.get("subTitle", "")),
-            "institution": api_item.get("trainstCstmrNm", ""),
+            "title": api_item.get("title", ""),
+            "institution": institution,
             "period": period,
             "time": f"총 {api_item.get('courseMan', '?')}시간",
-            "courseMan": api_item.get("courseMan", ""),  # 시간 수 (혜택 문구 결정용)
+            "courseMan": api_item.get("courseMan", ""),
             "capacity": f"{api_item.get('yardMan', '?')}명",
             "target": "내일배움카드 있으면 누구나",
             "benefits": "",  # 비워두면 benefits_helper가 시간 기반으로 자동 결정
             "curriculum": [],
             "outcome": "",
-            "contact": f"{api_item.get('trainstCstmrNm', '')} Tel: {api_item.get('telNo', '')}",
+            "contact": f"{institution} Tel: {api_item.get('telNo', '')}",
             "hrd_url": (
-                f"https://www.hrd.go.kr/hrdp/ti/prtio/selectTrainInstIdView.do"
+                f"https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L01.do"
                 f"?trprId={api_item.get('trprId', '')}"
                 f"&trprDegr={api_item.get('trprDegr', '')}"
             ),
@@ -270,7 +317,7 @@ def run_pipeline(courses):
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("  🚀 특화훈련 콘텐츠 자동 생성 파이프라인 v2")
+    print("  🚀 특화훈련 콘텐츠 자동 생성 파이프라인 v3")
     print(f"  📅 실행 시각: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     print("=" * 60)
 
