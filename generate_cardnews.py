@@ -122,12 +122,12 @@ def generate_slide_cover(course_data, output_path):
     # ── NCS직종명 (태그-뱃지 사이 중앙, 태그 스타일) ──
     ncs_name = course_data.get("ncsName", "")
     if ncs_name:
-        font_ncs = get_font(FONT_BOLD, 22)
+        font_ncs = get_font(FONT_BOLD, 33)
         ncs_label = f"NCS {ncs_name}"
         ncs_bbox = draw.textbbox((0, 0), ncs_label, font=font_ncs)
         ncs_text_w = ncs_bbox[2] - ncs_bbox[0]
         ncs_text_h = ncs_bbox[3] - ncs_bbox[1]
-        ncs_pad_x, ncs_pad_y = 16, 10
+        ncs_pad_x, ncs_pad_y = 24, 15
         ncs_pill_w = ncs_text_w + ncs_pad_x * 2
         ncs_pill_h = ncs_text_h + ncs_pad_y * 2
         # 태그 오른쪽 ~ 뱃지 왼쪽 사이 중앙
@@ -138,7 +138,7 @@ def generate_slide_cover(course_data, output_path):
         draw_rounded_rect(draw,
                            (ncs_pill_x, ncs_pill_y,
                             ncs_pill_x + ncs_pill_w, ncs_pill_y + ncs_pill_h),
-                           radius=14, fill=hex_to_rgb("#1A3A5C"), outline=hex_to_rgb("#FFFFFF"), width=2)
+                           radius=20, fill=hex_to_rgb("#1A3A5C"), outline=hex_to_rgb("#FFFFFF"), width=2)
         draw.text((ncs_pill_x + ncs_pad_x, ncs_pill_y + ncs_pad_y), ncs_label,
                   font=font_ncs, fill=hex_to_rgb("#FFFFFF"))
 
