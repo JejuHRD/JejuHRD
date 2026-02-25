@@ -189,20 +189,36 @@ def format_cost(raw_value):
         return f"{raw_value}원"
 
 
+def _get_field(item, *keys):
+    """API 응답에서 여러 가능한 키 이름을 시도하여 값을 가져옵니다."""
+    for key in keys:
+        val = item.get(key, "")
+        if val not in ("", None):
+            return val
+    return ""
+
+
+# 첫 호출 시 API 응답 키를 1회 출력하기 위한 플래그
+_debug_keys_printed = False
+
+
 def parse_api_course(api_item):
     """
     API 응답 데이터를 콘텐츠 생성기 형식으로 변환합니다.
 
-    고용24 API 목록(outType=1) 주요 필드:
-    - COURSE_MAN → courseMan: 전체 수강비(원)
-    - REAL_MAN   → realMan:  실제 훈련비(원)
-    - YARD_MAN   → yardMan:  정원
-    - TETM       → teTm:     총 훈련시간
-    - NCS_NM     → ncsNm:    NCS직종명
+    고용24 API 필드는 환경에 따라 키 이름이 다를 수 있으므로
+    가능한 변형을 모두 시도합니다 (예: TETM / teTm / tetm).
     """
+    global _debug_keys_printed
+
+    # ── 첫 번째 과정에서 API 응답 키 출력 (디버그) ──
+    if not _debug_keys_printed:
+        print(f"  [DEBUG] API 응답 키 목록: {list(api_item.keys())}")
+        _debug_keys_printed = True
+
     try:
-        start_raw = api_item.get("traStartDate", "")
-        end_raw = api_item.get("traEndDate", "")
+        start_raw = _get_field(api_item, "traStartDate", "TRA_START_DATE")
+        end_raw = _get_field(api_item, "traEndDate", "TRA_END_DATE")
 
         start_fmt = format_date(start_raw)
         end_fmt = format_date(end_raw)
@@ -212,13 +228,13 @@ def parse_api_course(api_item):
         else:
             period = ""
 
-        institution = api_item.get("subTitle", "")
-        trpr_id = api_item.get("trprId", "")
-        trpr_degr = api_item.get("trprDegr", "")
+        institution = _get_field(api_item, "subTitle", "SUB_TITLE", "instNm", "INST_NM")
+        trpr_id = _get_field(api_item, "trprId", "TRPR_ID")
+        trpr_degr = _get_field(api_item, "trprDegr", "TRPR_DEGR")
 
         # ── 비용 정보 ──
-        raw_course_man = api_item.get("courseMan", "")
-        course_cost = format_cost(raw_course_man)   # 전체 수강비
+        raw_course_man = _get_field(api_item, "courseMan", "COURSE_MAN", "courseMoney")
+        course_cost = format_cost(raw_course_man)
 
         # 자부담 10% 계산
         try:
@@ -226,12 +242,17 @@ def parse_api_course(api_item):
         except (ValueError, TypeError):
             self_cost = ""
 
-        # ── 훈련시간 ──
-        raw_tetm = api_item.get("teTm", "")
+        # ── 훈련시간 (TETM 등 여러 변형 시도) ──
+        raw_tetm = _get_field(api_item, "trtm", "TRTM", "tRtM", "teTm", "TETM",
+                               "totalTime", "TOTAL_TIME", "traTime", "TRA_TIME")
         try:
             total_hours = int(raw_tetm)
         except (ValueError, TypeError):
             total_hours = 0
+
+        # ── NCS직종명 (NCS_NM 등 여러 변형 시도) ──
+        ncs_name = _get_field(api_item, "ncsNm", "NCS_NM", "ncsNM", "ncsnm",
+                               "ncsName", "NCS_NAME")
 
         course = {
             "trprId": trpr_id,
@@ -239,19 +260,19 @@ def parse_api_course(api_item):
             "traStartDate": str(start_raw),
             "traEndDate": str(end_raw),
 
-            "title": api_item.get("title", ""),
-            "ncsName": api_item.get("ncsNm", ""),  # NCS직종명
+            "title": _get_field(api_item, "title", "TITLE"),
+            "ncsName": ncs_name,
             "institution": institution,
             "period": period,
-            "courseCost": course_cost,   # 전체 수강비
-            "selfCost": self_cost,        # 자부담금 (10%)
-            "totalHours": total_hours,    # 총 훈련시간
-            "capacity": f"{api_item.get('yardMan', '?')}명",
+            "courseCost": course_cost,
+            "selfCost": self_cost,
+            "totalHours": total_hours,
+            "capacity": f"{_get_field(api_item, 'yardMan', 'YARD_MAN') or '?'}명",
             "target": "국민내일배움카드 있으면 누구나",
             "benefits": "",
             "curriculum": [],
             "outcome": "",
-            "contact": f"{institution} Tel: {api_item.get('telNo', '')}",
+            "contact": f"{institution} Tel: {_get_field(api_item, 'telNo', 'TEL_NO')}",
             "hrd_url": (
                 f"https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do"
                 f"?tracseId={trpr_id}"
@@ -259,6 +280,12 @@ def parse_api_course(api_item):
                 f"&crseTracseSe=C0102"
             ),
         }
+
+        # ── 파싱 결과 디버그 (시간/NCS가 비면 경고) ──
+        if total_hours == 0:
+            print(f"  ⚠️  훈련시간 미확인: '{course['title'][:30]}' — API 키에 TRTM/trtm 등이 있는지 확인 필요")
+        if not ncs_name:
+            print(f"  ⚠️  NCS직종명 미확인: '{course['title'][:30]}' — API 키에 NCS_NM/ncsNm 등이 있는지 확인 필요")
 
         return course
 
