@@ -206,11 +206,8 @@ def generate_seo_title(course_data):
     Returns:
         str: SEO 최적화 블로그 제목
     """
-    from benefits_helper import is_long_course
-
     title = course_data.get("title", "")
     field = detect_course_field(title)
-    long = is_long_course(course_data)
     year = datetime.now().year
 
     # 과정명에서 핵심 키워드 추출
@@ -232,19 +229,12 @@ def generate_seo_title(course_data):
     }
     seo_keyword = seo_kw_map.get(field, "직업훈련")
 
-    # 제목 패턴 다양화 (A/B 테스트용)
-    if long is True:
-        patterns = [
-            f"[제주 국비지원] {core_keyword} | 자부담 10% + 훈련장려금",
-            f"{year} 제주 {seo_keyword} 추천 - {core_keyword} (자부담 10%)",
-            f"제주 {core_keyword} 무료교육 | 내일배움카드 자부담 10%로 배우기",
-        ]
-    else:
-        patterns = [
-            f"[제주 국비지원] {core_keyword} | 자부담 10% 단기과정",
-            f"{year} 제주 {seo_keyword} 추천 - {core_keyword} (자부담 10%)",
-            f"제주 {core_keyword} 무료교육 | 내일배움카드로 가볍게 시작",
-        ]
+    # 제목 패턴 다양화
+    patterns = [
+        f"[제주 국비지원] {core_keyword} | 자부담 10% 특화훈련",
+        f"{year} 제주 {seo_keyword} 추천 - {core_keyword} (자부담 10%)",
+        f"제주 {core_keyword} 무료교육 | 내일배움카드 자부담 10%로 배우기",
+    ]
 
     # 해시를 이용해 과정마다 다른 패턴 선택 (같은 과정은 항상 같은 패턴)
     pattern_index = hash(title) % len(patterns)
@@ -381,13 +371,13 @@ def generate_instagram_caption(course_data):
     Returns:
         str: 인스타그램 캡션 전체 텍스트
     """
-    from benefits_helper import is_long_course, get_benefits_text
+    from benefits_helper import get_benefits_text
 
     title = course_data.get("title", "")
     institution = course_data.get("institution", "")
     period = course_data.get("period", "")
-    time_info = course_data.get("time", "")
-    long = is_long_course(course_data)
+    course_cost = course_data.get("courseCost", "")
+    real_cost = course_data.get("realCost", "")
     benefits = get_benefits_text(course_data)
     field = detect_course_field(title)
 
@@ -417,17 +407,17 @@ def generate_instagram_caption(course_data):
 
     if period:
         caption += f"\n🗓️ {period}"
-    if time_info:
-        caption += f"\n⏰ {time_info}"
+    if real_cost:
+        caption += f"\n💰 실제 훈련비 {real_cost}"
+    elif course_cost:
+        caption += f"\n💰 수강비 {course_cost}"
 
     caption += f"""
 
 💰 {benefits}
 ✅ 내일배움카드 있으면 누구나 신청 가능!
+🎁 특화훈련은 훈련장려금(월 최대 20만원)도 받을 수 있어요
 """
-
-    if long is True:
-        caption += "🎁 훈련장려금 월 최대 20만원까지 받을 수 있어요\n"
 
     caption += """
 👉 신청 방법이 궁금하다면?
@@ -451,11 +441,8 @@ def generate_reels_script(course_data):
     Returns:
         str: 릴스 대본 텍스트
     """
-    from benefits_helper import is_long_course
-
     title = course_data.get("title", "")
     field = detect_course_field(title)
-    long = is_long_course(course_data)
     institution = course_data.get("institution", "")
 
     # 분야별 훅
@@ -468,7 +455,7 @@ def generate_reels_script(course_data):
     }
     hook = hooks.get(field, hooks["default"])
 
-    benefit_line = "자부담 10% + 훈련장려금까지!" if long else "자부담 10%로 가볍게!"
+    benefit_line = "자부담 10% + 훈련장려금까지!"
 
     script = f"""[릴스 대본 - {title}]
 
