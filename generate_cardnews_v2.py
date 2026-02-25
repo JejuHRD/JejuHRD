@@ -278,12 +278,15 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
         draw.text((72, benefit_y + 40 + bi * 30), bline,
                   font=font_benefit, fill=(60, 60, 60))
 
-    # ── 하단 ※ 주석 ──
-    footer_y = H - 75
+    # ── 하단 ※ 주석 (혜택 박스 바로 아래) ──
+    footnote_y = benefit_y + benefit_box_h + 5
     font_footnote = get_font(FONT_REGULAR, 19)
     footnote = get_benefits_footnote(course_data)
-    draw.text((50, footer_y - 26), footnote,
+    draw.text((50, footnote_y), footnote,
               font=font_footnote, fill=(136, 136, 136))
+
+    # ── 하단 바 ──
+    footer_y = H - 75
 
     # ── 하단 바 ──
     footer_bar_bottom = H - 30
