@@ -5,7 +5,7 @@ Pexels API 또는 그라데이션 배경 위에 텍스트를 오버레이합니�
 
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import os
-from benefits_helper import get_badge_text, get_benefits_text
+from benefits_helper import get_badge_text, get_benefits_text, get_benefits_footnote
 
 # ── 폰트 ──
 FONT_BOLD = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
@@ -237,6 +237,12 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     
     # ── 하단 바 ──
     footer_y = H - 70
+    # ── 하단 ※ 주석 ──
+    font_footnote = get_font(FONT_REGULAR, 18)
+    footnote = get_benefits_footnote()
+    draw.text((50, footer_y - 28), footnote,
+              font=font_footnote, fill=(136, 136, 136))
+
     draw.rectangle((30, footer_y, W - 30, H - 30), fill=hex_to_rgb(PRIMARY))
     font_footer = get_font(FONT_REGULAR, 20)
     font_cta = get_font(FONT_BOLD, 22)
@@ -361,6 +367,12 @@ def generate_detail_v2(course_data, bg_image, output_path):
     
     # 하단 바
     footer_y = H - 55
+    # ── 하단 ※ 주석 ──
+    font_footnote = get_font(FONT_REGULAR, 18)
+    footnote = get_benefits_footnote()
+    draw.text((50, footer_y - 25), footnote,
+              font=font_footnote, fill=(136, 136, 136))
+
     draw.rectangle((0, footer_y, W, H), fill=hex_to_rgb(PRIMARY))
     font_footer = get_font(FONT_REGULAR, 20)
     draw.text((50, footer_y + 10), "제주지역인적자원개발위원회  |  신청: hrd.go.kr",
