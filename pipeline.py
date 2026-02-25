@@ -195,9 +195,10 @@ def parse_api_course(api_item):
 
     고용24 API 목록(outType=1) 주요 필드:
     - COURSE_MAN → courseMan: 전체 수강비(원)
-    - REAL_MAN   → realMan:  실제 훈련비(원) (자부담액)
+    - REAL_MAN   → realMan:  실제 훈련비(원)
     - YARD_MAN   → yardMan:  정원
-    ※ 훈련시간 필드는 목록 API에 없음
+    - TETM       → teTm:     총 훈련시간
+    - NCS_NM     → ncsNm:    NCS직종명
     """
     try:
         start_raw = api_item.get("traStartDate", "")
@@ -225,6 +226,13 @@ def parse_api_course(api_item):
         except (ValueError, TypeError):
             self_cost = ""
 
+        # ── 훈련시간 ──
+        raw_tetm = api_item.get("teTm", "")
+        try:
+            total_hours = int(raw_tetm)
+        except (ValueError, TypeError):
+            total_hours = 0
+
         course = {
             "trprId": trpr_id,
             "trprDegr": trpr_degr,
@@ -232,10 +240,12 @@ def parse_api_course(api_item):
             "traEndDate": str(end_raw),
 
             "title": api_item.get("title", ""),
+            "ncsName": api_item.get("ncsNm", ""),  # NCS직종명
             "institution": institution,
             "period": period,
             "courseCost": course_cost,   # 전체 수강비
             "selfCost": self_cost,        # 자부담금 (10%)
+            "totalHours": total_hours,    # 총 훈련시간
             "capacity": f"{api_item.get('yardMan', '?')}명",
             "target": "국민내일배움카드 있으면 누구나",
             "benefits": "",
