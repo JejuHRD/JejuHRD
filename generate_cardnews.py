@@ -174,27 +174,28 @@ def generate_slide_cover(course_data, output_path):
     course_cost = course_data.get("courseCost", "")
     if self_cost or course_cost:
         cost_y = item_y + 8
-        cost_box_h = 95
+        cost_box_h = 120
         draw_rounded_rect(draw,
                            (card_margin, cost_y, W - card_margin, cost_y + cost_box_h),
                            radius=15, fill=hex_to_rgb("#EBF5FB"))
         font_cost_label = get_font(FONT_BOLD, 27)
         font_cost_prefix = get_font(FONT_BOLD, 29)
-        font_cost_big = get_font(FONT_BLACK, 40)
+        font_cost_big = get_font(FONT_BLACK, 42)
         font_cost_small = get_font(FONT_REGULAR, 21)
 
-        draw.text((card_margin + 22, cost_y + 10), "자부담금",
+        draw.text((card_margin + 22, cost_y + 12), "자부담금",
                   font=font_cost_label, fill=hex_to_rgb(COLORS["primary"]))
         if self_cost:
             # "단," 접두어
             prefix_text = "단,"
-            draw.text((card_margin + 22, cost_y + 48), prefix_text,
+            cost_row_y = cost_y + 60
+            draw.text((card_margin + 22, cost_row_y), prefix_text,
                       font=font_cost_prefix, fill=hex_to_rgb(COLORS["text_dark"]))
             prefix_bbox = draw.textbbox((0, 0), prefix_text, font=font_cost_prefix)
             prefix_w = prefix_bbox[2] - prefix_bbox[0]
 
             # 금액 (큰 글씨)
-            draw.text((card_margin + 22 + prefix_w + 10, cost_y + 44), self_cost,
+            draw.text((card_margin + 22 + prefix_w + 10, cost_row_y - 4), self_cost,
                       font=font_cost_big, fill=hex_to_rgb(COLORS["accent"]))
 
             # (수강비 XXX원) 작은 글씨
@@ -202,11 +203,11 @@ def generate_slide_cover(course_data, output_path):
                 cost_bbox = draw.textbbox((0, 0), self_cost, font=font_cost_big)
                 cost_w = cost_bbox[2] - cost_bbox[0]
                 small_x = card_margin + 22 + prefix_w + 10 + cost_w + 12
-                draw.text((small_x, cost_y + 56),
+                draw.text((small_x, cost_row_y + 10),
                           f"(수강비 {course_cost})",
                           font=font_cost_small, fill=hex_to_rgb("#888888"))
         elif course_cost:
-            draw.text((card_margin + 22, cost_y + 48), course_cost,
+            draw.text((card_margin + 22, cost_y + 60), course_cost,
                       font=font_cost_big, fill=hex_to_rgb(COLORS["accent"]))
         item_y = cost_y + cost_box_h + 8
 
@@ -234,17 +235,26 @@ def generate_slide_cover(course_data, output_path):
               font=font_footnote, fill=hex_to_rgb("#888888"))
 
     # ── 하단 바 (기관명 + CTA) ──
+    footer_bar_h = H - footer_y  # 100px
     draw.rectangle((0, footer_y, W, H), fill=hex_to_rgb(COLORS["primary"]))
     font_footer = get_font(FONT_REGULAR, 23)
     font_cta = get_font(FONT_BOLD, 25)
 
-    draw.text((60, footer_y + 22), "제주지역인적자원개발위원회",
+    # 기관명 수직 중앙
+    org_text = "제주지역인적자원개발위원회"
+    org_bbox = draw.textbbox((0, 0), org_text, font=font_footer)
+    org_h = org_bbox[3] - org_bbox[1]
+    org_text_y = footer_y + (footer_bar_h - org_h) // 2
+    draw.text((60, org_text_y), org_text,
               font=font_footer, fill=hex_to_rgb("#AED6F1"))
 
+    # CTA 수직 중앙
     cta_text = "신청 ▸ hrd.go.kr"
     cta_bbox = draw.textbbox((0, 0), cta_text, font=font_cta)
     cta_w = cta_bbox[2] - cta_bbox[0]
-    draw.text((W - cta_w - 60, footer_y + 20), cta_text,
+    cta_h = cta_bbox[3] - cta_bbox[1]
+    cta_text_y = footer_y + (footer_bar_h - cta_h) // 2
+    draw.text((W - cta_w - 60, cta_text_y), cta_text,
               font=font_cta, fill=hex_to_rgb(COLORS["accent_bright"]))
 
     # ── 좌측 액센트 라인 ──
@@ -342,9 +352,14 @@ def generate_slide_detail(course_data, output_path):
 
     # ── 하단 바 ──
     footer_y = H - 80
+    footer_bar_h = H - footer_y
     draw.rectangle((0, footer_y, W, H), fill=hex_to_rgb(COLORS["primary"]))
     font_footer = get_font(FONT_REGULAR, 23)
-    draw.text((60, footer_y + 20), "제주지역인적자원개발위원회  |  신청: hrd.go.kr",
+    ft_text = "제주지역인적자원개발위원회  |  신청: hrd.go.kr"
+    ft_bbox = draw.textbbox((0, 0), ft_text, font=font_footer)
+    ft_h = ft_bbox[3] - ft_bbox[1]
+    ft_text_y = footer_y + (footer_bar_h - ft_h) // 2
+    draw.text((60, ft_text_y), ft_text,
               font=font_footer, fill=hex_to_rgb("#AED6F1"))
 
     img.save(output_path, quality=95)
@@ -408,30 +423,43 @@ def generate_slide_howto(course_data, output_path):
         draw_rounded_rect(draw, (50, card_top, 58, card_bottom),
                            radius=0, fill=hex_to_rgb(COLORS["accent"]))
 
-        # 스텝 번호 태그
+        # ── 콘텐츠 높이 계산 후 수직 중앙 배치 ──
         num_bbox = draw.textbbox((0, 0), step["num"], font=font_step_num)
-        num_tag_w = num_bbox[2] - num_bbox[0] + 30
         num_tag_h = num_bbox[3] - num_bbox[1] + 16
-        draw_rounded_rect(draw, (85, card_top + 20, 85 + num_tag_w, card_top + 20 + num_tag_h),
+        title_bbox = draw.textbbox((0, 0), step["title"], font=font_step_title)
+        title_h = title_bbox[3] - title_bbox[1]
+        desc_lines = step["desc"].split('\n')
+        desc_line_h = 36
+        desc_total_h = len(desc_lines) * desc_line_h
+
+        # 간격: 번호태그-제목 12px, 제목-설명 10px
+        content_h = num_tag_h + 12 + title_h + 10 + desc_total_h
+        content_start = card_top + (card_h - content_h) // 2
+
+        # 스텝 번호 태그
+        num_tag_w = num_bbox[2] - num_bbox[0] + 30
+        draw_rounded_rect(draw, (85, content_start, 85 + num_tag_w, content_start + num_tag_h),
                            radius=15, fill=hex_to_rgb(COLORS["primary"]))
-        draw.text((100, card_top + 24), step["num"],
+        draw.text((100, content_start + 4), step["num"],
                   font=font_step_num, fill=hex_to_rgb(COLORS["white"]))
 
         # 우측 장식 원
-        dot_x, dot_y = W - 110, card_top + 55
+        dot_x = W - 110
+        dot_y = card_top + card_h // 2
         dot_r = 25
         draw_rounded_rect(draw,
                            (dot_x - dot_r, dot_y - dot_r, dot_x + dot_r, dot_y + dot_r),
                            radius=dot_r, fill=hex_to_rgb(COLORS["accent"]))
 
         # 제목
-        draw.text((85, card_top + 65), step["title"],
+        title_y_pos = content_start + num_tag_h + 12
+        draw.text((85, title_y_pos), step["title"],
                   font=font_step_title, fill=hex_to_rgb(COLORS["text_dark"]))
 
         # 설명
-        desc_lines = step["desc"].split('\n')
+        desc_start_y = title_y_pos + title_h + 10
         for j, line in enumerate(desc_lines):
-            draw.text((85, card_top + 115 + j * 36), line,
+            draw.text((85, desc_start_y + j * desc_line_h), line,
                       font=font_step_desc, fill=hex_to_rgb(COLORS["text_gray"]))
 
         step_y = card_bottom + gap
@@ -470,7 +498,12 @@ def generate_slide_howto(course_data, output_path):
     # ── 하단 바 ──
     draw.rectangle((0, footer_y, W, H), fill=hex_to_rgb(COLORS["primary"]))
     font_footer = get_font(FONT_REGULAR, 23)
-    draw.text((60, footer_y + 20), "제주지역인적자원개발위원회  |  국민내일배움카드 있으면 누구나 참여할 수 있어요",
+    ft_text = "제주지역인적자원개발위원회  |  국민내일배움카드 있으면 누구나 참여할 수 있어요"
+    ft_bbox = draw.textbbox((0, 0), ft_text, font=font_footer)
+    ft_h = ft_bbox[3] - ft_bbox[1]
+    footer_bar_h = H - footer_y
+    ft_text_y = footer_y + (footer_bar_h - ft_h) // 2
+    draw.text((60, ft_text_y), ft_text,
               font=font_footer, fill=hex_to_rgb("#AED6F1"))
 
     img.save(output_path, quality=95)
