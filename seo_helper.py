@@ -66,7 +66,7 @@ KEYWORD_MAP = {
 # 공통 검색 키워드 (모든 과정에 적용)
 COMMON_SEARCH_KEYWORDS = [
     "국비지원무료교육",
-    "내일배움카드",
+    "국민내일배움카드",
     "제주교육",
     "제주무료교육",
     "국비지원",
@@ -76,13 +76,13 @@ COMMON_SEARCH_KEYWORDS = [
 INSTAGRAM_HASHTAGS = {
     # 대형 (검색량 높음, 경쟁 높음) - 5~7개
     "large": [
-        "#국비지원", "#무료교육", "#내일배움카드", "#자기계발",
+        "#국비지원", "#무료교육", "#국민내일배움카드", "#자기계발",
         "#직무교육", "#국비지원무료교육", "#배움", "#재취업",
         "#이직준비", "#직업훈련",
     ],
     # 중소형 (적정 경쟁) - 5~7개
     "medium": [
-        "#내일배움카드신청", "#국비지원교육", "#직업훈련포털",
+        "#국민내일배움카드신청", "#국비지원교육", "#직업훈련포털",
         "#고용24", "#HRD", "#취업준비생", "#경력개발",
         "#무료자격증", "#스킬업", "#리스킬링",
     ],
@@ -130,9 +130,9 @@ EMPATHY_INTROS = {
         "전자책, 오디오북, 독립출판... 출판의 세계가 달라지고 있어요. 기획부터 제작, 유통까지 한번에 배울 수 있는 기회를 놓치지 마세요.",
     ],
     "default": [
-        "새로운 기술을 배우고 싶은데, 어디서 시작해야 할지 막막하셨나요? 내일배움카드만 있으면 자부담 10%로 바로 시작할 수 있는 과정이 열렸어요.",
+        "새로운 기술을 배우고 싶은데, 어디서 시작해야 할지 막막하셨나요? 국민내일배움카드만 있으면 자부담 10%로 바로 시작할 수 있는 과정이 열렸어요.",
         "이직을 고민하거나, 새로운 분야에 도전하고 싶은 마음... 누구나 한번쯤 있죠. 제주에서 부담 없이 새로운 기술을 배울 수 있는 기회를 소개합니다.",
-        "경력을 쌓고 싶은데 교육비가 부담이셨나요? 내일배움카드로 자부담 10%만 내고 전문 기술을 배울 수 있어요. 제주에서 만나는 특화훈련을 확인해보세요.",
+        "경력을 쌓고 싶은데 교육비가 부담이셨나요? 국민내일배움카드로 자부담 10%만 내고 전문 기술을 배울 수 있어요. 제주에서 만나는 특화훈련을 확인해보세요.",
     ],
 }
 
@@ -188,7 +188,7 @@ def extract_seo_keywords(course_data):
     # 연도 키워드
     year = datetime.now().year
     keywords.add(f"{year}국비지원")
-    keywords.add(f"{year}내일배움카드")
+    keywords.add(f"{year}국민내일배움카드")
 
     return sorted(keywords)
 
@@ -233,7 +233,7 @@ def generate_seo_title(course_data):
     patterns = [
         f"[제주 국비지원] {core_keyword} | 자부담 10% 특화훈련",
         f"{year} 제주 {seo_keyword} 추천 - {core_keyword} (자부담 10%)",
-        f"제주 {core_keyword} 무료교육 | 내일배움카드 자부담 10%로 배우기",
+        f"제주 {core_keyword} 무료교육 | 국민내일배움카드 자부담 10%로 배우기",
     ]
 
     # 해시를 이용해 과정마다 다른 패턴 선택 (같은 과정은 항상 같은 패턴)
@@ -265,7 +265,7 @@ def generate_empathy_intro(course_data):
 
     # 과정 정보로 커스터마이징
     year = datetime.now().year
-    extra = f"\n\n{year}년, **{institution}**에서 진행하는 이 과정은 내일배움카드만 있으면 **자부담 10%**로 참여할 수 있어요."
+    extra = f"\n\n{year}년, **{institution}**에서 진행하는 이 과정은 국민내일배움카드만 있으면 **자부담 10%**로 참여할 수 있어요."
 
     if period:
         extra += f" 교육 기간은 {period}이니, 일정 확인하고 서둘러 신청해보세요!"
@@ -290,8 +290,8 @@ def generate_blog_hashtags(course_data):
 
     # 기본 태그
     tags.update([
-        f"#제주무료교육", "#내일배움카드", "#제주취업", "#제주특화훈련",
-        f"#국비지원무료교육", f"#제주국비지원", f"#{year}내일배움카드",
+        f"#제주무료교육", "#국민내일배움카드", "#제주취업", "#제주특화훈련",
+        f"#국비지원무료교육", f"#제주국비지원", f"#{year}국민내일배움카드",
         f"#제주교육", "#제주직업훈련", "#자부담10퍼센트",
     ])
 
@@ -377,7 +377,7 @@ def generate_instagram_caption(course_data):
     institution = course_data.get("institution", "")
     period = course_data.get("period", "")
     course_cost = course_data.get("courseCost", "")
-    real_cost = course_data.get("realCost", "")
+    self_cost = course_data.get("selfCost", "")
     benefits = get_benefits_text(course_data)
     field = detect_course_field(title)
 
@@ -407,15 +407,15 @@ def generate_instagram_caption(course_data):
 
     if period:
         caption += f"\n🗓️ {period}"
-    if real_cost:
-        caption += f"\n💰 실제 훈련비 {real_cost}"
+    if self_cost:
+        caption += f"\n💰 자부담금 {self_cost} (수강비 {course_cost})"
     elif course_cost:
         caption += f"\n💰 수강비 {course_cost}"
 
     caption += f"""
 
 💰 {benefits}
-✅ 내일배움카드 있으면 누구나 신청 가능!
+✅ 국민내일배움카드 있으면 누구나 신청 가능!
 🎁 특화훈련은 훈련장려금(월 최대 20만원)도 받을 수 있어요
 """
 
@@ -472,7 +472,7 @@ def generate_reels_script(course_data):
 자막:
 - 📍 {institution}
 - 💰 {benefit_line}
-- ✅ 내일배움카드만 있으면 OK
+- ✅ 국민내일배움카드만 있으면 OK
 
 ━━━ 15~20초 (CTA) ━━━
 화면: 카드뉴스 신청방법 이미지
@@ -555,7 +555,7 @@ def generate_posting_guide(course_data):
 
 🔑 인스타그램 프로필 설정
   - 프로필 링크: 고용24 과정 신청 페이지 또는 링크트리
-  - 프로필 소개: "제주 무료교육·국비지원 과정 안내 | 내일배움카드"
+  - 프로필 소개: "제주 무료교육·국비지원 과정 안내 | 국민내일배움카드"
   - 하이라이트: "신청방법", "모집중", "수강후기" 카테고리 생성
 """
 
