@@ -253,14 +253,15 @@ def generate_slide_cover(course_data, output_path):
         draw.text((card_margin + 22, benefit_y + 45 + bi * 32), bline,
                   font=font_benefit, fill=hex_to_rgb(COLORS["text_dark"]))
 
-    # ── 하단 ※ 주석 ──
-    footer_y = H - 100
+    # ── 하단 ※ 주석 (혜택 박스 바로 아래) ──
+    footnote_y = benefit_y + benefit_box_h + 6
     font_footnote = get_font(FONT_REGULAR, 20)
     footnote = get_benefits_footnote(course_data)
-    draw.text((60, footer_y - 28), footnote,
+    draw.text((60, footnote_y), footnote,
               font=font_footnote, fill=hex_to_rgb("#888888"))
 
     # ── 하단 바 (기관명 + CTA) ──
+    footer_y = H - 100
     footer_bar_h = H - footer_y  # 100px
     draw.rectangle((0, footer_y, W, H), fill=hex_to_rgb(COLORS["primary"]))
     font_footer = get_font(FONT_REGULAR, 23)
