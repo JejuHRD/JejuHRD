@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 import textwrap
 import os
 import math
-from benefits_helper import get_badge_text, get_benefits_text
+from benefits_helper import get_badge_text, get_benefits_text, get_benefits_footnote
 
 # ── 브랜드 컬러 ──
 COLORS = {
@@ -191,6 +191,12 @@ def generate_slide_cover(course_data, output_path):
     draw.text((card_margin + 25, benefit_y + 60), benefits,
               font=font_benefit, fill=hex_to_rgb(COLORS["text_dark"]))
 
+    # ── 하단 ※ 주석 ──
+    font_footnote = get_font(FONT_REGULAR, 20)
+    footnote = get_benefits_footnote()
+    draw.text((60, footer_y - 35), footnote,
+              font=font_footnote, fill=hex_to_rgb("#888888"))
+
     # ── 하단 바 (기관명 + CTA) ──
     footer_y = H - 100
     draw.rectangle((0, footer_y, W, H), fill=hex_to_rgb(COLORS["primary"]))
@@ -329,7 +335,7 @@ def generate_slide_howto(course_data, output_path):
 
     # ── 3단계 프로세스 ──
     step3_title = "혜택 받으며 배우기"
-    step3_desc = "자부담 10%로 부담 없이 배우고\n140시간 이상이면 장려금도 받아요"
+    step3_desc = "자부담 10%로 부담 없이\n새로운 기술을 배울 수 있어요"
 
     steps = [
         {
@@ -416,8 +422,14 @@ def generate_slide_howto(course_data, output_path):
     draw.text((80, info_y + 52), contact,
               font=font_info_detail, fill=hex_to_rgb(COLORS["text_dark"]))
 
-    # ── 하단 바 ──
+    # ── 하단 ※ 주석 ──
+    font_footnote = get_font(FONT_REGULAR, 20)
+    footnote = get_benefits_footnote()
     footer_y = H - 80
+    draw.text((60, footer_y - 30), footnote,
+              font=font_footnote, fill=hex_to_rgb("#888888"))
+
+    # ── 하단 바 ──
     draw.rectangle((0, footer_y, W, H), fill=hex_to_rgb(COLORS["primary"]))
     font_footer = get_font(FONT_REGULAR, 22)
     draw.text((60, footer_y + 18), "제주지역인적자원개발위원회  |  내일배움카드 있으면 누구나 참여할 수 있어요",
