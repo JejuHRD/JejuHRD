@@ -113,25 +113,31 @@ def format_date(raw):
 
 def fetch_courses_from_api():
     """
-    고용24 API에서 제주지역 산업구조변화대응 등 특화훈련 과정을 조회합니다.
+    고용24 API에서 제주지역 특화훈련 과정을 2단계로 조회합니다.
 
-    - 엔드포인트: work24.go.kr (2024.09 HRD-Net 통합)
+    1단계: L01(목록 API) → 과정 리스트 + trprId, trprDegr, instCd 확보
+    2단계: L02(과정/기관정보 API) → 과정별 trtm(총훈련시간), ncsNm(NCS직종명) 등 상세
+
     - 훈련유형: C0102 (산업구조변화대응 등 특화훈련)
     - 지역: 50 (제주)
     """
     import requests
+    import time
 
     api_key = os.environ.get("HRD_API_KEY", "")
     if not api_key:
-        print("HRD_API_KEY 환경변수가 설정되지 않았습니다.")
+        print("  ❌ HRD_API_KEY 환경변수가 설정되지 않았습니다.")
         return []
 
-    url = "https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L01.do"
+    # ═══════════════════════════════════════════════════
+    # 1단계: L01 목록 API
+    # ═══════════════════════════════════════════════════
+    url_list = "https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L01.do"
 
     today = datetime.now()
     end_date = today + timedelta(days=180)
 
-    params = {
+    params_list = {
         "authKey": api_key,
         "returnType": "JSON",
         "outType": "1",
@@ -139,14 +145,15 @@ def fetch_courses_from_api():
         "pageSize": "100",
         "srchTraStDt": today.strftime("%Y%m%d"),
         "srchTraEndDt": end_date.strftime("%Y%m%d"),
-        "srchTraArea1": "50",           # 제주
-        "crseTracseSe": "C0102",        # 산업구조변화대응 등 특화훈련
+        "srchTraArea1": "50",
+        "crseTracseSe": "C0102",
         "sort": "ASC",
         "sortCol": "2",
     }
 
     try:
-        response = requests.get(url, params=params, timeout=30)
+        print("  [1단계] L01 목록 API 호출 중...")
+        response = requests.get(url_list, params=params_list, timeout=30)
         print(f"  응답 코드: {response.status_code}")
 
         content_type = response.headers.get("Content-Type", "")
@@ -161,13 +168,63 @@ def fetch_courses_from_api():
         if not srch_list:
             srch_list = data.get("scn_list", data.get("returnList", []))
 
-        courses = []
-        for item in srch_list:
-            course = parse_api_course(item)
-            if course:
-                courses.append(course)
+        if not srch_list:
+            print("  ⚠️  목록 API 결과 0건")
+            return []
 
-        print(f"  API에서 {len(courses)}개 특화훈련 과정 조회 완료")
+        # 첫 번째 아이템 키 덤프 (디버그)
+        first = srch_list[0]
+        print(f"\n  ┌─ [DEBUG] L01 목록 API 필드 ({len(first)}개) ─┐")
+        for k, v in first.items():
+            val_str = str(v)[:60] if v else "(빈값)"
+            print(f"  │  {k:25s} = {val_str}")
+        print(f"  └────────────────────────────────────────────┘")
+
+        print(f"  L01에서 {len(srch_list)}개 과정 조회 완료\n")
+
+        # ═══════════════════════════════════════════════════
+        # 2단계: L02 과정/기관정보 API (과정별 상세)
+        # ═══════════════════════════════════════════════════
+        url_detail = "https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L02.do"
+        print("  [2단계] L02 상세 API로 훈련시간/NCS직종 조회 중...")
+
+        courses = []
+        for idx, item in enumerate(srch_list):
+            # L01에서 기본 데이터 파싱
+            course = _parse_list_item(item)
+            if not course:
+                continue
+
+            # L02 상세 호출에 필요한 ID들
+            trpr_id = course["trprId"]
+            trpr_degr = course["trprDegr"]
+            # 훈련기관ID: L01 응답에서 가능한 키들 시도
+            torg_id = _get_field(item, "instCd", "trainstCstId", "torgId",
+                                  "INST_CD", "TRAINST_CST_ID", "TORG_ID",
+                                  "instIno", "INST_INO")
+
+            if trpr_id and trpr_degr and torg_id:
+                detail = _fetch_course_detail(
+                    api_key, url_detail, trpr_id, trpr_degr, torg_id,
+                    is_first=(idx == 0)
+                )
+                if detail:
+                    course["totalHours"] = detail.get("totalHours", 0)
+                    course["ncsName"] = detail.get("ncsName", "")
+
+                # API 부하 방지 (0.3초 간격)
+                time.sleep(0.3)
+            else:
+                if idx == 0:
+                    print(f"  ⚠️  훈련기관ID를 찾을 수 없음 — L01 키 목록에서 기관ID 필드를 확인해주세요")
+
+            courses.append(course)
+
+        # 결과 요약
+        has_hours = sum(1 for c in courses if c.get("totalHours", 0) > 0)
+        has_ncs = sum(1 for c in courses if c.get("ncsName", ""))
+        print(f"\n  ✅ 총 {len(courses)}개 과정 (훈련시간 {has_hours}건, NCS직종 {has_ncs}건 확보)")
+
         return courses
 
     except requests.exceptions.JSONDecodeError:
@@ -176,7 +233,72 @@ def fetch_courses_from_api():
         return []
     except Exception as e:
         print(f"  API 호출 실패: {e}")
+        import traceback
+        traceback.print_exc()
         return []
+
+
+def _fetch_course_detail(api_key, url, trpr_id, trpr_degr, torg_id, is_first=False):
+    """
+    L02 과정/기관정보 API로 상세 정보를 가져옵니다.
+
+    반환값: {"totalHours": int, "ncsName": str} 또는 None
+    """
+    import requests
+
+    params = {
+        "authKey": api_key,
+        "returnType": "JSON",
+        "outType": "2",
+        "srchTrprId": trpr_id,
+        "srchTrprDegr": trpr_degr,
+        "srchTorgId": torg_id,
+    }
+
+    try:
+        resp = requests.get(url, params=params, timeout=15)
+        if resp.status_code != 200:
+            return None
+
+        data = resp.json()
+
+        # L02 응답 구조: inst_base_info 안에 상세 필드
+        base_info = data.get("inst_base_info", data.get("instBaseInfo", {}))
+
+        # 응답이 리스트인 경우 첫 번째 아이템
+        if isinstance(base_info, list):
+            base_info = base_info[0] if base_info else {}
+
+        # 첫 번째 과정일 때 L02 응답 키 덤프
+        if is_first and base_info:
+            print(f"\n  ┌─ [DEBUG] L02 상세 API inst_base_info 필드 ({len(base_info)}개) ─┐")
+            for k, v in base_info.items():
+                val_str = str(v)[:60] if v else "(빈값)"
+                print(f"  │  {k:25s} = {val_str}")
+            print(f"  └──────────────────────────────────────────────────────────┘")
+
+        # inst_base_info가 비어있으면 최상위에서 시도
+        if not base_info:
+            base_info = data
+
+        # trtm 추출
+        raw_trtm = _get_field(base_info, "trtm", "TRTM", "tRtM")
+        try:
+            total_hours = int(raw_trtm)
+        except (ValueError, TypeError):
+            total_hours = 0
+
+        # ncsNm 추출
+        ncs_name = _get_field(base_info, "ncsNm", "NCS_NM", "ncsNM", "ncsnm")
+
+        if is_first:
+            print(f"  [DEBUG] L02 → 훈련시간: {total_hours}, NCS직종: {ncs_name}")
+            print()
+
+        return {"totalHours": total_hours, "ncsName": ncs_name}
+
+    except Exception as e:
+        return None
 
 
 def format_cost(raw_value):
@@ -198,81 +320,49 @@ def _get_field(item, *keys):
     return ""
 
 
-# 첫 호출 시 API 응답 키를 1회 출력하기 위한 플래그
-_debug_keys_printed = False
-
-
-def parse_api_course(api_item):
+def _parse_list_item(api_item):
     """
-    API 응답 데이터를 콘텐츠 생성기 형식으로 변환합니다.
-
-    고용24 API 필드는 환경에 따라 키 이름이 다를 수 있으므로
-    가능한 변형을 모두 시도합니다 (예: TETM / teTm / tetm).
+    L01 목록 API 아이템을 파싱합니다.
+    (trtm, ncsNm은 L02에서 별도 채움)
     """
-    global _debug_keys_printed
-
-    # ── 첫 번째 과정에서 API 응답 키 출력 (디버그) ──
-    if not _debug_keys_printed:
-        print(f"  [DEBUG] API 응답 키 목록: {list(api_item.keys())}")
-        _debug_keys_printed = True
-
     try:
         start_raw = _get_field(api_item, "traStartDate", "TRA_START_DATE")
         end_raw = _get_field(api_item, "traEndDate", "TRA_END_DATE")
 
         start_fmt = format_date(start_raw)
         end_fmt = format_date(end_raw)
+        period = f"{start_fmt} ~ {end_fmt}" if start_fmt and end_fmt else ""
 
-        if start_fmt and end_fmt:
-            period = f"{start_fmt} ~ {end_fmt}"
-        else:
-            period = ""
-
-        institution = _get_field(api_item, "subTitle", "SUB_TITLE", "instNm", "INST_NM")
+        institution = _get_field(api_item, "subTitle", "SUB_TITLE", "instNm", "INST_NM", "inoNm", "INO_NM")
         trpr_id = _get_field(api_item, "trprId", "TRPR_ID")
         trpr_degr = _get_field(api_item, "trprDegr", "TRPR_DEGR")
 
-        # ── 비용 정보 ──
-        raw_course_man = _get_field(api_item, "courseMan", "COURSE_MAN", "courseMoney")
+        raw_course_man = _get_field(api_item, "courseMan", "COURSE_MAN")
         course_cost = format_cost(raw_course_man)
 
-        # 자부담 10% 계산
         try:
             self_cost = format_cost(str(round(int(raw_course_man) * 0.1)))
         except (ValueError, TypeError):
             self_cost = ""
 
-        # ── 훈련시간 (TETM 등 여러 변형 시도) ──
-        raw_tetm = _get_field(api_item, "trtm", "TRTM", "tRtM", "teTm", "TETM",
-                               "totalTime", "TOTAL_TIME", "traTime", "TRA_TIME")
-        try:
-            total_hours = int(raw_tetm)
-        except (ValueError, TypeError):
-            total_hours = 0
-
-        # ── NCS직종명 (NCS_NM 등 여러 변형 시도) ──
-        ncs_name = _get_field(api_item, "ncsNm", "NCS_NM", "ncsNM", "ncsnm",
-                               "ncsName", "NCS_NAME")
-
-        course = {
+        return {
             "trprId": trpr_id,
             "trprDegr": trpr_degr,
             "traStartDate": str(start_raw),
             "traEndDate": str(end_raw),
-
-            "title": _get_field(api_item, "title", "TITLE"),
-            "ncsName": ncs_name,
+            "title": _get_field(api_item, "title", "TITLE", "trprNm", "TRPR_NM"),
+            "ncsName": "",          # L02에서 채워짐
             "institution": institution,
             "period": period,
             "courseCost": course_cost,
             "selfCost": self_cost,
-            "totalHours": total_hours,
+            "totalHours": 0,        # L02에서 채워짐
             "capacity": f"{_get_field(api_item, 'yardMan', 'YARD_MAN') or '?'}명",
             "target": "국민내일배움카드 있으면 누구나",
             "benefits": "",
             "curriculum": [],
             "outcome": "",
-            "contact": f"{institution} Tel: {_get_field(api_item, 'telNo', 'TEL_NO')}",
+            "contact": f"{institution} Tel: {_get_field(api_item, 'telNo', 'TEL_NO', 'trprChapTel', 'TRPR_CHAP_TEL')}",
             "hrd_url": (
                 f"https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do"
                 f"?tracseId={trpr_id}"
@@ -280,14 +370,6 @@ def parse_api_course(api_item):
                 f"&crseTracseSe=C0102"
             ),
         }
-
-        # ── 파싱 결과 디버그 (시간/NCS가 비면 경고) ──
-        if total_hours == 0:
-            print(f"  ⚠️  훈련시간 미확인: '{course['title'][:30]}' — API 키에 TRTM/trtm 등이 있는지 확인 필요")
-        if not ncs_name:
-            print(f"  ⚠️  NCS직종명 미확인: '{course['title'][:30]}' — API 키에 NCS_NM/ncsNm 등이 있는지 확인 필요")
-
-        return course
 
     except Exception as e:
         print(f"  과정 파싱 실패: {e}")
@@ -357,6 +439,8 @@ def run_pipeline(courses):
 
     print(f"\n{'=' * 60}")
     print(f"  ✅ 실행 결과: 새 과정 {new_count}건 생성, {skip_count}건 스킵")
+    if skip_count > 0:
+        print(f"  💡 스킵된 과정을 재생성하려면: python pipeline.py --force")
     print(f"{'=' * 60}")
 
     if new_count > 0:
@@ -381,6 +465,15 @@ if __name__ == "__main__":
     print("  🎯 대상: 산업구조변화대응 등 특화훈련 (C0102) / 제주")
     print("=" * 60)
 
+    # --force: 캐시 초기화 후 전체 재생성
+    if "--force" in sys.argv:
+        cache_file = os.path.join(OUTPUT_DIR, "processed_ids.json")
+        if os.path.exists(cache_file):
+            os.remove(cache_file)
+            print("\n  🔄 --force: 캐시 초기화 완료 → 전체 과정 재생성합니다")
+        else:
+            print("\n  🔄 --force: 캐시 없음 → 전체 과정 새로 생성합니다")
+
     if "--json" in sys.argv:
         json_idx = sys.argv.index("--json") + 1
         json_path = sys.argv[json_idx]
@@ -392,6 +485,15 @@ if __name__ == "__main__":
         courses = fetch_courses_from_api()
 
     if courses:
+        # 첫 번째 과정 파싱 결과 요약
+        c = courses[0]
+        print(f"  ── 첫 번째 과정 파싱 결과 확인 ──")
+        print(f"  과정명:     {c.get('title', '?')}")
+        print(f"  NCS직종명:  {c.get('ncsName') or '❌ 비어있음 (API 필드명 확인 필요)'}")
+        print(f"  훈련시간:   {c.get('totalHours') or '❌ 0 (API 필드명 확인 필요)'}")
+        print(f"  기관명:     {c.get('institution', '?')}")
+        print(f"  수강비:     {c.get('courseCost', '?')}")
+        print()
         run_pipeline(courses)
     else:
         print("  생성할 과정이 없습니다.")
