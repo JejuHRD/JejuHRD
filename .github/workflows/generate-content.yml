@@ -43,6 +43,7 @@ jobs:
           HRD_API_KEY: ${{ secrets.HRD_API_KEY }}
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
         run: |
+          mkdir -p output
           if [ -n "${{ github.event.inputs.json_file }}" ]; then
             python pipeline.py --json "${{ github.event.inputs.json_file }}"
           else
@@ -70,3 +71,4 @@ jobs:
           name: content-${{ github.run_number }}
           path: output/
           retention-days: 30
+          if-no-files-found: ignore
