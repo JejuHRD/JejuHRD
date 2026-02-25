@@ -371,7 +371,7 @@ def generate_instagram_caption(course_data):
     Returns:
         str: 인스타그램 캡션 전체 텍스트
     """
-    from benefits_helper import get_benefits_text
+    from benefits_helper import get_benefits_text, get_course_type, get_total_hours
 
     title = course_data.get("title", "")
     institution = course_data.get("institution", "")
@@ -380,6 +380,8 @@ def generate_instagram_caption(course_data):
     self_cost = course_data.get("selfCost", "")
     benefits = get_benefits_text(course_data)
     field = detect_course_field(title)
+    ctype = get_course_type(course_data)
+    hours = get_total_hours(course_data)
 
     # 분야별 이모지
     field_emoji = {
@@ -412,11 +414,23 @@ def generate_instagram_caption(course_data):
     elif course_cost:
         caption += f"\n💰 수강비 {course_cost}"
 
+    # 혜택 라인 (과정 유형별 맞춤)
+    if ctype == "long":
+        benefit_emoji_line = f"🎁 {hours}시간 장기과정! 장려금+수당 월 최대 40만원"
+    elif ctype == "general":
+        benefit_emoji_line = f"🎁 {hours}시간 과정! 훈련장려금 월 최대 20만원"
+    elif ctype == "short":
+        benefit_emoji_line = f"🎁 {hours}시간 단기과정! 횟수 제한 없이 자부담 10%"
+    else:
+        benefit_emoji_line = "🎁 특화훈련 혜택으로 부담 없이 배울 수 있어요"
+
+    if hours > 0:
+        caption += f"\n⏱️ 총 {hours}시간"
+
     caption += f"""
 
-💰 {benefits}
 ✅ 국민내일배움카드 있으면 누구나 신청 가능!
-🎁 특화훈련은 훈련장려금(월 최대 20만원)도 받을 수 있어요
+{benefit_emoji_line}
 """
 
     caption += """
@@ -455,7 +469,18 @@ def generate_reels_script(course_data):
     }
     hook = hooks.get(field, hooks["default"])
 
-    benefit_line = "자부담 10% + 훈련장려금까지!"
+    from benefits_helper import get_course_type, get_total_hours
+    ctype = get_course_type(course_data)
+    hours = get_total_hours(course_data)
+
+    if ctype == "long":
+        benefit_line = f"자부담 10% + 월 최대 40만원 지원!"
+    elif ctype == "general":
+        benefit_line = f"자부담 10% + 훈련장려금 월 20만원!"
+    elif ctype == "short":
+        benefit_line = "자부담 10%! 횟수 제한 없이 참여 가능!"
+    else:
+        benefit_line = "자부담 10% + 훈련장려금까지!"
 
     script = f"""[릴스 대본 - {title}]
 
