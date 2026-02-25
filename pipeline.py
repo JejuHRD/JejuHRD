@@ -219,6 +219,10 @@ def parse_api_course(api_item):
         course_cost = format_cost(api_item.get("courseMan", ""))   # 전체 수강비
         real_cost = format_cost(api_item.get("realMan", ""))       # 실제 훈련비
 
+        # 두 값이 동일하면 중복 표시 방지 (훈련비 하나만 표시)
+        if real_cost and real_cost == course_cost:
+            real_cost = ""
+
         course = {
             "trprId": trpr_id,
             "trprDegr": trpr_degr,
