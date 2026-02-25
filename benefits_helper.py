@@ -17,9 +17,9 @@ def get_badge_text(course_data):
 
 def get_benefits_text(course_data):
     """
-    혜택 요약 (카드뉴스용, 파이프 구분)
+    혜택 요약 (카드뉴스 '이런 혜택이!' 영역)
     """
-    return "자부담 10%"
+    return "국민내일배움카드 소지자라면 자부담 10%만으로 교육 참여 가능!"
 
 
 def get_benefits_footnote():
@@ -39,14 +39,14 @@ def get_benefits_detail_lines(course_data):
 
 def get_cost_info_text(course_data):
     """블로그 인포박스용 비용 안내 텍스트"""
-    real_cost = course_data.get("realCost", "")
+    self_cost = course_data.get("selfCost", "")
     course_cost = course_data.get("courseCost", "")
 
     parts = []
     parts.append("이 과정은 최초 참여 시 **자부담 10%**만 내면 돼요.")
 
-    if real_cost:
-        parts.append(f"실제 훈련비는 **{real_cost}**이며, 나머지는 국비로 지원됩니다.")
+    if self_cost and course_cost:
+        parts.append(f"수강비 {course_cost} 중 자부담금은 **{self_cost}**이며, 나머지는 국비로 지원됩니다.")
     elif course_cost:
         parts.append(f"전체 수강비 {course_cost} 중 자부담 10%만 부담하면 돼요.")
 
