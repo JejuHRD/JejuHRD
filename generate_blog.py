@@ -116,6 +116,19 @@ def generate_blog_post(course_data, output_dir="output"):
     # ── 누구에게 추천하나요 섹션 (체류 시간 증가용) ──
     recommend_section = _build_recommend_section(field)
 
+    # ── 한눈에 보기 테이블 동적 구성 ──
+    table_rows = f"| **과정명** | {title} |\n"
+    if ncs_name:
+        table_rows += f"| **NCS직종** | {ncs_name} |\n"
+    table_rows += f"| **어디서 배우나요** | {institution} |\n"
+    table_rows += f"| **배움 기간** | {period} |\n"
+    if time_info:
+        table_rows += f"| **총 훈련시간** | {time_info} |\n"
+    table_rows += f"| **수강비** | {course_cost} |\n"
+    table_rows += f"| **자부담금 (10%)** | **{self_cost}** |\n"
+    table_rows += f"| **모집 인원** | {capacity} |\n"
+    table_rows += f"| **누가 들을 수 있나요** | {target} |"
+
     post_content = f"""# {blog_title}
 
 {empathy_intro}
@@ -126,15 +139,7 @@ def generate_blog_post(course_data, output_dir="output"):
 
 | 항목 | 내용 |
 |------|------|
-| **과정명** | {title} |
-| **NCS직종** | {ncs_name} |
-| **어디서 배우나요** | {institution} |
-| **배움 기간** | {period} |
-| **총 훈련시간** | {time_info} |
-| **수강비** | {course_cost} |
-| **자부담금 (10%)** | **{self_cost}** |
-| **모집 인원** | {capacity} |
-| **누가 들을 수 있나요** | {target} |
+{table_rows}
 
 ---
 

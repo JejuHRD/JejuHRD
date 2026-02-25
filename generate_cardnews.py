@@ -119,20 +119,28 @@ def generate_slide_cover(course_data, output_path):
                        radius=22, fill=hex_to_rgb(COLORS["success"]))
     draw.text((badge_x + 22, badge_y + 8), badge_text, font=font_badge, fill=hex_to_rgb(COLORS["white"]))
 
-    # ── NCS직종명 (태그-뱃지 사이 중앙) ──
+    # ── NCS직종명 (태그-뱃지 사이 중앙, 태그 스타일) ──
     ncs_name = course_data.get("ncsName", "")
     if ncs_name:
-        font_ncs = get_font(FONT_REGULAR, 22)
-        ncs_bbox = draw.textbbox((0, 0), ncs_name, font=font_ncs)
-        ncs_w = ncs_bbox[2] - ncs_bbox[0]
-        ncs_h = ncs_bbox[3] - ncs_bbox[1]
+        font_ncs = get_font(FONT_BOLD, 22)
+        ncs_label = f"NCS {ncs_name}"
+        ncs_bbox = draw.textbbox((0, 0), ncs_label, font=font_ncs)
+        ncs_text_w = ncs_bbox[2] - ncs_bbox[0]
+        ncs_text_h = ncs_bbox[3] - ncs_bbox[1]
+        ncs_pad_x, ncs_pad_y = 16, 10
+        ncs_pill_w = ncs_text_w + ncs_pad_x * 2
+        ncs_pill_h = ncs_text_h + ncs_pad_y * 2
         # 태그 오른쪽 ~ 뱃지 왼쪽 사이 중앙
         gap_left = tag_x + tag_w
         gap_right = badge_x
-        ncs_x = gap_left + (gap_right - gap_left - ncs_w) // 2
-        ncs_text_y = tag_y + (tag_h - ncs_h) // 2
-        draw.text((ncs_x, ncs_text_y), ncs_name,
-                  font=font_ncs, fill=hex_to_rgb("#AED6F1"))
+        ncs_pill_x = gap_left + (gap_right - gap_left - ncs_pill_w) // 2
+        ncs_pill_y = tag_y + (tag_h - ncs_pill_h) // 2
+        draw_rounded_rect(draw,
+                           (ncs_pill_x, ncs_pill_y,
+                            ncs_pill_x + ncs_pill_w, ncs_pill_y + ncs_pill_h),
+                           radius=14, fill=hex_to_rgb("#1A3A5C"), outline=hex_to_rgb("#FFFFFF"), width=2)
+        draw.text((ncs_pill_x + ncs_pad_x, ncs_pill_y + ncs_pad_y), ncs_label,
+                  font=font_ncs, fill=hex_to_rgb("#FFFFFF"))
 
     # ── 과정명 (메인 타이틀) ──
     font_title = get_font(FONT_BLACK, 55)
@@ -166,7 +174,7 @@ def generate_slide_cover(course_data, output_path):
         info_items.append(("배움 기간", course_data["period"]))
     hours = get_total_hours(course_data)
     if hours > 0:
-        info_items.append(("총 시간", f"{hours}시간"))
+        info_items.append(("배움 시간", f"{hours}시간"))
     if course_data.get("capacity"):
         info_items.append(("모집 인원", course_data["capacity"]))
 
