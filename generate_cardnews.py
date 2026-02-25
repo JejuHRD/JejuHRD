@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 import textwrap
 import os
 import math
-from benefits_helper import get_badge_text, get_benefits_text, get_benefits_footnote
+from benefits_helper import get_badge_text, get_benefits_text, get_benefits_footnote, get_step3_text, get_total_hours
 
 # ── 브랜드 컬러 ──
 COLORS = {
@@ -119,6 +119,21 @@ def generate_slide_cover(course_data, output_path):
                        radius=22, fill=hex_to_rgb(COLORS["success"]))
     draw.text((badge_x + 22, badge_y + 8), badge_text, font=font_badge, fill=hex_to_rgb(COLORS["white"]))
 
+    # ── NCS직종명 (태그-뱃지 사이 중앙) ──
+    ncs_name = course_data.get("ncsName", "")
+    if ncs_name:
+        font_ncs = get_font(FONT_REGULAR, 22)
+        ncs_bbox = draw.textbbox((0, 0), ncs_name, font=font_ncs)
+        ncs_w = ncs_bbox[2] - ncs_bbox[0]
+        ncs_h = ncs_bbox[3] - ncs_bbox[1]
+        # 태그 오른쪽 ~ 뱃지 왼쪽 사이 중앙
+        gap_left = tag_x + tag_w
+        gap_right = badge_x
+        ncs_x = gap_left + (gap_right - gap_left - ncs_w) // 2
+        ncs_text_y = tag_y + (tag_h - ncs_h) // 2
+        draw.text((ncs_x, ncs_text_y), ncs_name,
+                  font=font_ncs, fill=hex_to_rgb("#AED6F1"))
+
     # ── 과정명 (메인 타이틀) ──
     font_title = get_font(FONT_BLACK, 55)
     title_lines = wrap_text_to_lines(course_data["title"], font_title, W - 140, draw)
@@ -149,10 +164,11 @@ def generate_slide_cover(course_data, output_path):
     info_items = []
     if course_data.get("period"):
         info_items.append(("배움 기간", course_data["period"]))
+    hours = get_total_hours(course_data)
+    if hours > 0:
+        info_items.append(("총 시간", f"{hours}시간"))
     if course_data.get("capacity"):
         info_items.append(("모집 인원", course_data["capacity"]))
-    if course_data.get("target"):
-        info_items.append(("대상", course_data["target"]))
 
     font_label = get_font(FONT_BOLD, 27)
     font_value = get_font(FONT_REGULAR, 27)
@@ -213,7 +229,9 @@ def generate_slide_cover(course_data, output_path):
 
     # ── 혜택 하이라이트 박스 ──
     benefit_y = item_y + 5
-    benefit_box_h = 80
+    benefits = course_data.get("benefits", "") or get_benefits_text(course_data)
+    benefit_lines = benefits.split('\n')
+    benefit_box_h = 55 + len(benefit_lines) * 32
     draw_rounded_rect(draw,
                        (card_margin, benefit_y, W - card_margin, benefit_y + benefit_box_h),
                        radius=15, fill=hex_to_rgb("#FEF9E7"))
@@ -221,16 +239,16 @@ def generate_slide_cover(course_data, output_path):
     font_benefit_title = get_font(FONT_BOLD, 27)
     font_benefit = get_font(FONT_REGULAR, 23)
 
-    benefits = course_data.get("benefits", "") or get_benefits_text(course_data)
     draw.text((card_margin + 22, benefit_y + 10), "이런 혜택이!",
               font=font_benefit_title, fill=hex_to_rgb(COLORS["accent"]))
-    draw.text((card_margin + 22, benefit_y + 45), benefits,
-              font=font_benefit, fill=hex_to_rgb(COLORS["text_dark"]))
+    for bi, bline in enumerate(benefit_lines):
+        draw.text((card_margin + 22, benefit_y + 45 + bi * 32), bline,
+                  font=font_benefit, fill=hex_to_rgb(COLORS["text_dark"]))
 
     # ── 하단 ※ 주석 ──
     footer_y = H - 100
     font_footnote = get_font(FONT_REGULAR, 20)
-    footnote = get_benefits_footnote()
+    footnote = get_benefits_footnote(course_data)
     draw.text((60, footer_y - 28), footnote,
               font=font_footnote, fill=hex_to_rgb("#888888"))
 
@@ -249,7 +267,7 @@ def generate_slide_cover(course_data, output_path):
               font=font_footer, fill=hex_to_rgb("#AED6F1"))
 
     # CTA 수직 중앙
-    cta_text = "신청 ▸ hrd.go.kr"
+    cta_text = "신청 ▸ work24.go.kr"
     cta_bbox = draw.textbbox((0, 0), cta_text, font=font_cta)
     cta_w = cta_bbox[2] - cta_bbox[0]
     cta_h = cta_bbox[3] - cta_bbox[1]
@@ -355,7 +373,7 @@ def generate_slide_detail(course_data, output_path):
     footer_bar_h = H - footer_y
     draw.rectangle((0, footer_y, W, H), fill=hex_to_rgb(COLORS["primary"]))
     font_footer = get_font(FONT_REGULAR, 23)
-    ft_text = "제주지역인적자원개발위원회  |  신청: hrd.go.kr"
+    ft_text = "제주지역인적자원개발위원회  |  신청: work24.go.kr"
     ft_bbox = draw.textbbox((0, 0), ft_text, font=font_footer)
     ft_h = ft_bbox[3] - ft_bbox[1]
     ft_text_y = footer_y + (footer_bar_h - ft_h) // 2
@@ -384,14 +402,13 @@ def generate_slide_howto(course_data, output_path):
     draw.line((60, 108, W - 60, 108), fill=hex_to_rgb("#D5D8DC"), width=2)
 
     # ── 3단계 프로세스 ──
-    step3_title = "혜택 받으며 배우기"
-    step3_desc = "자부담 10%로 부담 없이\n신기술 트렌드에 맞는 교육 참여 가능!"
+    step3_title, step3_desc = get_step3_text(course_data)
 
     steps = [
         {
             "num": "STEP 1",
             "title": "국민내일배움카드 만들기",
-            "desc": "고용24(hrd.go.kr)에서 신청하거나\n가까운 고용센터에 방문하면 돼요",
+            "desc": "고용24(work24.go.kr)에서 신청하거나\n가까운 고용센터에 방문하면 돼요",
         },
         {
             "num": "STEP 2",
@@ -491,7 +508,7 @@ def generate_slide_howto(course_data, output_path):
     # ── 하단 ※ 주석 ──
     footer_y = H - 80
     font_footnote = get_font(FONT_REGULAR, 20)
-    footnote = get_benefits_footnote()
+    footnote = get_benefits_footnote(course_data)
     draw.text((60, footer_y - 28), footnote,
               font=font_footnote, fill=hex_to_rgb("#888888"))
 
