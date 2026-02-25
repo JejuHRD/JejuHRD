@@ -212,8 +212,8 @@ def generate_seo_title(course_data):
 
     # 과정명에서 핵심 키워드 추출
     core_keyword = title
-    if len(core_keyword) > 20:
-        core_keyword = core_keyword[:20]
+    if len(core_keyword) > 35:
+        core_keyword = core_keyword[:35]
 
     # 분야별 SEO 키워드
     seo_kw_map = {
