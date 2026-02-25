@@ -146,12 +146,12 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     # ── NCS직종명 (태그-뱃지 사이 중앙, 태그 스타일) ──
     ncs_name = course_data.get("ncsName", "")
     if ncs_name:
-        font_ncs = get_font(FONT_BOLD, 20)
+        font_ncs = get_font(FONT_BOLD, 30)
         ncs_label = f"NCS {ncs_name}"
         ncs_bbox = draw.textbbox((0, 0), ncs_label, font=font_ncs)
         ncs_text_w = ncs_bbox[2] - ncs_bbox[0]
         ncs_text_h = ncs_bbox[3] - ncs_bbox[1]
-        ncs_pad_x, ncs_pad_y = 14, 8
+        ncs_pad_x, ncs_pad_y = 21, 12
         ncs_pill_w = ncs_text_w + ncs_pad_x * 2
         ncs_pill_h = ncs_text_h + ncs_pad_y * 2
         gap_left = 50 + tag_w
@@ -161,7 +161,7 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
         draw_rounded_rect(draw,
                            (ncs_pill_x, ncs_pill_y,
                             ncs_pill_x + ncs_pill_w, ncs_pill_y + ncs_pill_h),
-                           radius=12, fill=(30, 60, 95), outline=(255, 255, 255), width=2)
+                           radius=18, fill=(30, 60, 95), outline=(255, 255, 255), width=2)
         draw.text((ncs_pill_x + ncs_pad_x, ncs_pill_y + ncs_pad_y), ncs_label,
                   font=font_ncs, fill=(255, 255, 255))
 
