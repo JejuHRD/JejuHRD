@@ -20,6 +20,8 @@ from datetime import datetime
 from benefits_helper import (
     get_benefits_detail_lines,
     get_cost_info_text,
+    get_course_type,
+    get_total_hours,
 )
 from seo_helper import (
     generate_seo_title,
@@ -42,6 +44,7 @@ def generate_blog_post(course_data, output_dir="output"):
     os.makedirs(output_dir, exist_ok=True)
 
     title = course_data["title"]
+    ncs_name = course_data.get("ncsName", "")
     institution = course_data.get("institution", "")
     period = course_data.get("period", "")
     capacity = course_data.get("capacity", "")
@@ -82,8 +85,30 @@ def generate_blog_post(course_data, output_dir="output"):
                 curriculum_text += f"**{i}. {item}**\n"
             curriculum_text += "\n"
 
-    # 훈련장려금 안내 문구
-    allowance_step3 = "140시간 이상 과정이면 출석 80% 이상 시 **매달 훈련장려금이 들어와요.**"
+    # 훈련시간 및 과정 유형
+    total_hours = get_total_hours(course_data)
+    ctype = get_course_type(course_data)
+    time_info = f"{total_hours}시간" if total_hours > 0 else ""
+
+    # 훈련장려금 안내 문구 (과정 유형별 맞춤)
+    if ctype == "long":
+        allowance_step3 = (
+            f"이 과정은 총 {total_hours}시간 장기과정이에요.\n"
+            "출석 80% 이상이면 **훈련장려금 월 20만원** + **특별훈련수당 월 최대 20만원**, "
+            "합계 **월 최대 40만원**을 받을 수 있어요!"
+        )
+    elif ctype == "general":
+        allowance_step3 = (
+            f"이 과정은 총 {total_hours}시간 과정이에요.\n"
+            "출석 80% 이상이면 **매달 훈련장려금 최대 20만원**이 들어와요."
+        )
+    elif ctype == "short":
+        allowance_step3 = (
+            f"이 과정은 총 {total_hours}시간 단기과정이에요.\n"
+            "훈련장려금은 없지만, **횟수 제한 없이 자부담 10%**로 부담 없이 배울 수 있어요."
+        )
+    else:
+        allowance_step3 = "자부담 10%로 **부담 없이 새로운 기술을 배울 수 있어요.**"
 
     # ── SEO 키워드 자연 삽입 섹션 ──
     seo_section = _build_seo_section(course_data, field, year)
@@ -102,8 +127,10 @@ def generate_blog_post(course_data, output_dir="output"):
 | 항목 | 내용 |
 |------|------|
 | **과정명** | {title} |
+| **NCS직종** | {ncs_name} |
 | **어디서 배우나요** | {institution} |
 | **배움 기간** | {period} |
+| **총 훈련시간** | {time_info} |
 | **수강비** | {course_cost} |
 | **자부담금 (10%)** | **{self_cost}** |
 | **모집 인원** | {capacity} |
@@ -137,7 +164,7 @@ def generate_blog_post(course_data, output_dir="output"):
 ## 이렇게 신청하세요
 
 ### STEP 1. 국민내일배움카드 만들기
-아직 카드가 없다면, **고용24(hrd.go.kr)**에서 온라인으로 신청하거나
+아직 카드가 없다면, **고용24(work24.go.kr)**에서 온라인으로 신청하거나
 가까운 **고용센터**에 방문하면 돼요. 발급까지 약 1~2주 걸리니 서둘러 신청하세요!
 
 > 💡 **꿀팁**: 고용24 앱을 설치하면 스마트폰으로도 간편하게 신청할 수 있어요.
@@ -303,7 +330,7 @@ def _build_recommend_section(field):
     for r in recommends:
         section += f"- ✅ {r}\n"
 
-    section += "\n> 특화훈련은 자부담 10%로 부담 없이 배울 수 있고, 140시간 이상 과정은 **훈련장려금(월 최대 20만원)**도 받을 수 있어요."
+    section += "\n> 특화훈련은 자부담 10%로 부담 없이 배울 수 있어요. 과정에 따라 **훈련장려금·특별훈련수당(월 최대 40만원)**도 받을 수 있으니, 자세한 내용은 위 혜택 안내를 확인해주세요."
 
     return section
 
