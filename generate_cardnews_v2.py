@@ -5,7 +5,7 @@ Pexels API 또는 그라데이션 배경 위에 텍스트를 오버레이합니�
 
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import os
-from benefits_helper import get_badge_text, get_benefits_text, get_benefits_footnote
+from benefits_helper import get_badge_text, get_benefits_text, get_benefits_footnote, get_total_hours
 
 # ── 폰트 ──
 FONT_BOLD = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
@@ -143,6 +143,20 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
                        radius=18, fill=hex_to_rgb(SUCCESS))
     draw.text((badge_x + 20, 44), badge_text, font=font_badge, fill=(255, 255, 255))
 
+    # ── NCS직종명 (태그-뱃지 사이 중앙) ──
+    ncs_name = course_data.get("ncsName", "")
+    if ncs_name:
+        font_ncs = get_font(FONT_REGULAR, 20)
+        ncs_bbox = draw.textbbox((0, 0), ncs_name, font=font_ncs)
+        ncs_w = ncs_bbox[2] - ncs_bbox[0]
+        ncs_h = ncs_bbox[3] - ncs_bbox[1]
+        gap_left = 50 + tag_w
+        gap_right = badge_x
+        ncs_x = gap_left + (gap_right - gap_left - ncs_w) // 2
+        ncs_text_y = 38 + (tag_h - ncs_h) // 2
+        draw.text((ncs_x, ncs_text_y), ncs_name,
+                  font=font_ncs, fill=(200, 210, 220))
+
     # ── 하단 콘텐츠 영역 (반투명 카드) ──
     card_y = 440
     card_img = Image.new('RGBA', (W, H), (0, 0, 0, 0))
@@ -187,6 +201,9 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     info_items = []
     if course_data.get("period"):
         info_items.append(("배움 기간", course_data["period"]))
+    hours = get_total_hours(course_data)
+    if hours > 0:
+        info_items.append(("총 시간", f"{hours}시간"))
     if course_data.get("capacity"):
         info_items.append(("모집 인원", course_data["capacity"]))
 
@@ -237,7 +254,9 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
 
     # ── 혜택 하이라이트 ──
     benefit_y = item_y + 6
-    benefit_box_h = 72
+    benefits = course_data.get("benefits", "") or get_benefits_text(course_data)
+    benefit_lines = benefits.split('\n')
+    benefit_box_h = 48 + len(benefit_lines) * 30
     draw_rounded_rect(draw,
                        (50, benefit_y, W - 50, benefit_y + benefit_box_h),
                        radius=12, fill=(255, 248, 230))
@@ -247,14 +266,14 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
 
     draw.text((72, benefit_y + 8), "이런 혜택이!",
               font=font_benefit_title, fill=hex_to_rgb(ACCENT))
-    benefits = course_data.get("benefits", "") or get_benefits_text(course_data)
-    draw.text((72, benefit_y + 40), benefits,
-              font=font_benefit, fill=(60, 60, 60))
+    for bi, bline in enumerate(benefit_lines):
+        draw.text((72, benefit_y + 40 + bi * 30), bline,
+                  font=font_benefit, fill=(60, 60, 60))
 
     # ── 하단 ※ 주석 ──
     footer_y = H - 75
     font_footnote = get_font(FONT_REGULAR, 19)
-    footnote = get_benefits_footnote()
+    footnote = get_benefits_footnote(course_data)
     draw.text((50, footer_y - 26), footnote,
               font=font_footnote, fill=(136, 136, 136))
 
@@ -273,7 +292,7 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     draw.text((55, org_y), org_text, font=font_footer, fill=(174, 214, 241))
 
     # CTA 수직 중앙
-    cta_text = "신청은 hrd.go.kr"
+    cta_text = "신청은 work24.go.kr"
     cta_bbox = draw.textbbox((0, 0), cta_text, font=font_cta)
     cta_w = cta_bbox[2] - cta_bbox[0]
     cta_h = cta_bbox[3] - cta_bbox[1]
@@ -382,7 +401,7 @@ def generate_detail_v2(course_data, bg_image, output_path):
     # ── 하단 ※ 주석 ──
     footer_y = H - 60
     font_footnote = get_font(FONT_REGULAR, 19)
-    footnote = get_benefits_footnote()
+    footnote = get_benefits_footnote(course_data)
     draw.text((50, footer_y - 25), footnote,
               font=font_footnote, fill=(136, 136, 136))
 
@@ -390,7 +409,7 @@ def generate_detail_v2(course_data, bg_image, output_path):
     footer_bar_h = H - footer_y
     draw.rectangle((0, footer_y, W, H), fill=hex_to_rgb(PRIMARY))
     font_footer = get_font(FONT_REGULAR, 21)
-    ft_text = "제주지역인적자원개발위원회  |  신청: hrd.go.kr"
+    ft_text = "제주지역인적자원개발위원회  |  신청: work24.go.kr"
     ft_bbox = draw.textbbox((0, 0), ft_text, font=font_footer)
     ft_h = ft_bbox[3] - ft_bbox[1]
     ft_y = footer_y + (footer_bar_h - ft_h) // 2
