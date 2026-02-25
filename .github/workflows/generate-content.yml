@@ -37,6 +37,14 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y fonts-noto-cjk
+          # 실제 설치된 경로 확인
+          find /usr/share/fonts -name "NotoSansCJK*" -type f
+          # 코드가 참조하는 경로에 심볼릭 링크 생성
+          sudo mkdir -p /usr/share/fonts/opentype/noto
+          for f in $(find /usr/share/fonts -name "NotoSansCJK-*.ttc" -type f); do
+            sudo ln -sf "$f" /usr/share/fonts/opentype/noto/$(basename "$f")
+          done
+          ls -la /usr/share/fonts/opentype/noto/
 
       - name: Run pipeline
         env:
