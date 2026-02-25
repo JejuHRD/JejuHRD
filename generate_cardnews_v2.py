@@ -37,14 +37,29 @@ def wrap_text(text, font, max_width, draw):
         if not para.strip():
             lines.append('')
             continue
+        words = para.split(' ')
         cur = ''
-        for ch in para:
-            test = cur + ch
+        for word in words:
+            test = (cur + ' ' + word).strip() if cur else word
             bbox = draw.textbbox((0, 0), test, font=font)
             if bbox[2] - bbox[0] > max_width:
                 if cur:
                     lines.append(cur)
-                cur = ch
+                # 단어 자체가 max_width 초과 시 글자 단위 분할
+                bbox_w = draw.textbbox((0, 0), word, font=font)
+                if bbox_w[2] - bbox_w[0] > max_width:
+                    sub = ''
+                    for ch in word:
+                        test_sub = sub + ch
+                        bbox_sub = draw.textbbox((0, 0), test_sub, font=font)
+                        if bbox_sub[2] - bbox_sub[0] > max_width and sub:
+                            lines.append(sub)
+                            sub = ch
+                        else:
+                            sub = test_sub
+                    cur = sub
+                else:
+                    cur = word
             else:
                 cur = test
         if cur:
@@ -192,8 +207,10 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     info_items = []
     if course_data.get("period"):
         info_items.append(("배움 기간", course_data["period"]))
-    if course_data.get("time"):
-        info_items.append(("총 시간", course_data["time"]))
+    if course_data.get("courseCost"):
+        info_items.append(("수강비", course_data["courseCost"]))
+    if course_data.get("realCost"):
+        info_items.append(("실제 훈련비", course_data["realCost"]))
     if course_data.get("capacity"):
         info_items.append(("모집 인원", course_data["capacity"]))
     
