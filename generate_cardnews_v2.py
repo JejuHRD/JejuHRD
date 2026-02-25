@@ -201,36 +201,37 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     course_cost = course_data.get("courseCost", "")
     if self_cost or course_cost:
         cost_y = item_y + 6
-        cost_box_h = 85
+        cost_box_h = 110
         draw_rounded_rect(draw,
                            (50, cost_y, W - 50, cost_y + cost_box_h),
                            radius=12, fill=(235, 245, 251))
         font_cost_label = get_font(FONT_BOLD, 25)
         font_cost_prefix = get_font(FONT_BOLD, 27)
-        font_cost_big = get_font(FONT_BLACK, 38)
+        font_cost_big = get_font(FONT_BLACK, 40)
         font_cost_small = get_font(FONT_REGULAR, 19)
 
-        draw.text((72, cost_y + 8), "자부담금",
+        draw.text((72, cost_y + 10), "자부담금",
                   font=font_cost_label, fill=hex_to_rgb(PRIMARY))
         if self_cost:
             prefix_text = "단,"
-            draw.text((72, cost_y + 45), prefix_text,
+            cost_row_y = cost_y + 55
+            draw.text((72, cost_row_y), prefix_text,
                       font=font_cost_prefix, fill=(44, 62, 80))
             prefix_bbox = draw.textbbox((0, 0), prefix_text, font=font_cost_prefix)
             prefix_w = prefix_bbox[2] - prefix_bbox[0]
 
-            draw.text((72 + prefix_w + 8, cost_y + 42), self_cost,
+            draw.text((72 + prefix_w + 8, cost_row_y - 4), self_cost,
                       font=font_cost_big, fill=hex_to_rgb(ACCENT))
 
             if course_cost:
                 cost_bbox = draw.textbbox((0, 0), self_cost, font=font_cost_big)
                 cost_w = cost_bbox[2] - cost_bbox[0]
                 small_x = 72 + prefix_w + 8 + cost_w + 10
-                draw.text((small_x, cost_y + 52),
+                draw.text((small_x, cost_row_y + 8),
                           f"(수강비 {course_cost})",
                           font=font_cost_small, fill=(136, 136, 136))
         elif course_cost:
-            draw.text((72, cost_y + 42), course_cost,
+            draw.text((72, cost_y + 55), course_cost,
                       font=font_cost_big, fill=hex_to_rgb(ACCENT))
         item_y = cost_y + cost_box_h + 6
 
@@ -258,17 +259,26 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
               font=font_footnote, fill=(136, 136, 136))
 
     # ── 하단 바 ──
-    draw.rectangle((30, footer_y, W - 30, H - 30), fill=hex_to_rgb(PRIMARY))
+    footer_bar_bottom = H - 30
+    footer_bar_h = footer_bar_bottom - footer_y
+    draw.rectangle((30, footer_y, W - 30, footer_bar_bottom), fill=hex_to_rgb(PRIMARY))
     font_footer = get_font(FONT_REGULAR, 21)
     font_cta = get_font(FONT_BOLD, 23)
 
-    draw.text((55, footer_y + 16), "제주지역인적자원개발위원회",
-              font=font_footer, fill=(174, 214, 241))
+    # 기관명 수직 중앙
+    org_text = "제주지역인적자원개발위원회"
+    org_bbox = draw.textbbox((0, 0), org_text, font=font_footer)
+    org_h = org_bbox[3] - org_bbox[1]
+    org_y = footer_y + (footer_bar_h - org_h) // 2
+    draw.text((55, org_y), org_text, font=font_footer, fill=(174, 214, 241))
 
+    # CTA 수직 중앙
     cta_text = "신청은 hrd.go.kr"
     cta_bbox = draw.textbbox((0, 0), cta_text, font=font_cta)
     cta_w = cta_bbox[2] - cta_bbox[0]
-    draw.text((W - cta_w - 55, footer_y + 14), cta_text,
+    cta_h = cta_bbox[3] - cta_bbox[1]
+    cta_y = footer_y + (footer_bar_h - cta_h) // 2
+    draw.text((W - cta_w - 55, cta_y), cta_text,
               font=font_cta, fill=hex_to_rgb(ACCENT_BRIGHT))
 
     # ── Pexels 크레딧 ──
@@ -377,9 +387,14 @@ def generate_detail_v2(course_data, bg_image, output_path):
               font=font_footnote, fill=(136, 136, 136))
 
     # ── 하단 바 ──
+    footer_bar_h = H - footer_y
     draw.rectangle((0, footer_y, W, H), fill=hex_to_rgb(PRIMARY))
     font_footer = get_font(FONT_REGULAR, 21)
-    draw.text((50, footer_y + 12), "제주지역인적자원개발위원회  |  신청: hrd.go.kr",
+    ft_text = "제주지역인적자원개발위원회  |  신청: hrd.go.kr"
+    ft_bbox = draw.textbbox((0, 0), ft_text, font=font_footer)
+    ft_h = ft_bbox[3] - ft_bbox[1]
+    ft_y = footer_y + (footer_bar_h - ft_h) // 2
+    draw.text((50, ft_y), ft_text,
               font=font_footer, fill=(174, 214, 241))
 
     img.save(output_path, quality=95)
