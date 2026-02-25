@@ -142,7 +142,7 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     draw.rectangle((0, 0, W, 6), fill=hex_to_rgb(ACCENT))
     
     # ── 상단 태그: 제주지역 특화훈련 ──
-    font_tag = get_font(FONT_BOLD, 26)
+    font_tag = get_font(FONT_BOLD, 29)
     tag_text = "제주지역 특화훈련"
     tag_bbox = draw.textbbox((0, 0), tag_text, font=font_tag)
     tag_w = tag_bbox[2] - tag_bbox[0] + 36
@@ -152,7 +152,7 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     draw.text((68, 44), tag_text, font=font_tag, fill=(255, 255, 255))
     
     # ── 상단 뱃지: 훈련비 전액 무료 ──
-    font_badge = get_font(FONT_BOLD, 24)
+    font_badge = get_font(FONT_BOLD, 27)
     badge_text = get_badge_text(course_data)
     badge_bbox = draw.textbbox((0, 0), badge_text, font=font_badge)
     badge_w = badge_bbox[2] - badge_bbox[0] + 36
@@ -179,7 +179,7 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     draw = ImageDraw.Draw(img)
     
     # ── 과정명 ──
-    font_title = get_font(FONT_BLACK, 46)
+    font_title = get_font(FONT_BLACK, 49)
     title_lines = wrap_text(course_data["title"], font_title, W - 120, draw)
     if len(title_lines) > 3:
         title_lines = title_lines[:3]
@@ -191,7 +191,7 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
         title_y += 62
     
     # ── 기관명 ──
-    font_inst = get_font(FONT_REGULAR, 26)
+    font_inst = get_font(FONT_REGULAR, 29)
     inst_y = title_y + 8
     draw.text((60, inst_y), course_data["institution"],
               font=font_inst, fill=(100, 100, 100))
@@ -201,16 +201,12 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     draw.line((60, line_y, W - 60, line_y), fill=(220, 220, 220), width=2)
     
     # ── 정보 항목 ──
-    font_label = get_font(FONT_BOLD, 24)
-    font_value = get_font(FONT_REGULAR, 24)
+    font_label = get_font(FONT_BOLD, 27)
+    font_value = get_font(FONT_REGULAR, 27)
     
     info_items = []
     if course_data.get("period"):
         info_items.append(("배움 기간", course_data["period"]))
-    if course_data.get("courseCost"):
-        info_items.append(("수강비", course_data["courseCost"]))
-    if course_data.get("realCost"):
-        info_items.append(("실제 훈련비", course_data["realCost"]))
     if course_data.get("capacity"):
         info_items.append(("모집 인원", course_data["capacity"]))
     
@@ -219,6 +215,34 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
         draw.text((60, item_y), label, font=font_label, fill=hex_to_rgb(PRIMARY))
         draw.text((230, item_y), value, font=font_value, fill=(60, 60, 60))
         item_y += 42
+
+    # ── 비용 강조 영역 ──
+    self_cost = course_data.get("selfCost", "")
+    course_cost = course_data.get("courseCost", "")
+    if self_cost or course_cost:
+        cost_y = item_y + 5
+        draw_rounded_rect(draw,
+                           (50, cost_y, W - 50, cost_y + 70),
+                           radius=12, fill=(235, 245, 251))
+        font_cost_label = get_font(FONT_BOLD, 27)
+        font_cost_big = get_font(FONT_BLACK, 37)
+        font_cost_small = get_font(FONT_REGULAR, 21)
+
+        draw.text((72, cost_y + 6), "자부담금",
+                  font=font_cost_label, fill=hex_to_rgb(PRIMARY))
+        if self_cost:
+            draw.text((72, cost_y + 35), self_cost,
+                      font=font_cost_big, fill=hex_to_rgb(ACCENT))
+            if course_cost:
+                sc_bbox = draw.textbbox((0, 0), self_cost, font=font_cost_big)
+                sc_w = sc_bbox[2] - sc_bbox[0]
+                draw.text((72 + sc_w + 12, cost_y + 43),
+                          f"(수강비 {course_cost})",
+                          font=font_cost_small, fill=(136, 136, 136))
+        elif course_cost:
+            draw.text((72, cost_y + 35), course_cost,
+                      font=font_cost_big, fill=hex_to_rgb(ACCENT))
+        item_y = cost_y + 80
     
     # ── 혜택 하이라이트 ──
     benefit_y = item_y + 15
@@ -226,8 +250,8 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
                        (50, benefit_y, W - 50, benefit_y + 90),
                        radius=12, fill=(255, 248, 230))
     
-    font_benefit_title = get_font(FONT_BOLD, 24)
-    font_benefit = get_font(FONT_REGULAR, 22)
+    font_benefit_title = get_font(FONT_BOLD, 27)
+    font_benefit = get_font(FONT_REGULAR, 25)
     
     draw.text((72, benefit_y + 10), "이런 혜택이!",
               font=font_benefit_title, fill=hex_to_rgb(ACCENT))
@@ -238,14 +262,14 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     # ── 하단 바 ──
     footer_y = H - 70
     # ── 하단 ※ 주석 ──
-    font_footnote = get_font(FONT_REGULAR, 18)
+    font_footnote = get_font(FONT_REGULAR, 21)
     footnote = get_benefits_footnote()
     draw.text((50, footer_y - 28), footnote,
               font=font_footnote, fill=(136, 136, 136))
 
     draw.rectangle((30, footer_y, W - 30, H - 30), fill=hex_to_rgb(PRIMARY))
-    font_footer = get_font(FONT_REGULAR, 20)
-    font_cta = get_font(FONT_BOLD, 22)
+    font_footer = get_font(FONT_REGULAR, 23)
+    font_cta = get_font(FONT_BOLD, 25)
     
     draw.text((55, footer_y + 14), "제주지역인적자원개발위원회",
               font=font_footer, fill=(174, 214, 241))
@@ -258,7 +282,7 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     
     # ── Pexels 크레딧 (사용 약관상 필요) ──
     if credit:
-        font_credit = get_font(FONT_REGULAR, 14)
+        font_credit = get_font(FONT_REGULAR, 17)
         credit_text = f"Photo: {credit['photographer']} / Pexels"
         draw.text((50, card_y - 25), credit_text,
                   font=font_credit, fill=(200, 200, 200, 180))
@@ -296,16 +320,16 @@ def generate_detail_v2(course_data, bg_image, output_path):
     draw.rectangle((0, 0, W, 5), fill=hex_to_rgb(ACCENT))
     
     # 헤더 텍스트
-    font_header = get_font(FONT_BOLD, 36)
+    font_header = get_font(FONT_BOLD, 39)
     draw.text((60, 40), "이런 걸 배워요", font=font_header, fill=(255, 255, 255))
     
-    font_subtitle = get_font(FONT_REGULAR, 24)
+    font_subtitle = get_font(FONT_REGULAR, 27)
     title_short = course_data["title"][:40] + ("..." if len(course_data["title"]) > 40 else "")
     draw.text((60, 90), title_short, font=font_subtitle, fill=(200, 210, 220))
     
     # ── 커리큘럼 카드 영역 ──
-    font_item_title = get_font(FONT_BOLD, 26)
-    font_item_desc = get_font(FONT_REGULAR, 22)
+    font_item_title = get_font(FONT_BOLD, 29)
+    font_item_desc = get_font(FONT_REGULAR, 25)
     
     curriculum = course_data.get("curriculum", [])
     y = header_h + 25
@@ -325,7 +349,7 @@ def generate_detail_v2(course_data, bg_image, output_path):
         cr = 18
         draw_rounded_rect(draw, (cx - cr, cy - cr, cx + cr, cy + cr),
                            radius=cr, fill=hex_to_rgb(PRIMARY))
-        font_num = get_font(FONT_BOLD, 20)
+        font_num = get_font(FONT_BOLD, 23)
         num_bbox = draw.textbbox((0, 0), str(i + 1), font=font_num)
         num_w = num_bbox[2] - num_bbox[0]
         draw.text((cx - num_w // 2, cy - 12), str(i + 1),
@@ -354,8 +378,8 @@ def generate_detail_v2(course_data, bg_image, output_path):
     draw_rounded_rect(draw, (40, outcome_y, W - 40, outcome_y + 100),
                        radius=12, fill=hex_to_rgb(PRIMARY))
     
-    font_outcome_title = get_font(FONT_BOLD, 24)
-    font_outcome = get_font(FONT_REGULAR, 22)
+    font_outcome_title = get_font(FONT_BOLD, 27)
+    font_outcome = get_font(FONT_REGULAR, 25)
     
     draw.text((65, outcome_y + 12), "배우고 나면",
               font=font_outcome_title, fill=hex_to_rgb(ACCENT_BRIGHT))
@@ -368,13 +392,13 @@ def generate_detail_v2(course_data, bg_image, output_path):
     # 하단 바
     footer_y = H - 55
     # ── 하단 ※ 주석 ──
-    font_footnote = get_font(FONT_REGULAR, 18)
+    font_footnote = get_font(FONT_REGULAR, 21)
     footnote = get_benefits_footnote()
     draw.text((50, footer_y - 25), footnote,
               font=font_footnote, fill=(136, 136, 136))
 
     draw.rectangle((0, footer_y, W, H), fill=hex_to_rgb(PRIMARY))
-    font_footer = get_font(FONT_REGULAR, 20)
+    font_footer = get_font(FONT_REGULAR, 23)
     draw.text((50, footer_y + 10), "제주지역인적자원개발위원회  |  신청: hrd.go.kr",
               font=font_footer, fill=(174, 214, 241))
     
