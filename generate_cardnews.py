@@ -7,13 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 import textwrap
 import os
 import math
-from benefits_helper import (
-    get_badge_text,
-    get_benefits_text,
-    is_long_course,
-    is_special_allowance_eligible,
-    get_special_allowance_info,
-)
+from benefits_helper import get_badge_text, get_benefits_text
 
 # ── 브랜드 컬러 ──
 COLORS = {
@@ -51,20 +45,35 @@ def draw_rounded_rect(draw, xy, radius, fill=None, outline=None, width=1):
     draw.rounded_rectangle(xy, radius=radius, fill=fill, outline=outline, width=width)
 
 def wrap_text_to_lines(text, font, max_width, draw):
-    """텍스트를 최대 너비에 맞게 줄바꿈"""
+    """텍스트를 최대 너비에 맞게 어절(공백) 단위로 줄바꿈"""
     lines = []
     for paragraph in text.split('\n'):
         if not paragraph.strip():
             lines.append('')
             continue
+        words = paragraph.split(' ')
         current_line = ''
-        for char in paragraph:
-            test_line = current_line + char
+        for word in words:
+            test_line = (current_line + ' ' + word).strip() if current_line else word
             bbox = draw.textbbox((0, 0), test_line, font=font)
             if bbox[2] - bbox[0] > max_width:
                 if current_line:
                     lines.append(current_line)
-                current_line = char
+                # 단어 자체가 max_width보다 넓으면 글자 단위로 분할
+                bbox_word = draw.textbbox((0, 0), word, font=font)
+                if bbox_word[2] - bbox_word[0] > max_width:
+                    sub = ''
+                    for ch in word:
+                        test_sub = sub + ch
+                        bbox_sub = draw.textbbox((0, 0), test_sub, font=font)
+                        if bbox_sub[2] - bbox_sub[0] > max_width and sub:
+                            lines.append(sub)
+                            sub = ch
+                        else:
+                            sub = test_sub
+                    current_line = sub
+                else:
+                    current_line = word
             else:
                 current_line = test_line
         if current_line:
@@ -140,8 +149,10 @@ def generate_slide_cover(course_data, output_path):
     info_items = []
     if course_data.get("period"):
         info_items.append(("배움 기간", course_data["period"]))
-    if course_data.get("time"):
-        info_items.append(("총 시간", course_data["time"]))
+    if course_data.get("courseCost"):
+        info_items.append(("수강비", course_data["courseCost"]))
+    if course_data.get("realCost"):
+        info_items.append(("실제 훈련비", course_data["realCost"]))
     if course_data.get("capacity"):
         info_items.append(("모집 인원", course_data["capacity"]))
     if course_data.get("target"):
@@ -317,23 +328,8 @@ def generate_slide_howto(course_data, output_path):
     draw.line((60, 110, W - 60, 110), fill=hex_to_rgb("#D5D8DC"), width=2)
 
     # ── 3단계 프로세스 ──
-    # STEP 3 문구는 과정 시간에 따라 달라짐
-    long = is_long_course(course_data)
-    special = is_special_allowance_eligible(course_data)
-    allowance = get_special_allowance_info()
-
-    if special is True:
-        step3_title = "장려금 + 특별수당 받기"
-        step3_desc = (
-            f"출석 80% 이상이면 장려금 월 20만원\n"
-            f"+ 특별훈련수당 월 최대 {allowance['월최대']} 추가!"
-        )
-    elif long is True:
-        step3_title = "배우면서 훈련장려금도 받기"
-        step3_desc = "열심히 다니면 (출석 80% 이상)\n매달 훈련장려금 최대 20만원이 들어와요"
-    else:
-        step3_title = "부담 없이 배우기"
-        step3_desc = "자부담 최대 10%로 부담 없이\n새로운 기술을 배울 수 있어요"
+    step3_title = "혜택 받으며 배우기"
+    step3_desc = "자부담 10%로 부담 없이 배우고\n140시간 이상이면 장려금도 받아요"
 
     steps = [
         {
@@ -424,7 +420,7 @@ def generate_slide_howto(course_data, output_path):
     footer_y = H - 80
     draw.rectangle((0, footer_y, W, H), fill=hex_to_rgb(COLORS["primary"]))
     font_footer = get_font(FONT_REGULAR, 22)
-    draw.text((60, footer_y + 18), "제주지역인적자원개발위원회  |  내일배움카드 있으면 자부담 최대 10%로 참여!",
+    draw.text((60, footer_y + 18), "제주지역인적자원개발위원회  |  내일배움카드 있으면 누구나 참여할 수 있어요",
               font=font_footer, fill=hex_to_rgb("#AED6F1"))
 
     img.save(output_path, quality=95)
