@@ -117,6 +117,11 @@ def fetch_courses_from_api():
 
     try:
         response = requests.get(url, params=params, timeout=30)
+        
+        # ── 디버깅: 응답 상태와 내용 확인 ──
+        print(f"응답 코드: {response.status_code}")
+        print(f"응답 앞 500자:\n{response.text[:500]}")
+        
         data = response.json()
 
         courses = []
