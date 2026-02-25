@@ -1,0 +1,72 @@
+name: 특화훈련 콘텐츠 자동 생성
+
+on:
+  # 매일 오전 9시(KST) = UTC 00:00
+  schedule:
+    - cron: '0 0 * * *'
+
+  # 수동 실행
+  workflow_dispatch:
+    inputs:
+      json_file:
+        description: '테스트용 JSON 파일 경로 (비워두면 API 호출)'
+        required: false
+        default: ''
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Noto Sans CJK fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-noto-cjk
+
+      - name: Run pipeline
+        env:
+          HRD_API_KEY: ${{ secrets.HRD_API_KEY }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+        run: |
+          if [ -n "${{ github.event.inputs.json_file }}" ]; then
+            python pipeline.py --json "${{ github.event.inputs.json_file }}"
+          else
+            python pipeline.py
+          fi
+
+      - name: Commit generated content
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add output/
+
+          if git diff --staged --quiet; then
+            echo "새로 생성된 콘텐츠 없음 — 스킵"
+          else
+            git commit -m "🤖 콘텐츠 자동 생성 ($(date +%Y-%m-%d))"
+            git push
+          fi
+
+      - name: Upload output as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: content-${{ github.run_number }}
+          path: output/
+          retention-days: 30
