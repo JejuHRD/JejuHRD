@@ -179,9 +179,25 @@ def fetch_courses_from_api():
         return []
 
 
+def format_cost(raw_value):
+    """숫자 문자열을 '1,077,960원' 형태로 포맷합니다."""
+    if not raw_value:
+        return ""
+    try:
+        return f"{int(raw_value):,}원"
+    except (ValueError, TypeError):
+        return f"{raw_value}원"
+
+
 def parse_api_course(api_item):
     """
     API 응답 데이터를 콘텐츠 생성기 형식으로 변환합니다.
+
+    고용24 API 목록(outType=1) 주요 필드:
+    - COURSE_MAN → courseMan: 전체 수강비(원)
+    - REAL_MAN   → realMan:  실제 훈련비(원) (자부담액)
+    - YARD_MAN   → yardMan:  정원
+    ※ 훈련시간 필드는 목록 API에 없음
     """
     try:
         start_raw = api_item.get("traStartDate", "")
@@ -196,18 +212,24 @@ def parse_api_course(api_item):
             period = ""
 
         institution = api_item.get("subTitle", "")
+        trpr_id = api_item.get("trprId", "")
+        trpr_degr = api_item.get("trprDegr", "")
+
+        # ── 비용 정보 ──
+        course_cost = format_cost(api_item.get("courseMan", ""))   # 전체 수강비
+        real_cost = format_cost(api_item.get("realMan", ""))       # 실제 훈련비
 
         course = {
-            "trprId": api_item.get("trprId", ""),
-            "trprDegr": api_item.get("trprDegr", ""),
+            "trprId": trpr_id,
+            "trprDegr": trpr_degr,
             "traStartDate": str(start_raw),
             "traEndDate": str(end_raw),
 
             "title": api_item.get("title", ""),
             "institution": institution,
             "period": period,
-            "time": f"총 {api_item.get('courseMan', '?')}시간",
-            "courseMan": api_item.get("courseMan", ""),
+            "courseCost": course_cost,   # 전체 수강비
+            "realCost": real_cost,        # 실제 훈련비 (자부담)
             "capacity": f"{api_item.get('yardMan', '?')}명",
             "target": "내일배움카드 있으면 누구나",
             "benefits": "",
@@ -215,9 +237,10 @@ def parse_api_course(api_item):
             "outcome": "",
             "contact": f"{institution} Tel: {api_item.get('telNo', '')}",
             "hrd_url": (
-                f"https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L01.do"
-                f"?trprId={api_item.get('trprId', '')}"
-                f"&trprDegr={api_item.get('trprDegr', '')}"
+                f"https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do"
+                f"?tracseId={trpr_id}"
+                f"&tracseTme={trpr_degr}"
+                f"&crseTracseSe=C0102"
             ),
         }
 
