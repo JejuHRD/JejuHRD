@@ -119,7 +119,8 @@ def fetch_courses_from_api():
 
     1단계: L01(목록 API) → 과정 리스트 + trprId, trprDegr, instCd 확보
     2단계: L02(과정/기관정보 API) → 과정별 trtm(총훈련시간), ncsNm(NCS직종명) 등 상세
-    3단계: 과정 상세 페이지 크롤링 → trainingGoal(훈련목표), courseStrength(과정 강점)
+
+    ※ 3단계(훈련목표 크롤링)는 enrich_training_goals()에서 별도 실행
 
     - 훈련유형: C0102 (산업구조변화대응 등 특화훈련)
     - 지역: 50 (제주)
@@ -223,29 +224,6 @@ def fetch_courses_from_api():
 
             courses.append(course)
 
-        # ═══════════════════════════════════════════════════
-        # 3단계: 과정 상세 페이지 크롤링 (훈련목표)
-        # ═══════════════════════════════════════════════════
-        print("  [3단계] 과정 상세 페이지에서 훈련목표 크롤링 중...")
-
-        goal_count = 0
-        for idx, course in enumerate(courses):
-            hrd_url = course.get("hrd_url", "")
-            if not hrd_url:
-                continue
-
-            goal_data = _fetch_training_goal(hrd_url, is_first=(idx == 0))
-            if goal_data:
-                course["trainingGoal"] = goal_data.get("trainingGoal", "")
-                course["courseStrength"] = goal_data.get("courseStrength", "")
-                if course["trainingGoal"]:
-                    goal_count += 1
-
-            # 크롤링 부하 방지 (0.5초 간격)
-            time.sleep(0.5)
-
-        print(f"  ✅ 훈련목표 {goal_count}건 확보")
-
         # 결과 요약
         has_hours = sum(1 for c in courses if c.get("totalHours", 0) > 0)
         has_ncs = sum(1 for c in courses if c.get("ncsName", ""))
@@ -325,6 +303,47 @@ def _fetch_course_detail(api_key, url, trpr_id, trpr_degr, torg_id, is_first=Fal
 
     except Exception as e:
         return None
+
+
+def enrich_training_goals(courses):
+    """
+    과정 목록에 훈련목표/과정강점을 크롤링하여 채웁니다.
+
+    API 모드, JSON 모드 관계없이 항상 실행됩니다.
+    이미 trainingGoal이 있는 과정은 건너뜁니다.
+    """
+    import time
+
+    # 크롤링이 필요한 과정만 필터링
+    need_crawl = [c for c in courses
+                  if c.get("hrd_url") and not c.get("trainingGoal")]
+
+    if not need_crawl:
+        already = sum(1 for c in courses if c.get("trainingGoal"))
+        if already:
+            print(f"  ✅ 훈련목표 {already}건 이미 확보됨 (크롤링 스킵)")
+        else:
+            print("  ⚠️  hrd_url이 없어 크롤링할 수 없음")
+        return
+
+    print(f"  [3단계] 과정 상세 페이지에서 훈련목표 크롤링 중... ({len(need_crawl)}건)")
+
+    goal_count = 0
+    for idx, course in enumerate(need_crawl):
+        hrd_url = course.get("hrd_url", "")
+
+        goal_data = _fetch_training_goal(hrd_url, is_first=(idx == 0))
+        if goal_data:
+            course["trainingGoal"] = goal_data.get("trainingGoal", "")
+            course["courseStrength"] = goal_data.get("courseStrength", "")
+            if course["trainingGoal"]:
+                goal_count += 1
+
+        # 크롤링 부하 방지 (0.5초 간격)
+        time.sleep(0.5)
+
+    total_goals = sum(1 for c in courses if c.get("trainingGoal"))
+    print(f"  ✅ 훈련목표 {total_goals}건 확보 (이번 크롤링: {goal_count}건)")
 
 
 def _fetch_training_goal(hrd_url, is_first=False):
@@ -630,7 +649,7 @@ def run_pipeline(courses):
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("  🚀 특화훈련 콘텐츠 자동 생성 파이프라인 v3")
+    print("  🚀 특화훈련 콘텐츠 자동 생성 파이프라인 v4")
     print(f"  📅 실행 시각: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     print("  🎯 대상: 산업구조변화대응 등 특화훈련 (C0102) / 제주")
     print("=" * 60)
@@ -655,12 +674,17 @@ if __name__ == "__main__":
         courses = fetch_courses_from_api()
 
     if courses:
+        # ── 훈련목표 크롤링 (API/JSON 모드 모두) ──
+        enrich_training_goals(courses)
+        print()
+
         # 첫 번째 과정 파싱 결과 요약
         c = courses[0]
         print(f"  ── 첫 번째 과정 파싱 결과 확인 ──")
         print(f"  과정명:     {c.get('title', '?')}")
         print(f"  NCS직종명:  {c.get('ncsName') or '❌ 비어있음 (API 필드명 확인 필요)'}")
         print(f"  훈련시간:   {c.get('totalHours') or '❌ 0 (API 필드명 확인 필요)'}")
+        print(f"  훈련목표:   {(c.get('trainingGoal', '')[:50] + '...') if c.get('trainingGoal') else '❌ 비어있음 (크롤링 확인 필요)'}")
         print(f"  기관명:     {c.get('institution', '?')}")
         print(f"  수강비:     {c.get('courseCost', '?')}")
         print()
