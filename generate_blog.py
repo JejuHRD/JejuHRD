@@ -105,7 +105,8 @@ def generate_blog_post(course_data, output_dir="output"):
     elif ctype == "short":
         allowance_step3 = (
             f"이 과정은 총 {total_hours}시간 단기과정이에요.\n"
-            "훈련장려금은 없지만, **횟수 제한 없이 자부담 10%**로 부담 없이 배울 수 있어요."
+            "훈련장려금은 없지만, **자부담 10%**로 부담 없이 배울 수 있어요.\n"
+            "※ 동일 훈련과정 재참여는 불가하며, 다른 단기과정은 횟수 제한 없이 수강 가능합니다."
         )
     else:
         allowance_step3 = "자부담 10%로 **부담 없이 새로운 기술을 배울 수 있어요.**"
