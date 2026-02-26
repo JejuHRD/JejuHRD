@@ -331,8 +331,9 @@ def _fetch_training_goal(hrd_url, is_first=False):
     """
     고용24 과정 상세 페이지에서 훈련목표/훈련과정 강점을 크롤링합니다.
 
-    work24.go.kr 상세 페이지는 서버사이드 렌더링(SSR)으로
-    훈련과정 개요 테이블(th/td)에 훈련목표가 포함되어 있습니다.
+    시도 순서:
+    1. www.work24.go.kr (원본 URL, 데스크톱 User-Agent)
+    2. m.work24.go.kr (모바일 URL, 모바일 User-Agent) — fallback
 
     반환값: {"trainingGoal": str, "courseStrength": str} 또는 None
     """
@@ -345,67 +346,127 @@ def _fetch_training_goal(hrd_url, is_first=False):
             print("  ⚠️  beautifulsoup4 미설치 — pip install beautifulsoup4 필요")
         return None
 
-    try:
-        # 모바일 버전이 더 가벼움 (www → m 변환)
-        mobile_url = hrd_url.replace("www.work24.go.kr", "m.work24.go.kr")
+    # 시도할 URL + User-Agent 조합
+    attempts = [
+        {
+            "url": hrd_url,  # 원본 www URL 그대로
+            "ua": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                   "AppleWebKit/537.36 (KHTML, like Gecko) "
+                   "Chrome/120.0.0.0 Safari/537.36"),
+            "label": "www",
+        },
+        {
+            "url": hrd_url.replace("www.work24.go.kr", "m.work24.go.kr"),
+            "ua": ("Mozilla/5.0 (Linux; Android 13) "
+                   "AppleWebKit/537.36 (KHTML, like Gecko) "
+                   "Chrome/120.0.0.0 Mobile Safari/537.36"),
+            "label": "mobile",
+        },
+    ]
 
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 "
-                          "(KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
-            "Accept": "text/html,application/xhtml+xml",
-            "Accept-Language": "ko-KR,ko;q=0.9",
-        }
+    for attempt in attempts:
+        try:
+            headers = {
+                "User-Agent": attempt["ua"],
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9",
+                "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8",
+                "Accept-Encoding": "gzip, deflate",
+                "Connection": "keep-alive",
+            }
 
-        resp = requests.get(mobile_url, headers=headers, timeout=15)
-        if resp.status_code != 200:
-            return None
+            resp = requests.get(attempt["url"], headers=headers, timeout=15,
+                                allow_redirects=True)
 
-        soup = BeautifulSoup(resp.text, "html.parser")
+            if is_first:
+                print(f"  [DEBUG] 크롤링 시도 ({attempt['label']}): {resp.status_code} "
+                      f"({len(resp.text)}자)")
 
-        training_goal = ""
-        course_strength = ""
+            if resp.status_code != 200:
+                if is_first:
+                    print(f"  ⚠️  {attempt['label']} → HTTP {resp.status_code}")
+                continue
 
-        # 테이블에서 th 텍스트로 매칭하여 td 추출
-        for th in soup.find_all("th"):
-            th_text = th.get_text(strip=True)
+            # HTML 파싱
+            result = _parse_training_goal_html(resp.text, is_first)
+            if result and result.get("trainingGoal"):
+                return result
 
-            if th_text == "훈련목표":
-                td = th.find_next_sibling("td")
-                if not td:
-                    # th와 td가 같은 tr 안에 있는 경우
-                    tr = th.find_parent("tr")
-                    if tr:
-                        td = tr.find("td")
-                if td:
-                    training_goal = td.get_text(separator="\n", strip=True)
+            if is_first:
+                print(f"  ⚠️  {attempt['label']} → HTML에서 훈련목표를 찾지 못함")
 
-            elif "훈련과정의 강점" in th_text or "훈련과정의강점" in th_text:
-                td = th.find_next_sibling("td")
-                if not td:
-                    tr = th.find_parent("tr")
-                    if tr:
-                        td = tr.find("td")
-                if td:
-                    course_strength = td.get_text(separator="\n", strip=True)
+        except requests.exceptions.Timeout:
+            if is_first:
+                print(f"  ⚠️  {attempt['label']} → 타임아웃 (15초)")
+        except requests.exceptions.ConnectionError as e:
+            if is_first:
+                err_msg = str(e)[:80]
+                print(f"  ⚠️  {attempt['label']} → 연결 실패: {err_msg}")
+        except Exception as e:
+            if is_first:
+                print(f"  ⚠️  {attempt['label']} → 크롤링 실패: {e}")
 
-        if is_first:
-            goal_preview = training_goal[:80] + "..." if len(training_goal) > 80 else training_goal
-            print(f"  [DEBUG] 크롤링 → 훈련목표: {goal_preview or '(없음)'}")
-            print(f"  [DEBUG] 크롤링 → 과정 강점: {'있음' if course_strength else '(없음)'}")
+    return None
 
-        return {
-            "trainingGoal": training_goal,
-            "courseStrength": course_strength,
-        }
 
-    except requests.exceptions.Timeout:
-        if is_first:
-            print("  ⚠️  과정 상세 페이지 타임아웃 (15초)")
-        return None
-    except Exception as e:
-        if is_first:
-            print(f"  ⚠️  훈련목표 크롤링 실패: {e}")
-        return None
+def _parse_training_goal_html(html_text, is_first=False):
+    """
+    HTML에서 훈련목표/과정 강점을 파싱합니다.
+
+    work24 상세 페이지 구조:
+    <table>
+      <tr><th>훈련목표</th><td>...</td></tr>
+      <tr><th>훈련대상 요건 훈련과정의 강점</th><td>...</td></tr>
+    </table>
+    """
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(html_text, "html.parser")
+
+    training_goal = ""
+    course_strength = ""
+
+    # 방법 1: th 텍스트로 매칭
+    for th in soup.find_all("th"):
+        th_text = th.get_text(strip=True)
+
+        if th_text == "훈련목표":
+            td = th.find_next_sibling("td")
+            if not td:
+                tr = th.find_parent("tr")
+                if tr:
+                    td = tr.find("td")
+            if td:
+                training_goal = td.get_text(separator="\n", strip=True)
+
+        elif "훈련과정의 강점" in th_text or "훈련과정의강점" in th_text:
+            td = th.find_next_sibling("td")
+            if not td:
+                tr = th.find_parent("tr")
+                if tr:
+                    td = tr.find("td")
+            if td:
+                course_strength = td.get_text(separator="\n", strip=True)
+
+    # 방법 2: "훈련목표" 텍스트를 포함하는 모든 요소에서 탐색 (fallback)
+    if not training_goal:
+        for elem in soup.find_all(string=lambda t: t and "훈련목표" in t):
+            parent = elem.find_parent("th") or elem.find_parent("dt") or elem.find_parent("strong")
+            if parent:
+                # 다음 sibling에서 td/dd 찾기
+                next_td = parent.find_next(["td", "dd"])
+                if next_td:
+                    training_goal = next_td.get_text(separator="\n", strip=True)
+                    break
+
+    if is_first:
+        goal_preview = training_goal[:80] + "..." if len(training_goal) > 80 else training_goal
+        print(f"  [DEBUG] 파싱 → 훈련목표: {goal_preview or '(없음)'}")
+        print(f"  [DEBUG] 파싱 → 과정 강점: {'있음 (' + str(len(course_strength)) + '자)' if course_strength else '(없음)'}")
+
+    return {
+        "trainingGoal": training_goal,
+        "courseStrength": course_strength,
+    }
 
 
 def format_cost(raw_value):
