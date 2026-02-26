@@ -449,6 +449,20 @@ def generate_instagram_caption(course_data):
 
 💬 궁금한 점은 DM 또는 댓글로 물어봐 주세요"""
 
+    # 훈련목표 요약 (있을 때만)
+    training_goal = course_data.get("trainingGoal", "")
+    if training_goal:
+        # 첫 문장만 추출하여 간결하게
+        goal_sentences = [s.strip() for s in training_goal.replace("\n", ".").split(".") if s.strip()]
+        goal_short = goal_sentences[0] if goal_sentences else ""
+        if len(goal_short) > 80:
+            goal_short = goal_short[:77] + "..."
+        if goal_short:
+            caption = caption.replace(
+                "👉 신청 방법이 궁금하다면?",
+                f"📋 이 과정을 배우면?\n→ {goal_short}\n\n👉 신청 방법이 궁금하다면?"
+            )
+
     # 해시태그 (본문과 분리)
     hashtags = generate_instagram_hashtags(course_data)
     caption += hashtags
@@ -557,6 +571,16 @@ def generate_reels_script(course_data):
     ncs_line = f"📋 NCS직종: {ncs_name}" if ncs_name else ""
     ncs_intro = f"{ncs_name} 분야 전문가가 되고 싶다면?" if ncs_name else f"{field_display} 전문가가 되고 싶다면?"
 
+    # ── 훈련목표 활용 ──
+    training_goal = course_data.get("trainingGoal", "")
+    goal_short = ""
+    if training_goal:
+        sentences = [s.strip() for s in training_goal.replace("\n", ".").split(".") if s.strip()]
+        goal_short = sentences[0] if sentences else ""
+        if len(goal_short) > 60:
+            goal_short = goal_short[:57] + "..."
+    goal_line = f"📋 \"{goal_short}\"" if goal_short else ""
+
     # ── SEO 키워드 해시태그 (상위 5개) ──
     seo_tags = " ".join([f"#{kw}" for kw in seo_keywords[:5]])
 
@@ -580,6 +604,7 @@ def generate_reels_script(course_data):
   - 📍 {institution}
   {f'- ⏱️ 총 {hours}시간' if hours > 0 else ''}
   {f'- {ncs_line}' if ncs_line else ''}
+  {f'- {goal_line}' if goal_line else ''}
   - {benefit_line}
   - ✅ 국민내일배움카드만 있으면 OK
 
@@ -616,6 +641,7 @@ def generate_reels_script(course_data):
   한 줄씩 등장하는 애니메이션:
   ✅ {institution}에서 진행
   {f'✅ 총 {hours}시간 과정' if hours > 0 else ''}
+  {f'✅ {goal_short}' if goal_short else ''}
   {benefit_detail}
   ✅ 국민내일배움카드만 있으면 신청 가능
 
@@ -643,7 +669,7 @@ def generate_reels_script(course_data):
 
 5~10초 [과정 소개]
   나레이션: "제주에서 {field_display} 과정이 열렸는데요,
-    {institution}에서 진행하는 '{title[:25]}' 과정이에요."
+    {institution}에서 진행하는 '{title[:25]}' 과정이에요.{f' ' + goal_short + '을 목표로 하는 과정이에요.' if goal_short and len(goal_short) < 40 else ''}"
   화면: 카드뉴스 커버 이미지 or 기관 외관
 
 10~18초 [혜택 설명]
@@ -651,7 +677,7 @@ def generate_reels_script(course_data):
   화면: 카드뉴스 상세 이미지 or 혜택 텍스트 오버레이
 
 18~25초 [차별점 강조]
-  나레이션: "{_build_narration_diff(field, ncs_name, ctype, hours)}"
+  나레이션: "{_build_narration_diff(field, ncs_name, ctype, hours, training_goal)}"
   화면: 관련 이미지 or 텍스트 애니메이션
 
 25~30초 [CTA]
@@ -722,9 +748,24 @@ def _build_narration_benefit(ctype, hours, self_cost):
         return f"{cost_mention} 나머지는 전부 국비로 지원받을 수 있어요."
 
 
-def _build_narration_diff(field, ncs_name, ctype, hours):
+def _build_narration_diff(field, ncs_name, ctype, hours, training_goal=""):
     """나레이션형 릴스의 차별점 강조 문구"""
     ncs_mention = f"{ncs_name} 분야 " if ncs_name else ""
+
+    # 훈련목표가 있으면 구체적인 차별점 생성
+    if training_goal:
+        goal_sentences = [s.strip() for s in training_goal.replace("\n", ".").split(".") if s.strip()]
+        goal_core = goal_sentences[0] if goal_sentences else ""
+        if len(goal_core) > 50:
+            goal_core = goal_core[:47] + "..."
+
+        if goal_core:
+            diff = f"이 과정은 {ncs_mention}{goal_core}을 목표로 하고 있어요. 실무에서 바로 활용할 수 있는 역량을 키울 수 있죠."
+            if ctype == "long" and hours >= 350:
+                diff += f" 총 {hours}시간이라 정말 깊이 있게 배울 수 있고요."
+            elif ctype == "short" and hours > 0:
+                diff += f" {hours}시간이면 부담 없이 끝낼 수 있는 분량이에요."
+            return diff
 
     diff_pool = {
         "AI": [

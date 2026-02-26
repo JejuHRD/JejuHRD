@@ -53,6 +53,14 @@ def generate_blog_post(course_data, output_dir="output"):
     target = course_data.get("target", "국민내일배움카드 있으면 누구나")
     curriculum = course_data.get("curriculum", [])
     outcome = course_data.get("outcome", "")
+    # outcome이 비어있으면 훈련목표를 활용
+    if not outcome:
+        training_goal_for_outcome = course_data.get("trainingGoal", "")
+        if training_goal_for_outcome:
+            outcome = (
+                f"이 과정을 수료하면 다음과 같은 역량을 갖출 수 있어요.\n\n"
+                f"> {training_goal_for_outcome}"
+            )
     contact = course_data.get("contact", "")
     hrd_url = course_data.get("hrd_url", "https://www.work24.go.kr")
 

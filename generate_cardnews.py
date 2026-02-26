@@ -335,8 +335,7 @@ def generate_slide_detail(course_data, output_path):
 
 
 def _draw_slide_detail_goal(draw, W, H, course_data, training_goal):
-    """훈련목표가 있을 때의 상세 슬라이드 레이아웃"""
-    from benefits_helper import get_course_type, get_total_hours
+    """훈련목표가 있을 때의 상세 슬라이드 레이아웃 (훈련목표 + 과정 강점만)"""
 
     # ── 헤더 ──
     font_header = get_font(FONT_BOLD, 39)
@@ -360,54 +359,34 @@ def _draw_slide_detail_goal(draw, W, H, course_data, training_goal):
     draw.text((60, y), "📋 훈련목표", font=font_goal_label, fill=hex_to_rgb(COLORS["primary"]))
     y += 48
 
-    # 훈련목표 텍스트 워드랩 (최대 영역: y ~ H-340)
-    max_goal_y = H - 340
+    # 훈련목표 텍스트 워드랩 (하단 footer 80px만 제외하고 풀 영역 사용)
+    max_content_y = H - 100
     goal_lines = wrap_text_to_lines(training_goal, font_goal_body, W - 140, draw)
 
     for line in goal_lines:
-        if y > max_goal_y:
+        if y > max_content_y:
             break
         draw.text((70, y), line, font=font_goal_body, fill=hex_to_rgb(COLORS["text_dark"]))
         y += 38
 
-    # ── 과정 강점 요약 (공간 있으면) ──
+    # ── 과정 강점 (공간 여유가 있을 때) ──
     course_strength = course_data.get("courseStrength", "")
-    if course_strength and y < max_goal_y - 60:
-        y += 20
+    if course_strength and y < max_content_y - 80:
+        y += 24
         draw.line((60, y, W - 60, y), fill=hex_to_rgb("#EAECEE"), width=1)
-        y += 18
+        y += 20
 
         font_strength_label = get_font(FONT_BOLD, 27)
         draw.text((60, y), "✨ 과정 강점", font=font_strength_label, fill=hex_to_rgb(COLORS["accent"]))
-        y += 42
+        y += 44
 
         font_strength = get_font(FONT_REGULAR, 24)
-        # 강점 텍스트에서 핵심 문장만 추출 (첫 3줄)
         strength_lines = wrap_text_to_lines(course_strength, font_strength, W - 140, draw)
-        for line in strength_lines[:3]:
-            if y > max_goal_y:
+        for line in strength_lines:
+            if y > max_content_y:
                 break
             draw.text((70, y), line, font=font_strength, fill=hex_to_rgb(COLORS["text_gray"]))
             y += 34
-
-    # ── 하단: 혜택 요약 박스 ──
-    from benefits_helper import get_benefits_text
-    benefit_text = get_benefits_text(course_data)
-    benefit_lines = benefit_text.split("|") if benefit_text else ["자부담 10%"]
-
-    benefit_box_h = 50 + len(benefit_lines) * 32
-    benefit_y = H - 100 - benefit_box_h
-    draw_rounded_rect(draw, (40, benefit_y, W - 40, benefit_y + benefit_box_h),
-                       radius=15, fill=hex_to_rgb(COLORS["primary"]))
-
-    font_benefit_title = get_font(FONT_BOLD, 25)
-    font_benefit = get_font(FONT_REGULAR, 24)
-    draw.text((70, benefit_y + 12), "💰 혜택",
-              font=font_benefit_title, fill=hex_to_rgb(COLORS["accent_bright"]))
-
-    for i, bl in enumerate(benefit_lines):
-        draw.text((70, benefit_y + 42 + i * 32), bl.strip(),
-                  font=font_benefit, fill=hex_to_rgb(COLORS["white"]))
 
 
 def _draw_slide_detail_curriculum(draw, W, H, course_data, curriculum):
@@ -480,15 +459,11 @@ def _draw_slide_detail_curriculum(draw, W, H, course_data, curriculum):
 
 
 def _draw_slide_detail_fallback(draw, W, H, course_data):
-    """훈련목표/커리큘럼 모두 없을 때 — 과정 기본정보 요약 레이아웃"""
-    from benefits_helper import get_course_type, get_total_hours, get_benefits_text
-
-    ctype = get_course_type(course_data)
-    hours = get_total_hours(course_data)
+    """훈련목표/커리큘럼 모두 없을 때 — 간결한 안내 레이아웃"""
 
     # ── 헤더 ──
     font_header = get_font(FONT_BOLD, 39)
-    draw.text((60, 45), "과정 안내", font=font_header, fill=hex_to_rgb(COLORS["primary"]))
+    draw.text((60, 45), "이런 걸 배워요", font=font_header, fill=hex_to_rgb(COLORS["primary"]))
 
     font_subtitle = get_font(FONT_REGULAR, 27)
     title_short = course_data["title"][:35] + ("…" if len(course_data["title"]) > 35 else "")
@@ -496,51 +471,28 @@ def _draw_slide_detail_fallback(draw, W, H, course_data):
 
     draw.line((60, 142, W - 60, 142), fill=hex_to_rgb("#D5D8DC"), width=2)
 
-    # ── 정보 항목 리스트 ──
-    font_label = get_font(FONT_BOLD, 29)
-    font_value = get_font(FONT_REGULAR, 27)
+    # ── 중앙: 상세 정보 안내 ──
+    font_msg = get_font(FONT_REGULAR, 30)
+    font_url = get_font(FONT_BOLD, 28)
 
-    info_items = []
-    info_items.append(("🏫 훈련기관", course_data.get("institution", "")))
-    if hours > 0:
-        info_items.append(("⏱️ 배움 시간", f"총 {hours}시간"))
-    if course_data.get("period"):
-        info_items.append(("📅 훈련기간", course_data["period"]))
-    ncs = course_data.get("ncsName", "")
-    if ncs:
-        info_items.append(("📋 NCS 직종", ncs))
-    if course_data.get("capacity"):
-        info_items.append(("👥 모집인원", course_data["capacity"]))
-    if course_data.get("selfCost"):
-        info_items.append(("💳 자부담금", course_data["selfCost"]))
-    info_items.append(("🎯 대상", course_data.get("target", "국민내일배움카드 있으면 누구나")))
+    msg_y = H // 2 - 80
+    msg_lines = [
+        "훈련과정의 상세 내용은",
+        "고용24에서 확인할 수 있어요.",
+    ]
+    for line in msg_lines:
+        bbox = draw.textbbox((0, 0), line, font=font_msg)
+        lw = bbox[2] - bbox[0]
+        draw.text(((W - lw) // 2, msg_y), line,
+                  font=font_msg, fill=hex_to_rgb(COLORS["text_gray"]))
+        msg_y += 48
 
-    y = 175
-    for label, value in info_items[:7]:
-        draw.text((60, y), label, font=font_label, fill=hex_to_rgb(COLORS["primary"]))
-        draw.text((60, y + 42), value, font=font_value, fill=hex_to_rgb(COLORS["text_dark"]))
-        y += 100
-
-        if y < H - 300:
-            draw.line((60, y - 12, W - 60, y - 12), fill=hex_to_rgb("#EAECEE"), width=1)
-
-    # ── 하단: 혜택 박스 ──
-    benefit_text = get_benefits_text(course_data)
-    benefit_lines = benefit_text.split("|") if benefit_text else ["자부담 10%"]
-
-    benefit_box_h = 50 + len(benefit_lines) * 32
-    benefit_y = H - 100 - benefit_box_h
-    draw_rounded_rect(draw, (40, benefit_y, W - 40, benefit_y + benefit_box_h),
-                       radius=15, fill=hex_to_rgb(COLORS["primary"]))
-
-    font_benefit_title = get_font(FONT_BOLD, 25)
-    font_benefit = get_font(FONT_REGULAR, 24)
-    draw.text((70, benefit_y + 12), "💰 혜택",
-              font=font_benefit_title, fill=hex_to_rgb(COLORS["accent_bright"]))
-
-    for i, bl in enumerate(benefit_lines):
-        draw.text((70, benefit_y + 42 + i * 32), bl.strip(),
-                  font=font_benefit, fill=hex_to_rgb(COLORS["white"]))
+    msg_y += 20
+    url_text = "work24.go.kr"
+    url_bbox = draw.textbbox((0, 0), url_text, font=font_url)
+    url_w = url_bbox[2] - url_bbox[0]
+    draw.text(((W - url_w) // 2, msg_y), url_text,
+              font=font_url, fill=hex_to_rgb(COLORS["accent"]))
 
 
 def generate_slide_howto(course_data, output_path):

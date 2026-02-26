@@ -420,14 +420,14 @@ def _draw_v2_detail_goal(draw, W, H, header_h, course_data, training_goal):
 
     # 과정 강점 카드 (공간 여유가 있을 때)
     course_strength = course_data.get("courseStrength", "")
-    max_content_y = H - 195  # 하단 혜택 박스 + 주석 공간 확보
+    max_content_y = H - 100  # 주석+footer 공간만 확보 (혜택 박스 없음)
 
     if course_strength and y < max_content_y - 100:
         font_str_label = get_font(FONT_BOLD, 26)
         font_str_body = get_font(FONT_REGULAR, 23)
 
         str_lines = wrap_text(course_strength, font_str_body, W - 140, draw)
-        max_str_lines = min(len(str_lines), 3)  # 최대 3줄
+        max_str_lines = min(len(str_lines), 5)  # 공간 확보로 5줄까지
         str_card_h = 50 + max_str_lines * 32
 
         if y + str_card_h < max_content_y:
@@ -442,26 +442,6 @@ def _draw_v2_detail_goal(draw, W, H, header_h, course_data, training_goal):
             for i, line in enumerate(str_lines[:max_str_lines]):
                 draw.text((65, y + 44 + i * 32), line,
                           font=font_str_body, fill=(127, 140, 141))
-
-            y += str_card_h + 16
-
-    # ── 하단 혜택 박스 ──
-    benefit_text = get_benefits_text(course_data)
-    benefit_lines = benefit_text.split("|") if benefit_text else ["자부담 10%"]
-
-    benefit_box_h = 46 + len(benefit_lines) * 30
-    benefit_y = max(y, H - 100 - benefit_box_h)
-    draw_rounded_rect(draw, (40, benefit_y, W - 40, benefit_y + benefit_box_h),
-                       radius=12, fill=hex_to_rgb(PRIMARY))
-
-    font_bt = get_font(FONT_BOLD, 24)
-    font_bv = get_font(FONT_REGULAR, 23)
-    draw.text((65, benefit_y + 10), "💰 혜택",
-              font=font_bt, fill=hex_to_rgb(ACCENT_BRIGHT))
-
-    for i, bl in enumerate(benefit_lines):
-        draw.text((65, benefit_y + 38 + i * 30), bl.strip(),
-                  font=font_bv, fill=(255, 255, 255))
 
 
 def _draw_v2_detail_curriculum(draw, W, H, header_h, course_data, curriculum):
@@ -522,62 +502,29 @@ def _draw_v2_detail_curriculum(draw, W, H, header_h, course_data, curriculum):
 
 
 def _draw_v2_detail_fallback(draw, W, H, header_h, course_data):
-    """v2 fallback: 과정 기본정보 카드 레이아웃"""
-    from benefits_helper import get_course_type, get_total_hours, get_benefits_text
+    """v2 fallback: 훈련목표/커리큘럼 없을 때 간결한 안내"""
 
-    hours = get_total_hours(course_data)
+    font_msg = get_font(FONT_REGULAR, 28)
+    font_url = get_font(FONT_BOLD, 26)
 
-    font_label = get_font(FONT_BOLD, 27)
-    font_value = get_font(FONT_REGULAR, 26)
+    msg_y = header_h + (H - header_h - 100) // 2 - 40
+    msg_lines = [
+        "훈련과정의 상세 내용은",
+        "고용24에서 확인할 수 있어요.",
+    ]
+    for line in msg_lines:
+        bbox = draw.textbbox((0, 0), line, font=font_msg)
+        lw = bbox[2] - bbox[0]
+        draw.text(((W - lw) // 2, msg_y), line,
+                  font=font_msg, fill=(127, 140, 141))
+        msg_y += 44
 
-    info_items = []
-    info_items.append(("🏫 훈련기관", course_data.get("institution", "")))
-    if hours > 0:
-        info_items.append(("⏱️ 배움 시간", f"총 {hours}시간"))
-    if course_data.get("period"):
-        info_items.append(("📅 훈련기간", course_data["period"]))
-    ncs = course_data.get("ncsName", "")
-    if ncs:
-        info_items.append(("📋 NCS 직종", ncs))
-    if course_data.get("capacity"):
-        info_items.append(("👥 모집인원", course_data["capacity"]))
-    if course_data.get("selfCost"):
-        info_items.append(("💳 자부담금", course_data["selfCost"]))
-    info_items.append(("🎯 대상", course_data.get("target", "국민내일배움카드 있으면 누구나")))
-
-    y = header_h + 22
-
-    for label, value in info_items[:6]:
-        card_h = 85
-        draw_rounded_rect(draw, (40, y, W - 40, y + card_h),
-                           radius=12, fill=(255, 255, 255))
-        draw_rounded_rect(draw, (40, y, 48, y + card_h), radius=0,
-                           fill=hex_to_rgb(ACCENT))
-
-        draw.text((65, y + 10), label,
-                  font=font_label, fill=hex_to_rgb(PRIMARY))
-        draw.text((65, y + 44), value,
-                  font=font_value, fill=(44, 62, 80))
-
-        y += card_h + 10
-
-    # 하단 혜택 박스
-    benefit_text = get_benefits_text(course_data)
-    benefit_lines = benefit_text.split("|") if benefit_text else ["자부담 10%"]
-
-    benefit_box_h = 46 + len(benefit_lines) * 30
-    benefit_y = max(y + 5, H - 100 - benefit_box_h)
-    draw_rounded_rect(draw, (40, benefit_y, W - 40, benefit_y + benefit_box_h),
-                       radius=12, fill=hex_to_rgb(PRIMARY))
-
-    font_bt = get_font(FONT_BOLD, 24)
-    font_bv = get_font(FONT_REGULAR, 23)
-    draw.text((65, benefit_y + 10), "💰 혜택",
-              font=font_bt, fill=hex_to_rgb(ACCENT_BRIGHT))
-
-    for i, bl in enumerate(benefit_lines):
-        draw.text((65, benefit_y + 38 + i * 30), bl.strip(),
-                  font=font_bv, fill=(255, 255, 255))
+    msg_y += 16
+    url_text = "work24.go.kr"
+    url_bbox = draw.textbbox((0, 0), url_text, font=font_url)
+    url_w = url_bbox[2] - url_bbox[0]
+    draw.text(((W - url_w) // 2, msg_y), url_text,
+              font=font_url, fill=hex_to_rgb(ACCENT))
 
 
 def generate_cardnews_v2(course_data, output_dir="output"):
