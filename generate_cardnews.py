@@ -84,6 +84,7 @@ def wrap_text_to_lines(text, font, max_width, draw):
 def generate_slide_cover(course_data, output_path):
     """
     슬라이드 1: 커버 이미지 (주목 유도)
+    개선: 아이콘 정보카드 + 비용 임팩트 강조 + 혜택 배너 + 섹션 여백 확보
     """
     W, H = 1080, 1080
     img = Image.new('RGB', (W, H), hex_to_rgb(COLORS["white"]))
@@ -119,7 +120,7 @@ def generate_slide_cover(course_data, output_path):
                        radius=22, fill=hex_to_rgb(COLORS["success"]))
     draw.text((badge_x + 22, badge_y + 8), badge_text, font=font_badge, fill=hex_to_rgb(COLORS["white"]))
 
-    # ── NCS직종명 (태그-뱃지 사이 중앙, 태그 스타일) ──
+    # ── NCS직종명 (태그-뱃지 사이 중앙) ──
     ncs_name = course_data.get("ncsName", "")
     if ncs_name:
         font_ncs = get_font(FONT_BOLD, 33)
@@ -130,7 +131,6 @@ def generate_slide_cover(course_data, output_path):
         ncs_pad_x, ncs_pad_y = 24, 15
         ncs_pill_w = ncs_text_w + ncs_pad_x * 2
         ncs_pill_h = ncs_text_h + ncs_pad_y * 2
-        # 태그 오른쪽 ~ 뱃지 왼쪽 사이 중앙
         gap_left = tag_x + tag_w
         gap_right = badge_x
         ncs_pill_x = gap_left + (gap_right - gap_left - ncs_pill_w) // 2
@@ -145,8 +145,6 @@ def generate_slide_cover(course_data, output_path):
     # ── 과정명 (메인 타이틀) ──
     font_title = get_font(FONT_BLACK, 55)
     title_lines = wrap_text_to_lines(course_data["title"], font_title, W - 140, draw)
-
-    # 최대 3줄로 제한
     if len(title_lines) > 3:
         title_lines = title_lines[:3]
         title_lines[-1] = title_lines[-1][:-1] + "…"
@@ -163,111 +161,133 @@ def generate_slide_cover(course_data, output_path):
     draw.text((70, inst_y), f"{course_data['institution']}",
               font=font_inst, fill=hex_to_rgb("#AED6F1"))
 
-    # ── 하단 정보 카드 영역 ──
-    card_y = 545
-    card_margin = 50
-    card_padding = 30
+    # ── 좌측 액센트 라인 ──
+    draw.rectangle((0, 520, 6, H - 100), fill=hex_to_rgb(COLORS["accent"]))
 
-    # 정보 항목들
+    # ══════════════════════════════════════════════════
+    # 하단 정보 영역 (아이콘 카드 + 비용 강조 + 혜택 배너)
+    # ══════════════════════════════════════════════════
+
+    # ── 정보 아이콘 카드 (가로 3열) ──
     info_items = []
     if course_data.get("period"):
-        info_items.append(("배움 기간", course_data["period"]))
+        info_items.append(("🗓️", "배움 기간", course_data["period"]))
     hours = get_total_hours(course_data)
     if hours > 0:
-        info_items.append(("배움 시간", f"{hours}시간"))
+        info_items.append(("⏱️", "배움 시간", f"{hours}시간"))
     if course_data.get("capacity"):
-        info_items.append(("모집 인원", course_data["capacity"]))
+        info_items.append(("👥", "모집 인원", course_data["capacity"]))
 
-    font_label = get_font(FONT_BOLD, 27)
-    font_value = get_font(FONT_REGULAR, 27)
+    card_top = 540
+    card_margin = 50
+    n_items = len(info_items)
 
-    item_y = card_y + 10
-    for idx, (label, value) in enumerate(info_items):
-        draw.text((card_margin + card_padding, item_y), label,
-                  font=font_label, fill=hex_to_rgb(COLORS["primary"]))
-        draw.text((card_margin + card_padding + 180, item_y), value,
-                  font=font_value, fill=hex_to_rgb(COLORS["text_dark"]))
-        item_y += 48
-        if idx < len(info_items) - 1:
-            draw.line((card_margin + card_padding, item_y - 8,
-                       W - card_margin - card_padding, item_y - 8),
-                      fill=hex_to_rgb("#E8E8E8"), width=1)
+    if n_items > 0:
+        gap = 16
+        total_gap = gap * (n_items - 1)
+        card_w = (W - card_margin * 2 - total_gap) // n_items
+        card_h = 95
 
-    # ── 비용 강조 영역 ──
+        font_info_label = get_font(FONT_REGULAR, 21)
+        font_info_value = get_font(FONT_BOLD, 27)
+        font_icon = get_font(FONT_REGULAR, 30)
+
+        for i, (icon, label, value) in enumerate(info_items):
+            cx = card_margin + i * (card_w + gap)
+            # 카드 배경
+            draw_rounded_rect(draw,
+                              (cx, card_top, cx + card_w, card_top + card_h),
+                              radius=12, fill=hex_to_rgb(COLORS["bg_light"]))
+            # 아이콘
+            draw.text((cx + 16, card_top + 14), icon, font=font_icon,
+                      fill=hex_to_rgb(COLORS["primary"]))
+            # 라벨 (아이콘 우측)
+            draw.text((cx + 54, card_top + 12), label, font=font_info_label,
+                      fill=hex_to_rgb(COLORS["text_gray"]))
+            # 값 (아이콘 우측 아래)
+            draw.text((cx + 54, card_top + 44), value, font=font_info_value,
+                      fill=hex_to_rgb(COLORS["text_dark"]))
+
+        next_y = card_top + card_h + 18
+    else:
+        next_y = card_top + 10
+
+    # ── 비용 강조 영역 (크고 임팩트 있게) ──
     self_cost = course_data.get("selfCost", "")
     course_cost = course_data.get("courseCost", "")
     if self_cost or course_cost:
-        cost_y = item_y + 8
-        cost_box_h = 120
+        cost_box_h = 105
         draw_rounded_rect(draw,
-                           (card_margin, cost_y, W - card_margin, cost_y + cost_box_h),
+                           (card_margin, next_y, W - card_margin, next_y + cost_box_h),
                            radius=15, fill=hex_to_rgb("#EBF5FB"))
-        font_cost_label = get_font(FONT_BOLD, 27)
-        font_cost_prefix = get_font(FONT_BOLD, 29)
-        font_cost_big = get_font(FONT_BLACK, 42)
+
+        font_cost_label = get_font(FONT_BOLD, 25)
+        font_cost_prefix = get_font(FONT_BOLD, 31)
+        font_cost_big = get_font(FONT_BLACK, 48)
         font_cost_small = get_font(FONT_REGULAR, 21)
 
-        draw.text((card_margin + 22, cost_y + 12), "자부담금",
+        # "💰 자부담금" 라벨
+        draw.text((card_margin + 22, next_y + 10), "💰 자부담금",
                   font=font_cost_label, fill=hex_to_rgb(COLORS["primary"]))
+
         if self_cost:
-            # "단," 접두어
             prefix_text = "단,"
-            cost_row_y = cost_y + 60
+            cost_row_y = next_y + 52
             draw.text((card_margin + 22, cost_row_y), prefix_text,
                       font=font_cost_prefix, fill=hex_to_rgb(COLORS["text_dark"]))
             prefix_bbox = draw.textbbox((0, 0), prefix_text, font=font_cost_prefix)
             prefix_w = prefix_bbox[2] - prefix_bbox[0]
 
-            # 금액 (큰 글씨)
-            draw.text((card_margin + 22 + prefix_w + 10, cost_row_y - 4), self_cost,
+            draw.text((card_margin + 22 + prefix_w + 12, cost_row_y - 6), self_cost,
                       font=font_cost_big, fill=hex_to_rgb(COLORS["accent"]))
 
-            # (수강비 XXX원) 작은 글씨
             if course_cost:
                 cost_bbox = draw.textbbox((0, 0), self_cost, font=font_cost_big)
                 cost_w = cost_bbox[2] - cost_bbox[0]
-                small_x = card_margin + 22 + prefix_w + 10 + cost_w + 12
-                draw.text((small_x, cost_row_y + 10),
+                small_x = card_margin + 22 + prefix_w + 12 + cost_w + 14
+                draw.text((small_x, cost_row_y + 8),
                           f"(수강비 {course_cost})",
                           font=font_cost_small, fill=hex_to_rgb("#888888"))
         elif course_cost:
-            draw.text((card_margin + 22, cost_y + 60), course_cost,
+            draw.text((card_margin + 22, next_y + 52), course_cost,
                       font=font_cost_big, fill=hex_to_rgb(COLORS["accent"]))
-        item_y = cost_y + cost_box_h + 8
+        next_y += cost_box_h + 14
 
-    # ── 혜택 하이라이트 박스 ──
-    benefit_y = item_y + 5
+    # ── 혜택 배너 (간결한 1~2줄 배너) ──
     benefits = course_data.get("benefits", "") or get_benefits_text(course_data)
-    benefit_lines = benefits.split('\n')
-    benefit_box_h = 55 + len(benefit_lines) * 32
-    draw_rounded_rect(draw,
-                       (card_margin, benefit_y, W - card_margin, benefit_y + benefit_box_h),
-                       radius=15, fill=hex_to_rgb("#FEF9E7"))
+    benefit_lines = [l.strip() for l in benefits.split('\n') if l.strip()]
 
-    font_benefit_title = get_font(FONT_BOLD, 27)
-    font_benefit = get_font(FONT_REGULAR, 23)
+    if benefit_lines:
+        banner_h = 40 + min(len(benefit_lines), 3) * 34
+        draw_rounded_rect(draw,
+                           (card_margin, next_y, W - card_margin, next_y + banner_h),
+                           radius=15, fill=hex_to_rgb("#FEF9E7"))
 
-    draw.text((card_margin + 22, benefit_y + 10), "이런 혜택이!",
-              font=font_benefit_title, fill=hex_to_rgb(COLORS["accent"]))
-    for bi, bline in enumerate(benefit_lines):
-        draw.text((card_margin + 22, benefit_y + 45 + bi * 32), bline,
-                  font=font_benefit, fill=hex_to_rgb(COLORS["text_dark"]))
+        font_benefit_icon = get_font(FONT_BOLD, 27)
+        font_benefit = get_font(FONT_REGULAR, 24)
 
-    # ── 하단 ※ 주석 (혜택 박스 바로 아래) ──
-    footnote_y = benefit_y + benefit_box_h + 6
+        # "🎁" 아이콘 + 첫 줄
+        draw.text((card_margin + 18, next_y + 8), "🎁",
+                  font=font_benefit_icon, fill=hex_to_rgb(COLORS["accent"]))
+        for bi, bline in enumerate(benefit_lines[:3]):
+            draw.text((card_margin + 52, next_y + 8 + bi * 34), bline,
+                      font=font_benefit, fill=hex_to_rgb(COLORS["text_dark"]))
+
+        next_y += banner_h + 8
+
+    # ── 하단 ※ 주석 ──
     font_footnote = get_font(FONT_REGULAR, 20)
     footnote = get_benefits_footnote(course_data)
-    draw.text((60, footnote_y), footnote,
+    draw.text((60, next_y), footnote,
               font=font_footnote, fill=hex_to_rgb("#888888"))
 
-    # ── 하단 바 (기관명 + CTA) ──
-    footer_y = H - 100
-    footer_bar_h = H - footer_y  # 100px
+    # ── 하단 바 ──
+    footer_y = H - 80
+    footer_bar_h = H - footer_y
     draw.rectangle((0, footer_y, W, H), fill=hex_to_rgb(COLORS["primary"]))
     font_footer = get_font(FONT_REGULAR, 23)
     font_cta = get_font(FONT_BOLD, 25)
 
-    # 기관명 수직 중앙
     org_text = "제주지역인적자원개발위원회"
     org_bbox = draw.textbbox((0, 0), org_text, font=font_footer)
     org_h = org_bbox[3] - org_bbox[1]
@@ -275,7 +295,6 @@ def generate_slide_cover(course_data, output_path):
     draw.text((60, org_text_y), org_text,
               font=font_footer, fill=hex_to_rgb("#AED6F1"))
 
-    # CTA 수직 중앙
     cta_text = "신청 ▸ work24.go.kr"
     cta_bbox = draw.textbbox((0, 0), cta_text, font=font_cta)
     cta_w = cta_bbox[2] - cta_bbox[0]
@@ -283,9 +302,6 @@ def generate_slide_cover(course_data, output_path):
     cta_text_y = footer_y + (footer_bar_h - cta_h) // 2
     draw.text((W - cta_w - 60, cta_text_y), cta_text,
               font=font_cta, fill=hex_to_rgb(COLORS["accent_bright"]))
-
-    # ── 좌측 액센트 라인 ──
-    draw.rectangle((0, 520, 6, footer_y), fill=hex_to_rgb(COLORS["accent"]))
 
     img.save(output_path, quality=95)
     return output_path
@@ -586,6 +602,7 @@ def _draw_slide_detail_fallback(draw, W, H, course_data):
 def generate_slide_howto(course_data, output_path):
     """
     슬라이드 3: 신청 방법 안내
+    개선: 타임라인 레이아웃 + 원형 넘버 뱃지 + 연결선 + 문의 정보 강화
     """
     W, H = 1080, 1080
     img = Image.new('RGB', (W, H), hex_to_rgb(COLORS["white"]))
@@ -605,104 +622,121 @@ def generate_slide_howto(course_data, output_path):
 
     steps = [
         {
-            "num": "STEP 1",
+            "num": "1",
             "title": "국민내일배움카드 만들기",
             "desc": "고용24(work24.go.kr)에서 신청하거나\n가까운 고용센터에 방문하면 돼요",
         },
         {
-            "num": "STEP 2",
+            "num": "2",
             "title": "원하는 과정 찾아서 신청하기",
             "desc": "고용24에서 '제주' + 관심 분야로 검색하고\n마음에 드는 과정에 바로 신청!",
         },
         {
-            "num": "STEP 3",
+            "num": "3",
             "title": step3_title,
             "desc": step3_desc,
         }
     ]
 
-    font_step_num = get_font(FONT_BOLD, 23)
-    font_step_title = get_font(FONT_BOLD, 33)
-    font_step_desc = get_font(FONT_REGULAR, 25)
+    font_step_title = get_font(FONT_BOLD, 31)
+    font_step_desc = get_font(FONT_REGULAR, 24)
+    font_num = get_font(FONT_BLACK, 28)
 
-    step_y = 140
-    card_h = 210
-    gap = 28
+    # 타임라인 레이아웃 설정
+    timeline_x = 105  # 타임라인 세로선 x좌표
+    circle_r = 28     # 원형 뱃지 반지름
+    card_left = 155    # 카드 시작 x
+    card_right = W - 55
+    card_h = 175
+    gap = 30
+
+    step_y = 135
 
     for i, step in enumerate(steps):
         card_top = step_y
         card_bottom = step_y + card_h
-        draw_rounded_rect(draw, (50, card_top, W - 50, card_bottom),
-                           radius=15, fill=hex_to_rgb(COLORS["bg_light"]))
+        circle_cy = card_top + card_h // 2  # 원 중심 y
 
-        # 좌측 액센트 바
-        draw_rounded_rect(draw, (50, card_top, 58, card_bottom),
-                           radius=0, fill=hex_to_rgb(COLORS["accent"]))
+        # ── 타임라인 세로 연결선 (원 위/아래) ──
+        line_color = hex_to_rgb("#D5E8F5")
+        if i > 0:
+            # 이전 카드 하단 ~ 현재 원 상단
+            prev_bottom = card_top - gap
+            draw.line((timeline_x, prev_bottom, timeline_x, circle_cy - circle_r),
+                      fill=line_color, width=3)
+        if i < len(steps) - 1:
+            # 현재 원 하단 ~ 다음 카드 상단 위치
+            draw.line((timeline_x, circle_cy + circle_r, timeline_x, card_bottom + gap // 2),
+                      fill=line_color, width=3)
 
-        # ── 콘텐츠 높이 계산 후 수직 중앙 배치 ──
-        num_bbox = draw.textbbox((0, 0), step["num"], font=font_step_num)
-        num_tag_h = num_bbox[3] - num_bbox[1] + 16
+        # ── 원형 넘버 뱃지 ──
+        draw_rounded_rect(draw,
+                           (timeline_x - circle_r, circle_cy - circle_r,
+                            timeline_x + circle_r, circle_cy + circle_r),
+                           radius=circle_r, fill=hex_to_rgb(COLORS["primary"]))
+        # 원 안의 숫자 중앙 정렬
+        num_bbox = draw.textbbox((0, 0), step["num"], font=font_num)
+        num_w = num_bbox[2] - num_bbox[0]
+        num_h = num_bbox[3] - num_bbox[1]
+        draw.text((timeline_x - num_w // 2, circle_cy - num_h // 2 - 2),
+                  step["num"], font=font_num, fill=hex_to_rgb(COLORS["white"]))
+
+        # ── 카드 배경 (그림자 + 본체) ──
+        draw_rounded_rect(draw,
+                           (card_left + 3, card_top + 3, card_right + 3, card_bottom + 3),
+                           radius=14, fill=hex_to_rgb("#E8E8E8"))
+        draw_rounded_rect(draw,
+                           (card_left, card_top, card_right, card_bottom),
+                           radius=14, fill=hex_to_rgb(COLORS["bg_light"]))
+
+        # ── 카드 내 콘텐츠 (수직 중앙) ──
         title_bbox = draw.textbbox((0, 0), step["title"], font=font_step_title)
         title_h = title_bbox[3] - title_bbox[1]
         desc_lines = step["desc"].split('\n')
-        desc_line_h = 36
+        desc_line_h = 35
         desc_total_h = len(desc_lines) * desc_line_h
-
-        # 간격: 번호태그-제목 12px, 제목-설명 10px
-        content_h = num_tag_h + 12 + title_h + 10 + desc_total_h
+        content_h = title_h + 14 + desc_total_h
         content_start = card_top + (card_h - content_h) // 2
 
-        # 스텝 번호 태그
-        num_tag_w = num_bbox[2] - num_bbox[0] + 30
-        draw_rounded_rect(draw, (85, content_start, 85 + num_tag_w, content_start + num_tag_h),
-                           radius=15, fill=hex_to_rgb(COLORS["primary"]))
-        draw.text((100, content_start + 4), step["num"],
-                  font=font_step_num, fill=hex_to_rgb(COLORS["white"]))
+        # STEP 라벨 + 제목 (한 줄)
+        font_step_label = get_font(FONT_BOLD, 19)
+        step_label = f"STEP {step['num']}"
+        draw.text((card_left + 24, content_start - 2), step_label,
+                  font=font_step_label, fill=hex_to_rgb(COLORS["accent"]))
+        label_bbox = draw.textbbox((0, 0), step_label, font=font_step_label)
+        label_w = label_bbox[2] - label_bbox[0]
 
-        # 우측 장식 원
-        dot_x = W - 110
-        dot_y = card_top + card_h // 2
-        dot_r = 25
-        draw_rounded_rect(draw,
-                           (dot_x - dot_r, dot_y - dot_r, dot_x + dot_r, dot_y + dot_r),
-                           radius=dot_r, fill=hex_to_rgb(COLORS["accent"]))
-
-        # 제목
-        title_y_pos = content_start + num_tag_h + 12
-        draw.text((85, title_y_pos), step["title"],
+        draw.text((card_left + 24 + label_w + 12, content_start - 5), step["title"],
                   font=font_step_title, fill=hex_to_rgb(COLORS["text_dark"]))
 
         # 설명
-        desc_start_y = title_y_pos + title_h + 10
+        desc_start_y = content_start + title_h + 14
         for j, line in enumerate(desc_lines):
-            draw.text((85, desc_start_y + j * desc_line_h), line,
+            draw.text((card_left + 24, desc_start_y + j * desc_line_h), line,
                       font=font_step_desc, fill=hex_to_rgb(COLORS["text_gray"]))
 
         step_y = card_bottom + gap
 
-        # 화살표 (마지막 제외)
-        if i < len(steps) - 1:
-            arrow_x = W // 2
-            arrow_y = card_bottom + gap // 2
-            draw.text((arrow_x - 10, arrow_y - 12), "▼",
-                      font=get_font(FONT_BOLD, 23), fill=hex_to_rgb(COLORS["accent"]))
-
-    # ── 하단: 문의 정보 ──
-    info_y = step_y + 10
-    info_box_h = 105
+    # ── 하단: 문의 정보 (아이콘 + URL 포함) ──
+    info_y = step_y + 5
+    info_box_h = 120
     draw_rounded_rect(draw, (50, info_y, W - 50, info_y + info_box_h),
                        radius=15, fill=hex_to_rgb("#FEF9E7"),
                        outline=hex_to_rgb(COLORS["accent"]), width=2)
 
-    font_info = get_font(FONT_BOLD, 27)
-    font_info_detail = get_font(FONT_REGULAR, 25)
+    font_info_title = get_font(FONT_BOLD, 27)
+    font_info_detail = get_font(FONT_REGULAR, 24)
+    font_info_url = get_font(FONT_BOLD, 24)
 
-    draw.text((78, info_y + 15), "궁금하신 점은",
-              font=font_info, fill=hex_to_rgb(COLORS["accent"]))
+    draw.text((78, info_y + 12), "💬 궁금한 점은",
+              font=font_info_title, fill=hex_to_rgb(COLORS["accent"]))
 
     contact = course_data.get("contact", "제주고용센터 ☎ 064-728-7201")
-    draw.text((78, info_y + 58), contact,
+    draw.text((78, info_y + 50), f"📞 {contact}",
               font=font_info_detail, fill=hex_to_rgb(COLORS["text_dark"]))
+
+    draw.text((78, info_y + 84), "🌐 work24.go.kr",
+              font=font_info_url, fill=hex_to_rgb(COLORS["primary"]))
 
     # ── 하단 ※ 주석 ──
     footer_y = H - 80
