@@ -202,80 +202,100 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     line_y = inst_y + 48
     draw.line((60, line_y, W - 60, line_y), fill=(220, 220, 220), width=2)
 
-    # ── 정보 항목 ──
-    font_label = get_font(FONT_BOLD, 25)
-    font_value = get_font(FONT_REGULAR, 25)
-
+    # ── 정보 아이콘 카드 (가로 배치) ──
     info_items = []
     if course_data.get("period"):
-        info_items.append(("배움 기간", course_data["period"]))
+        info_items.append(("🗓️", "배움 기간", course_data["period"]))
     hours = get_total_hours(course_data)
     if hours > 0:
-        info_items.append(("배움 시간", f"{hours}시간"))
+        info_items.append(("⏱️", "배움 시간", f"{hours}시간"))
     if course_data.get("capacity"):
-        info_items.append(("모집 인원", course_data["capacity"]))
+        info_items.append(("👥", "모집 인원", course_data["capacity"]))
 
     item_y = line_y + 14
-    for label, value in info_items:
-        draw.text((60, item_y), label, font=font_label, fill=hex_to_rgb(PRIMARY))
-        draw.text((220, item_y), value, font=font_value, fill=(60, 60, 60))
-        item_y += 42
+    n_items = len(info_items)
 
-    # ── 비용 강조 영역 ──
+    if n_items > 0:
+        info_gap = 14
+        total_gap = info_gap * (n_items - 1)
+        info_card_w = (W - 120 - total_gap) // n_items
+        info_card_h = 80
+
+        font_info_label = get_font(FONT_REGULAR, 19)
+        font_info_value = get_font(FONT_BOLD, 24)
+        font_icon = get_font(FONT_REGULAR, 27)
+
+        for i, (icon, label, value) in enumerate(info_items):
+            cx = 60 + i * (info_card_w + info_gap)
+            draw_rounded_rect(draw,
+                              (cx, item_y, cx + info_card_w, item_y + info_card_h),
+                              radius=10, fill=(240, 245, 250))
+            draw.text((cx + 14, item_y + 10), icon, font=font_icon,
+                      fill=hex_to_rgb(PRIMARY))
+            draw.text((cx + 48, item_y + 8), label, font=font_info_label,
+                      fill=(127, 140, 141))
+            draw.text((cx + 48, item_y + 38), value, font=font_info_value,
+                      fill=(44, 62, 80))
+
+        item_y += info_card_h + 10
+    else:
+        item_y += 8
+
+    # ── 비용 강조 영역 (임팩트 강화) ──
     self_cost = course_data.get("selfCost", "")
     course_cost = course_data.get("courseCost", "")
     if self_cost or course_cost:
-        cost_y = item_y + 6
-        cost_box_h = 110
+        cost_y = item_y + 4
+        cost_box_h = 100
         draw_rounded_rect(draw,
                            (50, cost_y, W - 50, cost_y + cost_box_h),
                            radius=12, fill=(235, 245, 251))
-        font_cost_label = get_font(FONT_BOLD, 25)
-        font_cost_prefix = get_font(FONT_BOLD, 27)
-        font_cost_big = get_font(FONT_BLACK, 40)
+        font_cost_label = get_font(FONT_BOLD, 24)
+        font_cost_prefix = get_font(FONT_BOLD, 29)
+        font_cost_big = get_font(FONT_BLACK, 44)
         font_cost_small = get_font(FONT_REGULAR, 19)
 
-        draw.text((72, cost_y + 10), "자부담금",
+        draw.text((72, cost_y + 8), "💰 자부담금",
                   font=font_cost_label, fill=hex_to_rgb(PRIMARY))
         if self_cost:
             prefix_text = "단,"
-            cost_row_y = cost_y + 55
+            cost_row_y = cost_y + 48
             draw.text((72, cost_row_y), prefix_text,
                       font=font_cost_prefix, fill=(44, 62, 80))
             prefix_bbox = draw.textbbox((0, 0), prefix_text, font=font_cost_prefix)
             prefix_w = prefix_bbox[2] - prefix_bbox[0]
 
-            draw.text((72 + prefix_w + 8, cost_row_y - 4), self_cost,
+            draw.text((72 + prefix_w + 10, cost_row_y - 5), self_cost,
                       font=font_cost_big, fill=hex_to_rgb(ACCENT))
 
             if course_cost:
                 cost_bbox = draw.textbbox((0, 0), self_cost, font=font_cost_big)
                 cost_w = cost_bbox[2] - cost_bbox[0]
-                small_x = 72 + prefix_w + 8 + cost_w + 10
+                small_x = 72 + prefix_w + 10 + cost_w + 12
                 draw.text((small_x, cost_row_y + 8),
                           f"(수강비 {course_cost})",
                           font=font_cost_small, fill=(136, 136, 136))
         elif course_cost:
-            draw.text((72, cost_y + 55), course_cost,
+            draw.text((72, cost_y + 48), course_cost,
                       font=font_cost_big, fill=hex_to_rgb(ACCENT))
-        item_y = cost_y + cost_box_h + 6
+        item_y = cost_y + cost_box_h + 8
 
-    # ── 혜택 하이라이트 ──
-    benefit_y = item_y + 6
+    # ── 혜택 배너 (간결한 배너 스타일) ──
+    benefit_y = item_y + 4
     benefits = course_data.get("benefits", "") or get_benefits_text(course_data)
-    benefit_lines = benefits.split('\n')
-    benefit_box_h = 48 + len(benefit_lines) * 30
+    benefit_lines = [l.strip() for l in benefits.split('\n') if l.strip()]
+    benefit_box_h = 38 + min(len(benefit_lines), 3) * 30
     draw_rounded_rect(draw,
                        (50, benefit_y, W - 50, benefit_y + benefit_box_h),
                        radius=12, fill=(255, 248, 230))
 
-    font_benefit_title = get_font(FONT_BOLD, 25)
-    font_benefit = get_font(FONT_REGULAR, 22)
+    font_benefit_icon = get_font(FONT_BOLD, 25)
+    font_benefit = get_font(FONT_REGULAR, 21)
 
-    draw.text((72, benefit_y + 8), "이런 혜택이!",
-              font=font_benefit_title, fill=hex_to_rgb(ACCENT))
-    for bi, bline in enumerate(benefit_lines):
-        draw.text((72, benefit_y + 40 + bi * 30), bline,
+    draw.text((72, benefit_y + 6), "🎁",
+              font=font_benefit_icon, fill=hex_to_rgb(ACCENT))
+    for bi, bline in enumerate(benefit_lines[:3]):
+        draw.text((100, benefit_y + 6 + bi * 30), bline,
                   font=font_benefit, fill=(60, 60, 60))
 
     # ── 하단 ※ 주석 (혜택 박스 바로 아래) ──
