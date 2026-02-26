@@ -235,7 +235,7 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
         font_cost_big = get_font(FONT_BLACK, 40)
         font_cost_small = get_font(FONT_REGULAR, 19)
 
-        draw.text((72, cost_y + 10), "훈련에 참여할 때 내는 자부담금",
+        draw.text((72, cost_y + 10), "자부담금",
                   font=font_cost_label, fill=hex_to_rgb(PRIMARY))
         if self_cost:
             prefix_text = "단,"
@@ -253,7 +253,7 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
                 cost_w = cost_bbox[2] - cost_bbox[0]
                 small_x = 72 + prefix_w + 8 + cost_w + 10
                 draw.text((small_x, cost_row_y + 8),
-                          f"(원래 수강료 {course_cost})",
+                          f"(수강비 {course_cost})",
                           font=font_cost_small, fill=(136, 136, 136))
         elif course_cost:
             draw.text((72, cost_y + 55), course_cost,
