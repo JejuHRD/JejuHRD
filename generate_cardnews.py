@@ -207,7 +207,7 @@ def generate_slide_cover(course_data, output_path):
         font_cost_big = get_font(FONT_BLACK, 42)
         font_cost_small = get_font(FONT_REGULAR, 21)
 
-        draw.text((card_margin + 22, cost_y + 12), "훈련에 참여할 때 내는 자부담금",
+        draw.text((card_margin + 22, cost_y + 12), "자부담금",
                   font=font_cost_label, fill=hex_to_rgb(COLORS["primary"]))
         if self_cost:
             # "단," 접두어
@@ -228,7 +228,7 @@ def generate_slide_cover(course_data, output_path):
                 cost_w = cost_bbox[2] - cost_bbox[0]
                 small_x = card_margin + 22 + prefix_w + 10 + cost_w + 12
                 draw.text((small_x, cost_row_y + 10),
-                          f"(원래 수강료 {course_cost})",
+                          f"(수강비 {course_cost})",
                           font=font_cost_small, fill=hex_to_rgb("#888888"))
         elif course_cost:
             draw.text((card_margin + 22, cost_y + 60), course_cost,
