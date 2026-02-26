@@ -452,15 +452,15 @@ def generate_instagram_caption(course_data):
     # 훈련목표 요약 (있을 때만)
     training_goal = course_data.get("trainingGoal", "")
     if training_goal:
-        # 첫 문장만 추출하여 간결하게
+        # 첫 2문장까지 추출 (캡션은 텍스트 매체이므로 넉넉하게)
         goal_sentences = [s.strip() for s in training_goal.replace("\n", ".").split(".") if s.strip()]
-        goal_short = goal_sentences[0] if goal_sentences else ""
-        if len(goal_short) > 80:
-            goal_short = goal_short[:77] + "..."
-        if goal_short:
+        goal_summary = ". ".join(goal_sentences[:2])
+        if goal_sentences[:2]:
+            goal_summary += "."
+        if goal_summary:
             caption = caption.replace(
                 "👉 신청 방법이 궁금하다면?",
-                f"📋 이 과정을 배우면?\n→ {goal_short}\n\n👉 신청 방법이 궁금하다면?"
+                f"📋 이 과정을 배우면?\n→ {goal_summary}\n\n👉 신청 방법이 궁금하다면?"
             )
 
     # 해시태그 (본문과 분리)
@@ -574,11 +574,11 @@ def generate_reels_script(course_data):
     # ── 훈련목표 활용 ──
     training_goal = course_data.get("trainingGoal", "")
     goal_short = ""
+    goal_full = ""
     if training_goal:
         sentences = [s.strip() for s in training_goal.replace("\n", ".").split(".") if s.strip()]
-        goal_short = sentences[0] if sentences else ""
-        if len(goal_short) > 60:
-            goal_short = goal_short[:57] + "..."
+        goal_short = sentences[0] if sentences else ""  # 자막용 (짧은 버전)
+        goal_full = ". ".join(sentences[:2]) + ("." if sentences[:2] else "")  # 나레이션용 (긴 버전)
     goal_line = f"📋 \"{goal_short}\"" if goal_short else ""
 
     # ── SEO 키워드 해시태그 (상위 5개) ──
@@ -669,7 +669,7 @@ def generate_reels_script(course_data):
 
 5~10초 [과정 소개]
   나레이션: "제주에서 {field_display} 과정이 열렸는데요,
-    {institution}에서 진행하는 '{title[:25]}' 과정이에요.{f' ' + goal_short + '을 목표로 하는 과정이에요.' if goal_short and len(goal_short) < 40 else ''}"
+    {institution}에서 진행하는 '{title[:25]}' 과정이에요.{f' ' + goal_short + '을 목표로 하는 과정이에요.' if goal_short else ''}"
   화면: 카드뉴스 커버 이미지 or 기관 외관
 
 10~18초 [혜택 설명]
@@ -755,9 +755,7 @@ def _build_narration_diff(field, ncs_name, ctype, hours, training_goal=""):
     # 훈련목표가 있으면 구체적인 차별점 생성
     if training_goal:
         goal_sentences = [s.strip() for s in training_goal.replace("\n", ".").split(".") if s.strip()]
-        goal_core = goal_sentences[0] if goal_sentences else ""
-        if len(goal_core) > 50:
-            goal_core = goal_core[:47] + "..."
+        goal_core = ". ".join(goal_sentences[:2]) + ("." if goal_sentences[:2] else "")
 
         if goal_core:
             diff = f"이 과정은 {ncs_mention}{goal_core}을 목표로 하고 있어요. 실무에서 바로 활용할 수 있는 역량을 키울 수 있죠."

@@ -390,58 +390,55 @@ def generate_detail_v2(course_data, bg_image, output_path):
 
 
 def _draw_v2_detail_goal(draw, W, H, header_h, course_data, training_goal):
-    """v2 훈련목표 레이아웃"""
-    from benefits_helper import get_benefits_text
+    """v2 훈련목표 레이아웃 (훈련목표 강조, 자동 폰트 크기 조정)"""
 
-    y = header_h + 22
+    y_start = header_h + 22
+    max_content_y = H - 100  # footer 공간 확보
+    available_h = max_content_y - y_start - 60  # 라벨 공간 제외
+    content_w = W - 140
 
-    # 훈련목표 카드
-    font_goal_label = get_font(FONT_BOLD, 28)
-    font_goal_body = get_font(FONT_REGULAR, 25)
+    # 폰트 크기 후보 (큰 것부터 시도)
+    font_sizes = [32, 29, 26, 23, 20]
+    line_spacings = [48, 44, 40, 36, 32]
 
-    # 텍스트 줄 수 계산으로 카드 높이 동적 결정
-    goal_lines = wrap_text(training_goal, font_goal_body, W - 140, draw)
-    visible_lines = goal_lines[:10]  # 최대 10줄
-    card_h = 55 + len(visible_lines) * 34
+    chosen_idx = 0
+    for idx, (fsize, lspace) in enumerate(zip(font_sizes, line_spacings)):
+        test_font = get_font(FONT_REGULAR, fsize)
+        test_lines = wrap_text(training_goal, test_font, content_w, draw)
+        total_h = len(test_lines) * lspace
+        if total_h <= available_h:
+            chosen_idx = idx
+            break
+        chosen_idx = idx
 
+    font_size = font_sizes[chosen_idx]
+    line_spacing = line_spacings[chosen_idx]
+    font_goal_body = get_font(FONT_REGULAR, font_size)
+    goal_lines = wrap_text(training_goal, font_goal_body, content_w, draw)
+
+    # 카드 높이 계산 (표시 가능한 줄 수 기준)
+    max_lines = int(available_h / line_spacing)
+    visible_lines = goal_lines[:max_lines]
+    label_size = max(font_size + 2, 28)
+    card_h = label_size + 30 + len(visible_lines) * line_spacing
+
+    y = y_start
     draw_rounded_rect(draw, (40, y, W - 40, y + card_h),
                        radius=12, fill=(255, 255, 255))
     draw_rounded_rect(draw, (40, y, 48, y + card_h), radius=0,
                        fill=hex_to_rgb(ACCENT))
 
+    font_goal_label = get_font(FONT_BOLD, label_size)
     draw.text((65, y + 14), "📋 훈련목표",
               font=font_goal_label, fill=hex_to_rgb(PRIMARY))
 
-    for i, line in enumerate(visible_lines):
-        draw.text((65, y + 50 + i * 34), line,
+    text_y = y + label_size + 28
+    for line in visible_lines:
+        if text_y + line_spacing > max_content_y:
+            break
+        draw.text((65, text_y), line,
                   font=font_goal_body, fill=(44, 62, 80))
-
-    y += card_h + 16
-
-    # 과정 강점 카드 (공간 여유가 있을 때)
-    course_strength = course_data.get("courseStrength", "")
-    max_content_y = H - 100  # 주석+footer 공간만 확보 (혜택 박스 없음)
-
-    if course_strength and y < max_content_y - 100:
-        font_str_label = get_font(FONT_BOLD, 26)
-        font_str_body = get_font(FONT_REGULAR, 23)
-
-        str_lines = wrap_text(course_strength, font_str_body, W - 140, draw)
-        max_str_lines = min(len(str_lines), 5)  # 공간 확보로 5줄까지
-        str_card_h = 50 + max_str_lines * 32
-
-        if y + str_card_h < max_content_y:
-            draw_rounded_rect(draw, (40, y, W - 40, y + str_card_h),
-                               radius=12, fill=(255, 255, 255))
-            draw_rounded_rect(draw, (40, y, 48, y + str_card_h), radius=0,
-                               fill=hex_to_rgb(ACCENT_BRIGHT))
-
-            draw.text((65, y + 12), "✨ 과정 강점",
-                      font=font_str_label, fill=hex_to_rgb(ACCENT))
-
-            for i, line in enumerate(str_lines[:max_str_lines]):
-                draw.text((65, y + 44 + i * 32), line,
-                          font=font_str_body, fill=(127, 140, 141))
+        text_y += line_spacing
 
 
 def _draw_v2_detail_curriculum(draw, W, H, header_h, course_data, curriculum):

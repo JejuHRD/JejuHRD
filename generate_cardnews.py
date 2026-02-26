@@ -335,7 +335,7 @@ def generate_slide_detail(course_data, output_path):
 
 
 def _draw_slide_detail_goal(draw, W, H, course_data, training_goal):
-    """훈련목표가 있을 때의 상세 슬라이드 레이아웃 (훈련목표 + 과정 강점만)"""
+    """훈련목표가 있을 때의 상세 슬라이드 레이아웃 (훈련목표 강조)"""
 
     # ── 헤더 ──
     font_header = get_font(FONT_BOLD, 39)
@@ -349,44 +349,44 @@ def _draw_slide_detail_goal(draw, W, H, course_data, training_goal):
     # 구분선
     draw.line((60, 142, W - 60, 142), fill=hex_to_rgb("#D5D8DC"), width=2)
 
-    # ── 훈련목표 본문 ──
-    font_goal_label = get_font(FONT_BOLD, 29)
-    font_goal_body = get_font(FONT_REGULAR, 26)
+    # ── 훈련목표 본문 (자동 폰트 크기 조정) ──
+    y_start = 175
+    max_content_y = H - 80  # 하단 여백
+    available_h = max_content_y - y_start
+    content_w = W - 140
 
-    y = 170
+    # 폰트 크기 후보 (큰 것부터 시도)
+    font_sizes = [34, 31, 28, 25, 22]
+    line_spacings = [52, 48, 44, 40, 36]  # 각 폰트 크기에 대응하는 줄간격
+
+    chosen_idx = 0
+    for idx, (fsize, lspace) in enumerate(zip(font_sizes, line_spacings)):
+        test_font = get_font(FONT_REGULAR, fsize)
+        test_lines = wrap_text_to_lines(training_goal, test_font, content_w, draw)
+        total_h = len(test_lines) * lspace
+        if total_h <= available_h:
+            chosen_idx = idx
+            break
+        chosen_idx = idx  # 가장 작은 폰트라도 사용
+
+    font_size = font_sizes[chosen_idx]
+    line_spacing = line_spacings[chosen_idx]
+    font_goal_body = get_font(FONT_REGULAR, font_size)
+    goal_lines = wrap_text_to_lines(training_goal, font_goal_body, content_w, draw)
 
     # 라벨
+    label_size = max(font_size + 2, 29)
+    font_goal_label = get_font(FONT_BOLD, label_size)
+    y = y_start
     draw.text((60, y), "📋 훈련목표", font=font_goal_label, fill=hex_to_rgb(COLORS["primary"]))
-    y += 48
+    y += line_spacing + 8
 
-    # 훈련목표 텍스트 워드랩 (하단 footer 80px만 제외하고 풀 영역 사용)
-    max_content_y = H - 100
-    goal_lines = wrap_text_to_lines(training_goal, font_goal_body, W - 140, draw)
-
+    # 본문 출력 (하단 침범 방지)
     for line in goal_lines:
-        if y > max_content_y:
+        if y + line_spacing > max_content_y:
             break
         draw.text((70, y), line, font=font_goal_body, fill=hex_to_rgb(COLORS["text_dark"]))
-        y += 38
-
-    # ── 과정 강점 (공간 여유가 있을 때) ──
-    course_strength = course_data.get("courseStrength", "")
-    if course_strength and y < max_content_y - 80:
-        y += 24
-        draw.line((60, y, W - 60, y), fill=hex_to_rgb("#EAECEE"), width=1)
-        y += 20
-
-        font_strength_label = get_font(FONT_BOLD, 27)
-        draw.text((60, y), "✨ 과정 강점", font=font_strength_label, fill=hex_to_rgb(COLORS["accent"]))
-        y += 44
-
-        font_strength = get_font(FONT_REGULAR, 24)
-        strength_lines = wrap_text_to_lines(course_strength, font_strength, W - 140, draw)
-        for line in strength_lines:
-            if y > max_content_y:
-                break
-            draw.text((70, y), line, font=font_strength, fill=hex_to_rgb(COLORS["text_gray"]))
-            y += 34
+        y += line_spacing
 
 
 def _draw_slide_detail_curriculum(draw, W, H, course_data, curriculum):
