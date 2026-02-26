@@ -4,7 +4,7 @@
 특화훈련 훈련시간별 혜택 체계 (2026년 사업운영지침 기준):
 
 [140시간 미만 - 단기과정]
-- 자부담 10% (횟수 무관)
+- 자부담 10% (다른 단기과정은 횟수 무관, 단 동일 과정 재참여 불가)
 - 훈련장려금: 없음
 - 특별훈련수당: 없음
 
@@ -83,7 +83,7 @@ def get_benefits_footnote(course_data=None):
     elif ctype == "general":
         return "※ 훈련장려금은 출석 80% 이상 시 지급"
     elif ctype == "short":
-        return "※ 단기과정은 횟수 제한 없이 자부담 10%로 참여 가능"
+        return "※ 단기과정은 자부담 10%로 참여 가능 (동일 과정 재참여 불가)"
     else:
         return "※ 훈련장려금·수당은 과정 시간 및 출석률 등 조건에 따라 지급"
 
@@ -119,7 +119,8 @@ def get_benefits_detail_lines(course_data):
     elif ctype == "general":
         lines.append(f"- 총 {hours}시간 과정으로, **훈련장려금 월 최대 20만원**을 받을 수 있어요 (출석 80% 이상)")
     elif ctype == "short":
-        lines.append(f"- 총 {hours}시간 단기과정이라 훈련장려금은 없지만, 횟수 제한 없이 자부담 10%로 참여할 수 있어요")
+        lines.append(f"- 총 {hours}시간 단기과정이라 훈련장려금은 없지만, 자부담 10%로 부담 없이 참여할 수 있어요")
+        lines.append("  ※ 동일 훈련과정 재참여는 불가하며, 다른 단기과정은 횟수 제한 없이 수강 가능")
 
     lines.append("- 자세한 내용은 고용24에서 확인해주세요")
     return lines
@@ -141,7 +142,8 @@ def get_cost_info_text(course_data):
     elif ctype == "general":
         parts.append("140시간 이상 과정이라 **훈련장려금 월 최대 20만원**도 받을 수 있어요!")
     elif ctype == "short":
-        parts.append("단기과정이라 훈련장려금은 없지만, 횟수 제한 없이 부담 없이 참여할 수 있어요!")
+        parts.append("단기과정이라 훈련장려금은 없지만, 자부담 10%로 부담 없이 참여할 수 있어요!")
+        parts.append("※ 동일 훈련과정 재참여는 불가하며, 다른 단기과정은 횟수 제한 없이 수강 가능합니다.")
 
     parts.append("자세한 자부담 금액은 고용24에서 확인해주세요!")
     return "\n".join(parts)
