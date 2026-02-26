@@ -30,6 +30,29 @@ try:
 except ImportError:
     HAS_V2 = False
 
+# ── 의존성 자동 설치 ──
+def _ensure_bs4():
+    """beautifulsoup4가 없으면 자동 설치"""
+    try:
+        from bs4 import BeautifulSoup  # noqa: F401
+        return True
+    except ImportError:
+        print("  📦 beautifulsoup4 미설치 → 자동 설치 중...")
+        import subprocess
+        try:
+            subprocess.check_call(
+                [sys.executable, "-m", "pip", "install", "beautifulsoup4"],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            )
+            print("  ✅ beautifulsoup4 설치 완료")
+            return True
+        except Exception as e:
+            print(f"  ❌ 설치 실패: {e}")
+            print("  → 수동 설치 필요: pip install beautifulsoup4")
+            return False
+
+HAS_BS4 = _ensure_bs4()
+
 # ── 설정 ──
 OUTPUT_DIR = "output"
 PROCESSED_FILE = "output/.processed_courses.json"
@@ -328,6 +351,10 @@ def enrich_training_goals(courses):
 
     print(f"  [3단계] 과정 상세 페이지에서 훈련목표 크롤링 중... ({len(need_crawl)}건)")
 
+    if not HAS_BS4:
+        print("  ❌ beautifulsoup4 설치 실패 — 훈련목표 크롤링을 건너뜁니다")
+        return
+
     goal_count = 0
     for idx, course in enumerate(need_crawl):
         hrd_url = course.get("hrd_url", "")
@@ -358,11 +385,9 @@ def _fetch_training_goal(hrd_url, is_first=False):
     """
     import requests
 
-    try:
-        from bs4 import BeautifulSoup
-    except ImportError:
+    if not HAS_BS4:
         if is_first:
-            print("  ⚠️  beautifulsoup4 미설치 — pip install beautifulsoup4 필요")
+            print("  ⚠️  beautifulsoup4 사용 불가 — 크롤링 건너뜀")
         return None
 
     # 시도할 URL + User-Agent 조합
