@@ -1,6 +1,6 @@
 {
-  "updated": "2026-02-26 10:56",
-  "count": 3,
+  "updated": "2026-02-26 13:19",
+  "count": 4,
   "data": [
     {
       "address": "제주 제주시",
@@ -25,6 +25,14 @@
       "traStartDate": "2026-03-16",
       "traEndDate": "2026-03-25",
       "titleLink": "https://hrd.work24.go.kr/hrdp/co/pcobo/PCOBO0100P.do?tracseId=AIG20253001086501&tracseTme=7&trainstCstmrId=500041625803&crseTracseSe=C0061"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "주식회사 제원직업전문학교",
+      "title": "(산대특) 제주 소상공인을 위한 AI활용 실전 브랜드 마케팅",
+      "traStartDate": "2026-03-24",
+      "traEndDate": "2026-04-27",
+      "titleLink": "https://hrd.work24.go.kr/hrdp/co/pcobo/PCOBO0100P.do?tracseId=AIG20253001086269&tracseTme=6&trainstCstmrId=500020051252&crseTracseSe=C0061"
     }
   ]
 }
