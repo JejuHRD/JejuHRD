@@ -5,11 +5,13 @@
   python pipeline.py                    # 전체 실행 (API 호출 + 콘텐츠 생성)
   python pipeline.py --json data.json   # JSON 파일에서 데이터 로드
 
-v3 변경사항:
-- HRD-Net → 고용24(work24.go.kr) API 엔드포인트 마이그레이션
-- 산업구조변화대응 등 특화훈련(C0102) 과정만 조회
-- 제주 지역코드 49 → 50 변경
-- 날짜 파싱 강화 (다양한 형식 대응)
+의존성:
+  pip install requests beautifulsoup4 Pillow
+
+v4 변경사항:
+- 3단계 데이터 확보: L01(목록) → L02(상세) → 크롤링(훈련목표)
+- 과정 상세 페이지에서 훈련목표/과정 강점 자동 크롤링
+- 카드뉴스 2번 슬라이드 항상 생성 (훈련목표 → 커리큘럼 → fallback)
 """
 
 import json
@@ -117,6 +119,7 @@ def fetch_courses_from_api():
 
     1단계: L01(목록 API) → 과정 리스트 + trprId, trprDegr, instCd 확보
     2단계: L02(과정/기관정보 API) → 과정별 trtm(총훈련시간), ncsNm(NCS직종명) 등 상세
+    3단계: 과정 상세 페이지 크롤링 → trainingGoal(훈련목표), courseStrength(과정 강점)
 
     - 훈련유형: C0102 (산업구조변화대응 등 특화훈련)
     - 지역: 50 (제주)
@@ -220,6 +223,29 @@ def fetch_courses_from_api():
 
             courses.append(course)
 
+        # ═══════════════════════════════════════════════════
+        # 3단계: 과정 상세 페이지 크롤링 (훈련목표)
+        # ═══════════════════════════════════════════════════
+        print("  [3단계] 과정 상세 페이지에서 훈련목표 크롤링 중...")
+
+        goal_count = 0
+        for idx, course in enumerate(courses):
+            hrd_url = course.get("hrd_url", "")
+            if not hrd_url:
+                continue
+
+            goal_data = _fetch_training_goal(hrd_url, is_first=(idx == 0))
+            if goal_data:
+                course["trainingGoal"] = goal_data.get("trainingGoal", "")
+                course["courseStrength"] = goal_data.get("courseStrength", "")
+                if course["trainingGoal"]:
+                    goal_count += 1
+
+            # 크롤링 부하 방지 (0.5초 간격)
+            time.sleep(0.5)
+
+        print(f"  ✅ 훈련목표 {goal_count}건 확보")
+
         # 결과 요약
         has_hours = sum(1 for c in courses if c.get("totalHours", 0) > 0)
         has_ncs = sum(1 for c in courses if c.get("ncsName", ""))
@@ -301,6 +327,87 @@ def _fetch_course_detail(api_key, url, trpr_id, trpr_degr, torg_id, is_first=Fal
         return None
 
 
+def _fetch_training_goal(hrd_url, is_first=False):
+    """
+    고용24 과정 상세 페이지에서 훈련목표/훈련과정 강점을 크롤링합니다.
+
+    work24.go.kr 상세 페이지는 서버사이드 렌더링(SSR)으로
+    훈련과정 개요 테이블(th/td)에 훈련목표가 포함되어 있습니다.
+
+    반환값: {"trainingGoal": str, "courseStrength": str} 또는 None
+    """
+    import requests
+
+    try:
+        from bs4 import BeautifulSoup
+    except ImportError:
+        if is_first:
+            print("  ⚠️  beautifulsoup4 미설치 — pip install beautifulsoup4 필요")
+        return None
+
+    try:
+        # 모바일 버전이 더 가벼움 (www → m 변환)
+        mobile_url = hrd_url.replace("www.work24.go.kr", "m.work24.go.kr")
+
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 "
+                          "(KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml",
+            "Accept-Language": "ko-KR,ko;q=0.9",
+        }
+
+        resp = requests.get(mobile_url, headers=headers, timeout=15)
+        if resp.status_code != 200:
+            return None
+
+        soup = BeautifulSoup(resp.text, "html.parser")
+
+        training_goal = ""
+        course_strength = ""
+
+        # 테이블에서 th 텍스트로 매칭하여 td 추출
+        for th in soup.find_all("th"):
+            th_text = th.get_text(strip=True)
+
+            if th_text == "훈련목표":
+                td = th.find_next_sibling("td")
+                if not td:
+                    # th와 td가 같은 tr 안에 있는 경우
+                    tr = th.find_parent("tr")
+                    if tr:
+                        td = tr.find("td")
+                if td:
+                    training_goal = td.get_text(separator="\n", strip=True)
+
+            elif "훈련과정의 강점" in th_text or "훈련과정의강점" in th_text:
+                td = th.find_next_sibling("td")
+                if not td:
+                    tr = th.find_parent("tr")
+                    if tr:
+                        td = tr.find("td")
+                if td:
+                    course_strength = td.get_text(separator="\n", strip=True)
+
+        if is_first:
+            goal_preview = training_goal[:80] + "..." if len(training_goal) > 80 else training_goal
+            print(f"  [DEBUG] 크롤링 → 훈련목표: {goal_preview or '(없음)'}")
+            print(f"  [DEBUG] 크롤링 → 과정 강점: {'있음' if course_strength else '(없음)'}")
+
+        return {
+            "trainingGoal": training_goal,
+            "courseStrength": course_strength,
+        }
+
+    except requests.exceptions.Timeout:
+        if is_first:
+            print("  ⚠️  과정 상세 페이지 타임아웃 (15초)")
+        return None
+    except Exception as e:
+        if is_first:
+            print(f"  ⚠️  훈련목표 크롤링 실패: {e}")
+        return None
+
+
 def format_cost(raw_value):
     """숫자 문자열을 '1,077,960원' 형태로 포맷합니다."""
     if not raw_value:
@@ -361,6 +468,8 @@ def _parse_list_item(api_item):
             "target": "국민내일배움카드 있으면 누구나",
             "benefits": "",
             "curriculum": [],
+            "trainingGoal": "",      # 3단계 크롤링에서 채워짐
+            "courseStrength": "",     # 3단계 크롤링에서 채워짐
             "outcome": "",
             "contact": f"{institution} Tel: {_get_field(api_item, 'telNo', 'TEL_NO', 'trprChapTel', 'TRPR_CHAP_TEL')}",
             "hrd_url": (

@@ -293,7 +293,12 @@ def generate_slide_cover(course_data, output_path):
 
 def generate_slide_detail(course_data, output_path):
     """
-    슬라이드 2: 상세 정보 (교육 내용, 커리큘럼 요약)
+    슬라이드 2: 과정 상세 정보
+
+    데이터 우선순위:
+    1. trainingGoal(훈련목표)이 있으면 → 훈련목표 중심 레이아웃
+    2. curriculum이 있으면 → 커리큘럼 리스트 레이아웃
+    3. 둘 다 없으면 → 과정 기본정보 요약 레이아웃
     """
     W, H = 1080, 1080
     img = Image.new('RGB', (W, H), hex_to_rgb(COLORS["bg_light"]))
@@ -302,6 +307,36 @@ def generate_slide_detail(course_data, output_path):
     # 상단 컬러 바
     draw.rectangle((0, 0, W, 8), fill=hex_to_rgb(COLORS["accent"]))
     draw.rectangle((0, 8, W, 12), fill=hex_to_rgb(COLORS["primary"]))
+
+    training_goal = course_data.get("trainingGoal", "")
+    curriculum = course_data.get("curriculum", [])
+
+    if training_goal:
+        _draw_slide_detail_goal(draw, W, H, course_data, training_goal)
+    elif curriculum:
+        _draw_slide_detail_curriculum(draw, W, H, course_data, curriculum)
+    else:
+        _draw_slide_detail_fallback(draw, W, H, course_data)
+
+    # ── 하단 바 ──
+    footer_y = H - 80
+    footer_bar_h = H - footer_y
+    draw.rectangle((0, footer_y, W, H), fill=hex_to_rgb(COLORS["primary"]))
+    font_footer = get_font(FONT_REGULAR, 23)
+    ft_text = "제주지역인적자원개발위원회  |  신청: work24.go.kr"
+    ft_bbox = draw.textbbox((0, 0), ft_text, font=font_footer)
+    ft_h = ft_bbox[3] - ft_bbox[1]
+    ft_text_y = footer_y + (footer_bar_h - ft_h) // 2
+    draw.text((60, ft_text_y), ft_text,
+              font=font_footer, fill=hex_to_rgb("#AED6F1"))
+
+    img.save(output_path, quality=95)
+    return output_path
+
+
+def _draw_slide_detail_goal(draw, W, H, course_data, training_goal):
+    """훈련목표가 있을 때의 상세 슬라이드 레이아웃"""
+    from benefits_helper import get_course_type, get_total_hours
 
     # ── 헤더 ──
     font_header = get_font(FONT_BOLD, 39)
@@ -315,15 +350,84 @@ def generate_slide_detail(course_data, output_path):
     # 구분선
     draw.line((60, 142, W - 60, 142), fill=hex_to_rgb("#D5D8DC"), width=2)
 
-    # ── 커리큘럼 / 교육 내용 ──
+    # ── 훈련목표 본문 ──
+    font_goal_label = get_font(FONT_BOLD, 29)
+    font_goal_body = get_font(FONT_REGULAR, 26)
+
+    y = 170
+
+    # 라벨
+    draw.text((60, y), "📋 훈련목표", font=font_goal_label, fill=hex_to_rgb(COLORS["primary"]))
+    y += 48
+
+    # 훈련목표 텍스트 워드랩 (최대 영역: y ~ H-340)
+    max_goal_y = H - 340
+    goal_lines = wrap_text_to_lines(training_goal, font_goal_body, W - 140, draw)
+
+    for line in goal_lines:
+        if y > max_goal_y:
+            break
+        draw.text((70, y), line, font=font_goal_body, fill=hex_to_rgb(COLORS["text_dark"]))
+        y += 38
+
+    # ── 과정 강점 요약 (공간 있으면) ──
+    course_strength = course_data.get("courseStrength", "")
+    if course_strength and y < max_goal_y - 60:
+        y += 20
+        draw.line((60, y, W - 60, y), fill=hex_to_rgb("#EAECEE"), width=1)
+        y += 18
+
+        font_strength_label = get_font(FONT_BOLD, 27)
+        draw.text((60, y), "✨ 과정 강점", font=font_strength_label, fill=hex_to_rgb(COLORS["accent"]))
+        y += 42
+
+        font_strength = get_font(FONT_REGULAR, 24)
+        # 강점 텍스트에서 핵심 문장만 추출 (첫 3줄)
+        strength_lines = wrap_text_to_lines(course_strength, font_strength, W - 140, draw)
+        for line in strength_lines[:3]:
+            if y > max_goal_y:
+                break
+            draw.text((70, y), line, font=font_strength, fill=hex_to_rgb(COLORS["text_gray"]))
+            y += 34
+
+    # ── 하단: 혜택 요약 박스 ──
+    from benefits_helper import get_benefits_text
+    benefit_text = get_benefits_text(course_data)
+    benefit_lines = benefit_text.split("|") if benefit_text else ["자부담 10%"]
+
+    benefit_box_h = 50 + len(benefit_lines) * 32
+    benefit_y = H - 100 - benefit_box_h
+    draw_rounded_rect(draw, (40, benefit_y, W - 40, benefit_y + benefit_box_h),
+                       radius=15, fill=hex_to_rgb(COLORS["primary"]))
+
+    font_benefit_title = get_font(FONT_BOLD, 25)
+    font_benefit = get_font(FONT_REGULAR, 24)
+    draw.text((70, benefit_y + 12), "💰 혜택",
+              font=font_benefit_title, fill=hex_to_rgb(COLORS["accent_bright"]))
+
+    for i, bl in enumerate(benefit_lines):
+        draw.text((70, benefit_y + 42 + i * 32), bl.strip(),
+                  font=font_benefit, fill=hex_to_rgb(COLORS["white"]))
+
+
+def _draw_slide_detail_curriculum(draw, W, H, course_data, curriculum):
+    """커리큘럼이 있을 때의 상세 슬라이드 레이아웃 (기존 로직)"""
+    # ── 헤더 ──
+    font_header = get_font(FONT_BOLD, 39)
+    draw.text((60, 45), "이런 걸 배워요", font=font_header, fill=hex_to_rgb(COLORS["primary"]))
+
+    font_subtitle = get_font(FONT_REGULAR, 27)
+    title_short = course_data["title"][:35] + ("…" if len(course_data["title"]) > 35 else "")
+    draw.text((60, 95), title_short, font=font_subtitle, fill=hex_to_rgb(COLORS["text_gray"]))
+
+    draw.line((60, 142, W - 60, 142), fill=hex_to_rgb("#D5D8DC"), width=2)
+
+    # ── 커리큘럼 항목 ──
     font_item_title = get_font(FONT_BOLD, 29)
     font_item_desc = get_font(FONT_REGULAR, 25)
 
-    curriculum = course_data.get("curriculum", [])
     y = 170
-
-    for i, item in enumerate(curriculum[:6]):  # 최대 6개 항목
-        # 번호 원
+    for i, item in enumerate(curriculum[:6]):
         circle_x, circle_y = 80, y + 18
         circle_r = 22
         draw_rounded_rect(draw,
@@ -338,7 +442,6 @@ def generate_slide_detail(course_data, output_path):
         draw.text((circle_x - num_w // 2, circle_y - 13), num_text,
                   font=font_num, fill=hex_to_rgb(COLORS["white"]))
 
-        # 항목 텍스트
         if isinstance(item, dict):
             title_text = item.get("title", "")
             desc_text = item.get("desc", "")
@@ -353,10 +456,8 @@ def generate_slide_detail(course_data, output_path):
                 draw.text((120, y + 42 + j * 34), dl,
                           font=font_item_desc, fill=hex_to_rgb(COLORS["text_gray"]))
             y += 42 + min(len(desc_lines), 2) * 34
-
         y += 72
 
-        # 구분선 (마지막 항목 제외)
         if i < len(curriculum[:6]) - 1:
             draw.line((120, y - 25, W - 60, y - 25), fill=hex_to_rgb("#EAECEE"), width=1)
 
@@ -377,20 +478,69 @@ def generate_slide_detail(course_data, output_path):
         draw.text((70, outcome_y + 55 + i * 36), line,
                   font=font_outcome, fill=hex_to_rgb(COLORS["white"]))
 
-    # ── 하단 바 ──
-    footer_y = H - 80
-    footer_bar_h = H - footer_y
-    draw.rectangle((0, footer_y, W, H), fill=hex_to_rgb(COLORS["primary"]))
-    font_footer = get_font(FONT_REGULAR, 23)
-    ft_text = "제주지역인적자원개발위원회  |  신청: work24.go.kr"
-    ft_bbox = draw.textbbox((0, 0), ft_text, font=font_footer)
-    ft_h = ft_bbox[3] - ft_bbox[1]
-    ft_text_y = footer_y + (footer_bar_h - ft_h) // 2
-    draw.text((60, ft_text_y), ft_text,
-              font=font_footer, fill=hex_to_rgb("#AED6F1"))
 
-    img.save(output_path, quality=95)
-    return output_path
+def _draw_slide_detail_fallback(draw, W, H, course_data):
+    """훈련목표/커리큘럼 모두 없을 때 — 과정 기본정보 요약 레이아웃"""
+    from benefits_helper import get_course_type, get_total_hours, get_benefits_text
+
+    ctype = get_course_type(course_data)
+    hours = get_total_hours(course_data)
+
+    # ── 헤더 ──
+    font_header = get_font(FONT_BOLD, 39)
+    draw.text((60, 45), "과정 안내", font=font_header, fill=hex_to_rgb(COLORS["primary"]))
+
+    font_subtitle = get_font(FONT_REGULAR, 27)
+    title_short = course_data["title"][:35] + ("…" if len(course_data["title"]) > 35 else "")
+    draw.text((60, 95), title_short, font=font_subtitle, fill=hex_to_rgb(COLORS["text_gray"]))
+
+    draw.line((60, 142, W - 60, 142), fill=hex_to_rgb("#D5D8DC"), width=2)
+
+    # ── 정보 항목 리스트 ──
+    font_label = get_font(FONT_BOLD, 29)
+    font_value = get_font(FONT_REGULAR, 27)
+
+    info_items = []
+    info_items.append(("🏫 훈련기관", course_data.get("institution", "")))
+    if hours > 0:
+        info_items.append(("⏱️ 배움 시간", f"총 {hours}시간"))
+    if course_data.get("period"):
+        info_items.append(("📅 훈련기간", course_data["period"]))
+    ncs = course_data.get("ncsName", "")
+    if ncs:
+        info_items.append(("📋 NCS 직종", ncs))
+    if course_data.get("capacity"):
+        info_items.append(("👥 모집인원", course_data["capacity"]))
+    if course_data.get("selfCost"):
+        info_items.append(("💳 자부담금", course_data["selfCost"]))
+    info_items.append(("🎯 대상", course_data.get("target", "국민내일배움카드 있으면 누구나")))
+
+    y = 175
+    for label, value in info_items[:7]:
+        draw.text((60, y), label, font=font_label, fill=hex_to_rgb(COLORS["primary"]))
+        draw.text((60, y + 42), value, font=font_value, fill=hex_to_rgb(COLORS["text_dark"]))
+        y += 100
+
+        if y < H - 300:
+            draw.line((60, y - 12, W - 60, y - 12), fill=hex_to_rgb("#EAECEE"), width=1)
+
+    # ── 하단: 혜택 박스 ──
+    benefit_text = get_benefits_text(course_data)
+    benefit_lines = benefit_text.split("|") if benefit_text else ["자부담 10%"]
+
+    benefit_box_h = 50 + len(benefit_lines) * 32
+    benefit_y = H - 100 - benefit_box_h
+    draw_rounded_rect(draw, (40, benefit_y, W - 40, benefit_y + benefit_box_h),
+                       radius=15, fill=hex_to_rgb(COLORS["primary"]))
+
+    font_benefit_title = get_font(FONT_BOLD, 25)
+    font_benefit = get_font(FONT_REGULAR, 24)
+    draw.text((70, benefit_y + 12), "💰 혜택",
+              font=font_benefit_title, fill=hex_to_rgb(COLORS["accent_bright"]))
+
+    for i, bl in enumerate(benefit_lines):
+        draw.text((70, benefit_y + 42 + i * 32), bl.strip(),
+                  font=font_benefit, fill=hex_to_rgb(COLORS["white"]))
 
 
 def generate_slide_howto(course_data, output_path):
@@ -552,12 +702,11 @@ def generate_cardnews(course_data, output_dir="output"):
     paths.append(p1)
     print(f"  ✅ 커버 이미지 생성: {p1}")
 
-    # 슬라이드 2: 상세 (커리큘럼이 있는 경우만)
-    if course_data.get("curriculum"):
-        p2 = os.path.join(output_dir, f"{safe_name}_2_detail.png")
-        generate_slide_detail(course_data, p2)
-        paths.append(p2)
-        print(f"  ✅ 상세 이미지 생성: {p2}")
+    # 슬라이드 2: 훈련목표/상세 (항상 생성)
+    p2 = os.path.join(output_dir, f"{safe_name}_2_detail.png")
+    generate_slide_detail(course_data, p2)
+    paths.append(p2)
+    print(f"  ✅ 상세 이미지 생성: {p2}")
 
     # 슬라이드 3: 신청 방법
     p3 = os.path.join(output_dir, f"{safe_name}_3_howto.png")

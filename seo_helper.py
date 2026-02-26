@@ -171,15 +171,25 @@ def extract_seo_keywords(course_data):
     """
     과정 데이터에서 SEO 키워드를 추출합니다.
 
+    키워드 소스:
+    1. 과정명 (title)
+    2. 훈련목표 (trainingGoal) — 크롤링 데이터
+    3. NCS직종명 (ncsName)
+    4. 공통 키워드
+
     Returns:
         list[str]: 검색 최적화 키워드 리스트
     """
     title = course_data.get("title", "")
+    training_goal = course_data.get("trainingGoal", "")
+    ncs_name = course_data.get("ncsName", "")
     keywords = set()
 
-    # 제목에서 키워드 매핑
+    # 키워드 매핑 대상 텍스트 (제목 + 훈련목표 + NCS직종)
+    source_text = f"{title} {training_goal} {ncs_name}".upper()
+
     for trigger, mapped in KEYWORD_MAP.items():
-        if trigger.upper() in title.upper():
+        if trigger.upper() in source_text:
             keywords.update(mapped)
 
     # 공통 키워드 추가
