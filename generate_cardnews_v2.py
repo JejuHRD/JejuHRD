@@ -390,21 +390,71 @@ def generate_detail_v2(course_data, bg_image, output_path):
 
 
 def _draw_v2_detail_goal(draw, W, H, header_h, course_data, training_goal):
-    """v2 훈련목표 레이아웃 (훈련목표 강조, 자동 폰트 크기 조정)"""
+    """v2 훈련목표 레이아웃 (카드 UI + 과정정보 태그, 자동 폰트 조정)"""
+    from benefits_helper import get_total_hours, get_course_type
 
-    y_start = header_h + 22
-    max_content_y = H - 100  # footer 공간 확보
-    available_h = max_content_y - y_start - 60  # 라벨 공간 제외
-    content_w = W - 140
+    footer_reserve = 100  # 주석 + footer 바
 
-    # 폰트 크기 후보 (큰 것부터 시도)
-    font_sizes = [32, 29, 26, 23, 20]
-    line_spacings = [48, 44, 40, 36, 32]
+    # ── 하단 과정정보 태그 데이터 ──
+    hours = get_total_hours(course_data)
+    institution = course_data.get("institution", "")
+    ncs_name = course_data.get("ncsName", "")
+    ctype = get_course_type(course_data)
+
+    info_tags = []
+    if institution:
+        info_tags.append(("🏫", institution[:18]))
+    if hours > 0:
+        info_tags.append(("⏱️", f"총 {hours}시간"))
+    if ncs_name:
+        info_tags.append(("📋", ncs_name[:18]))
+    ctype_labels = {"short": "단기과정", "general": "일반과정", "long": "장기과정"}
+    if ctype in ctype_labels:
+        info_tags.append(("🏷️", ctype_labels[ctype]))
+
+    info_area_h = 100 if info_tags else 0
+
+    # ── 카드 영역 계산 ──
+    card_top = header_h + 18
+    card_bottom = H - footer_reserve - info_area_h - 16
+    card_left = 35
+    card_right = W - 35
+    card_inner_w = card_right - card_left - 80
+
+    # 카드 그림자 + 본체
+    draw_rounded_rect(draw, (card_left + 3, card_top + 3, card_right + 3, card_bottom + 3),
+                       radius=14, fill=hex_to_rgb("#DEDEDE"))
+    draw_rounded_rect(draw, (card_left, card_top, card_right, card_bottom),
+                       radius=14, fill=(255, 255, 255))
+    # 좌측 악센트 바
+    draw_rounded_rect(draw, (card_left, card_top, card_left + 6, card_bottom),
+                       radius=0, fill=hex_to_rgb(ACCENT))
+    draw_rounded_rect(draw, (card_left, card_top, card_left + 18, card_top + 18),
+                       radius=14, fill=hex_to_rgb(ACCENT))
+
+    # 카드 라벨
+    label_y = card_top + 20
+    font_goal_label = get_font(FONT_BOLD, 30)
+    draw.text((card_left + 28, label_y), "📋  훈련목표",
+              font=font_goal_label, fill=hex_to_rgb(PRIMARY))
+
+    # 구분선
+    sep_y = label_y + 44
+    draw.line((card_left + 28, sep_y, card_right - 28, sep_y),
+              fill=hex_to_rgb("#EBF5FB"), width=2)
+
+    # ── 본문 (자동 폰트 크기 조정 + 수직 중앙 정렬) ──
+    text_top = sep_y + 14
+    text_bottom = card_bottom - 20
+    available_h = text_bottom - text_top
+
+    font_sizes = [30, 27, 24, 22, 19]
+    line_spacings = [46, 42, 38, 35, 31]
 
     chosen_idx = 0
     for idx, (fsize, lspace) in enumerate(zip(font_sizes, line_spacings)):
         test_font = get_font(FONT_REGULAR, fsize)
-        test_lines = wrap_text(training_goal, test_font, content_w, draw)
+        test_lines = wrap_text(training_goal, test_font, card_inner_w, draw)
         total_h = len(test_lines) * lspace
         if total_h <= available_h:
             chosen_idx = idx
@@ -414,31 +464,47 @@ def _draw_v2_detail_goal(draw, W, H, header_h, course_data, training_goal):
     font_size = font_sizes[chosen_idx]
     line_spacing = line_spacings[chosen_idx]
     font_goal_body = get_font(FONT_REGULAR, font_size)
-    goal_lines = wrap_text(training_goal, font_goal_body, content_w, draw)
+    goal_lines = wrap_text(training_goal, font_goal_body, card_inner_w, draw)
 
-    # 카드 높이 계산 (표시 가능한 줄 수 기준)
-    max_lines = int(available_h / line_spacing)
-    visible_lines = goal_lines[:max_lines]
-    label_size = max(font_size + 2, 28)
-    card_h = label_size + 30 + len(visible_lines) * line_spacing
+    max_visible = int(available_h / line_spacing)
+    visible_lines = goal_lines[:max_visible]
+    total_text_h = len(visible_lines) * line_spacing
+    y = text_top + max(0, (available_h - total_text_h) // 2)
 
-    y = y_start
-    draw_rounded_rect(draw, (40, y, W - 40, y + card_h),
-                       radius=12, fill=(255, 255, 255))
-    draw_rounded_rect(draw, (40, y, 48, y + card_h), radius=0,
-                       fill=hex_to_rgb(ACCENT))
-
-    font_goal_label = get_font(FONT_BOLD, label_size)
-    draw.text((65, y + 14), "📋 훈련목표",
-              font=font_goal_label, fill=hex_to_rgb(PRIMARY))
-
-    text_y = y + label_size + 28
     for line in visible_lines:
-        if text_y + line_spacing > max_content_y:
+        if y + line_spacing > text_bottom + 5:
             break
-        draw.text((65, text_y), line,
+        draw.text((card_left + 38, y), line,
                   font=font_goal_body, fill=(44, 62, 80))
-        text_y += line_spacing
+        y += line_spacing
+
+    # ── 하단 과정정보 태그 ──
+    if info_tags:
+        tag_y = card_bottom + 16
+        font_tag = get_font(FONT_REGULAR, 21)
+        tag_x = card_left
+        tag_h = 36
+        tag_gap = 10
+        tag_pad_x = 14
+
+        for icon, label in info_tags:
+            tag_text = f"{icon} {label}"
+            bbox = draw.textbbox((0, 0), tag_text, font=font_tag)
+            tw = bbox[2] - bbox[0]
+            tag_w = tw + tag_pad_x * 2
+
+            if tag_x + tag_w > card_right:
+                tag_x = card_left
+                tag_y += tag_h + tag_gap
+
+            draw_rounded_rect(draw,
+                              (tag_x, tag_y, tag_x + tag_w, tag_y + tag_h),
+                              radius=tag_h // 2,
+                              fill=hex_to_rgb("#EBF5FB"))
+            text_y_inner = tag_y + (tag_h - (bbox[3] - bbox[1])) // 2
+            draw.text((tag_x + tag_pad_x, text_y_inner), tag_text,
+                      font=font_tag, fill=hex_to_rgb(PRIMARY))
+            tag_x += tag_w + tag_gap
 
 
 def _draw_v2_detail_curriculum(draw, W, H, header_h, course_data, curriculum):

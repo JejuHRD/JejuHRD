@@ -82,18 +82,11 @@ def generate_blog_post(course_data, output_dir="output"):
 
     # 훈련내용 텍스트 (우선순위: trainingGoal → curriculum → 빈 값)
     training_goal = course_data.get("trainingGoal", "")
-    course_strength = course_data.get("courseStrength", "")
 
     curriculum_text = ""
     if training_goal:
         curriculum_text = "\n## 이런 걸 배워요\n\n"
         curriculum_text += f"**📋 훈련목표**\n\n{training_goal}\n\n"
-        if course_strength:
-            # 과정 강점은 너무 길 수 있으므로 500자 제한
-            strength_short = course_strength[:500]
-            if len(course_strength) > 500:
-                strength_short += "..."
-            curriculum_text += f"**✨ 이 과정의 강점**\n\n{strength_short}\n\n"
     elif curriculum:
         curriculum_text = "\n## 이런 걸 배워요\n\n"
         for i, item in enumerate(curriculum, 1):

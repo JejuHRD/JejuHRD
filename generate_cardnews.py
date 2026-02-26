@@ -335,58 +335,146 @@ def generate_slide_detail(course_data, output_path):
 
 
 def _draw_slide_detail_goal(draw, W, H, course_data, training_goal):
-    """훈련목표가 있을 때의 상세 슬라이드 레이아웃 (훈련목표 강조)"""
+    """훈련목표가 있을 때의 상세 슬라이드 레이아웃 (카드 UI + 과정정보 태그)"""
+    from benefits_helper import get_total_hours, get_course_type
 
-    # ── 헤더 ──
+    footer_y = H - 80  # 하단 footer 시작점
+
+    # ── 헤더 영역 ──
     font_header = get_font(FONT_BOLD, 39)
     draw.text((60, 45), "이런 걸 배워요", font=font_header, fill=hex_to_rgb(COLORS["primary"]))
 
-    # 과정명 (소제목)
-    font_subtitle = get_font(FONT_REGULAR, 27)
-    title_short = course_data["title"][:35] + ("…" if len(course_data["title"]) > 35 else "")
+    font_subtitle = get_font(FONT_REGULAR, 25)
+    title_short = course_data["title"][:38] + ("…" if len(course_data["title"]) > 38 else "")
     draw.text((60, 95), title_short, font=font_subtitle, fill=hex_to_rgb(COLORS["text_gray"]))
 
     # 구분선
-    draw.line((60, 142, W - 60, 142), fill=hex_to_rgb("#D5D8DC"), width=2)
+    draw.line((60, 138, W - 60, 138), fill=hex_to_rgb("#D5D8DC"), width=2)
+
+    # ── 하단 과정정보 태그 영역 (먼저 계산하여 카드 영역 확보) ──
+    hours = get_total_hours(course_data)
+    institution = course_data.get("institution", "")
+    ncs_name = course_data.get("ncsName", "")
+    ctype = get_course_type(course_data)
+
+    # 태그 데이터 수집
+    info_tags = []
+    if institution:
+        info_tags.append(("🏫", institution[:18]))
+    if hours > 0:
+        info_tags.append(("⏱️", f"총 {hours}시간"))
+    if ncs_name:
+        info_tags.append(("📋", ncs_name[:18]))
+    ctype_labels = {"short": "단기과정", "general": "일반과정", "long": "장기과정"}
+    if ctype in ctype_labels:
+        info_tags.append(("🏷️", ctype_labels[ctype]))
+
+    # 태그 영역 높이 계산
+    info_area_h = 0
+    if info_tags:
+        info_area_h = 110  # 태그 2줄 + 여백
+
+    # ── 훈련목표 카드 영역 ──
+    card_top = 158
+    card_bottom = footer_y - info_area_h - 20
+    card_left = 45
+    card_right = W - 45
+    card_inner_w = card_right - card_left - 80  # 좌우 패딩 40씩
+
+    # 카드 배경 (흰색 라운드 + 그림자 효과)
+    # 그림자
+    draw_rounded_rect(draw, (card_left + 4, card_top + 4, card_right + 4, card_bottom + 4),
+                       radius=16, fill=hex_to_rgb("#E8E8E8"))
+    # 카드 본체
+    draw_rounded_rect(draw, (card_left, card_top, card_right, card_bottom),
+                       radius=16, fill=hex_to_rgb("#FFFFFF"))
+    # 좌측 악센트 바
+    accent_bar_w = 6
+    draw_rounded_rect(draw, (card_left, card_top, card_left + accent_bar_w, card_bottom),
+                       radius=0, fill=hex_to_rgb(COLORS["accent"]))
+    # 좌상단 라운딩 복원
+    draw_rounded_rect(draw, (card_left, card_top, card_left + 20, card_top + 20),
+                       radius=16, fill=hex_to_rgb(COLORS["accent"]))
+
+    # 카드 내부 라벨
+    label_y = card_top + 22
+    font_goal_label = get_font(FONT_BOLD, 30)
+    draw.text((card_left + 30, label_y), "📋  훈련목표",
+              font=font_goal_label, fill=hex_to_rgb(COLORS["primary"]))
+
+    # 라벨 아래 얇은 구분선
+    sep_y = label_y + 46
+    draw.line((card_left + 30, sep_y, card_right - 30, sep_y),
+              fill=hex_to_rgb("#EBF5FB"), width=2)
 
     # ── 훈련목표 본문 (자동 폰트 크기 조정) ──
-    y_start = 175
-    max_content_y = H - 80  # 하단 여백
-    available_h = max_content_y - y_start
-    content_w = W - 140
+    text_top = sep_y + 16
+    text_bottom = card_bottom - 22
+    available_h = text_bottom - text_top
 
-    # 폰트 크기 후보 (큰 것부터 시도)
-    font_sizes = [34, 31, 28, 25, 22]
-    line_spacings = [52, 48, 44, 40, 36]  # 각 폰트 크기에 대응하는 줄간격
+    font_sizes = [32, 29, 26, 24, 21]
+    line_spacings = [50, 46, 42, 38, 34]
 
     chosen_idx = 0
     for idx, (fsize, lspace) in enumerate(zip(font_sizes, line_spacings)):
         test_font = get_font(FONT_REGULAR, fsize)
-        test_lines = wrap_text_to_lines(training_goal, test_font, content_w, draw)
+        test_lines = wrap_text_to_lines(training_goal, test_font, card_inner_w, draw)
         total_h = len(test_lines) * lspace
         if total_h <= available_h:
             chosen_idx = idx
             break
-        chosen_idx = idx  # 가장 작은 폰트라도 사용
+        chosen_idx = idx
 
     font_size = font_sizes[chosen_idx]
     line_spacing = line_spacings[chosen_idx]
     font_goal_body = get_font(FONT_REGULAR, font_size)
-    goal_lines = wrap_text_to_lines(training_goal, font_goal_body, content_w, draw)
+    goal_lines = wrap_text_to_lines(training_goal, font_goal_body, card_inner_w, draw)
 
-    # 라벨
-    label_size = max(font_size + 2, 29)
-    font_goal_label = get_font(FONT_BOLD, label_size)
-    y = y_start
-    draw.text((60, y), "📋 훈련목표", font=font_goal_label, fill=hex_to_rgb(COLORS["primary"]))
-    y += line_spacing + 8
+    # 텍스트 수직 중앙 정렬 (내용이 짧을 때 빈 공간 방지)
+    max_visible = int(available_h / line_spacing)
+    visible_lines = goal_lines[:max_visible]
+    total_text_h = len(visible_lines) * line_spacing
+    y = text_top + max(0, (available_h - total_text_h) // 2)
 
-    # 본문 출력 (하단 침범 방지)
-    for line in goal_lines:
-        if y + line_spacing > max_content_y:
+    for line in visible_lines:
+        if y + line_spacing > text_bottom + 5:
             break
-        draw.text((70, y), line, font=font_goal_body, fill=hex_to_rgb(COLORS["text_dark"]))
+        draw.text((card_left + 40, y), line,
+                  font=font_goal_body, fill=hex_to_rgb(COLORS["text_dark"]))
         y += line_spacing
+
+    # ── 하단 과정정보 태그 (카드 아래) ──
+    if info_tags:
+        tag_y = card_bottom + 18
+        font_tag = get_font(FONT_REGULAR, 22)
+        font_tag_icon = get_font(FONT_REGULAR, 22)
+        tag_x = card_left
+        tag_h = 38
+        tag_gap = 12
+        tag_pad_x = 16
+
+        for icon, label in info_tags:
+            tag_text = f"{icon} {label}"
+            bbox = draw.textbbox((0, 0), tag_text, font=font_tag)
+            tw = bbox[2] - bbox[0]
+            tag_w = tw + tag_pad_x * 2
+
+            # 줄바꿈: 오른쪽 넘어가면 다음 줄로
+            if tag_x + tag_w > card_right:
+                tag_x = card_left
+                tag_y += tag_h + tag_gap
+
+            # 태그 배경 (둥근 필 모양)
+            draw_rounded_rect(draw,
+                              (tag_x, tag_y, tag_x + tag_w, tag_y + tag_h),
+                              radius=tag_h // 2,
+                              fill=hex_to_rgb(COLORS["tag_bg"]))
+            # 태그 텍스트
+            text_y = tag_y + (tag_h - (bbox[3] - bbox[1])) // 2
+            draw.text((tag_x + tag_pad_x, text_y), tag_text,
+                      font=font_tag, fill=hex_to_rgb(COLORS["primary"]))
+
+            tag_x += tag_w + tag_gap
 
 
 def _draw_slide_detail_curriculum(draw, W, H, course_data, curriculum):
