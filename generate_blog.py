@@ -53,6 +53,7 @@ def generate_blog_post(course_data, output_dir="output"):
     target = course_data.get("target", "내일배움카드 있으면 누구나")
     curriculum = course_data.get("curriculum", [])
     outcome = course_data.get("outcome", "")
+    training_goal = course_data.get("trainingGoal", "")
     contact = course_data.get("contact", "")
     hrd_url = course_data.get("hrd_url", "https://www.hrd.go.kr")
 
@@ -145,9 +146,9 @@ def generate_blog_post(course_data, output_dir="output"):
 
 [구분선]
 
-[소제목] 배우고 나면
+[소제목] 어떤 것들을 배우나요
 
-{outcome}
+{training_goal if training_goal else outcome if outcome else "상세 내용은 고용24에서 확인해주세요."}
 
 [구분선]
 
