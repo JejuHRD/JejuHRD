@@ -263,7 +263,7 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
         font_cost_small = get_font(FONT_REGULAR, 19)
 
         # 콘텐츠 높이 계산
-        label_text = "■ 훈련에 참여할 대 내는 자부담금"
+        label_text = "■ 훈련에 참여할 때 내는 자부담금"
         label_bbox = draw.textbbox((0, 0), label_text, font=font_cost_label)
         label_h = label_bbox[3] - label_bbox[1]
         cost_line_bbox = draw.textbbox((0, 0), "단, 000,000원", font=font_cost_big)
