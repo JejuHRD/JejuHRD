@@ -168,15 +168,15 @@ def generate_slide_cover(course_data, output_path):
     # 하단 정보 영역 (아이콘 카드 + 비용 강조 + 혜택 배너)
     # ══════════════════════════════════════════════════
 
-    # ── 정보 아이콘 카드 (가로 3열) ──
+    # ── 정보 아이콘 카드 (가로 배치, 배움기간 넓게) ──
     info_items = []
     if course_data.get("period"):
-        info_items.append(("🗓️", "배움 기간", course_data["period"]))
+        info_items.append(("▷", "배움 기간", course_data["period"], 1.4))
     hours = get_total_hours(course_data)
     if hours > 0:
-        info_items.append(("⏱️", "배움 시간", f"{hours}시간"))
+        info_items.append(("▷", "배움 시간", f"{hours}시간", 0.8))
     if course_data.get("capacity"):
-        info_items.append(("👥", "모집 인원", course_data["capacity"]))
+        info_items.append(("▷", "모집 인원", course_data["capacity"], 0.8))
 
     card_top = 540
     card_margin = 50
@@ -185,28 +185,39 @@ def generate_slide_cover(course_data, output_path):
     if n_items > 0:
         gap = 16
         total_gap = gap * (n_items - 1)
-        card_w = (W - card_margin * 2 - total_gap) // n_items
+        usable_w = W - card_margin * 2 - total_gap
+        total_weight = sum(item[3] for item in info_items)
         card_h = 95
 
         font_info_label = get_font(FONT_REGULAR, 21)
         font_info_value = get_font(FONT_BOLD, 27)
-        font_icon = get_font(FONT_REGULAR, 30)
+        font_marker = get_font(FONT_BOLD, 22)
 
-        for i, (icon, label, value) in enumerate(info_items):
-            cx = card_margin + i * (card_w + gap)
+        cx = card_margin
+        for i, (marker, label, value, weight) in enumerate(info_items):
+            card_w = int(usable_w * weight / total_weight)
             # 카드 배경
             draw_rounded_rect(draw,
                               (cx, card_top, cx + card_w, card_top + card_h),
                               radius=12, fill=hex_to_rgb(COLORS["bg_light"]))
-            # 아이콘
-            draw.text((cx + 16, card_top + 14), icon, font=font_icon,
-                      fill=hex_to_rgb(COLORS["primary"]))
-            # 라벨 (아이콘 우측)
-            draw.text((cx + 54, card_top + 12), label, font=font_info_label,
+            # 마커 (작은 원형 뱃지)
+            dot_r = 14
+            dot_cx = cx + 24
+            dot_cy = card_top + card_h // 2
+            draw_rounded_rect(draw,
+                              (dot_cx - dot_r, dot_cy - dot_r, dot_cx + dot_r, dot_cy + dot_r),
+                              radius=dot_r, fill=hex_to_rgb(COLORS["primary"]))
+            m_bbox = draw.textbbox((0, 0), marker, font=font_marker)
+            m_w = m_bbox[2] - m_bbox[0]
+            draw.text((dot_cx - m_w // 2, dot_cy - 10), marker,
+                      font=font_marker, fill=hex_to_rgb(COLORS["white"]))
+            # 라벨
+            draw.text((cx + 50, card_top + 14), label, font=font_info_label,
                       fill=hex_to_rgb(COLORS["text_gray"]))
-            # 값 (아이콘 우측 아래)
-            draw.text((cx + 54, card_top + 44), value, font=font_info_value,
+            # 값
+            draw.text((cx + 50, card_top + 46), value, font=font_info_value,
                       fill=hex_to_rgb(COLORS["text_dark"]))
+            cx += card_w + gap
 
         next_y = card_top + card_h + 18
     else:
@@ -226,8 +237,8 @@ def generate_slide_cover(course_data, output_path):
         font_cost_big = get_font(FONT_BLACK, 48)
         font_cost_small = get_font(FONT_REGULAR, 21)
 
-        # "💰 자부담금" 라벨
-        draw.text((card_margin + 22, next_y + 10), "💰 자부담금",
+        # "자부담금" 라벨
+        draw.text((card_margin + 22, next_y + 10), "■ 자부담금",
                   font=font_cost_label, fill=hex_to_rgb(COLORS["primary"]))
 
         if self_cost:
@@ -266,8 +277,8 @@ def generate_slide_cover(course_data, output_path):
         font_benefit_icon = get_font(FONT_BOLD, 27)
         font_benefit = get_font(FONT_REGULAR, 24)
 
-        # "🎁" 아이콘 + 첫 줄
-        draw.text((card_margin + 18, next_y + 8), "🎁",
+        # "★" 마커 + 첫 줄
+        draw.text((card_margin + 18, next_y + 8), "★",
                   font=font_benefit_icon, fill=hex_to_rgb(COLORS["accent"]))
         for bi, bline in enumerate(benefit_lines[:3]):
             draw.text((card_margin + 52, next_y + 8 + bi * 34), bline,
@@ -276,10 +287,10 @@ def generate_slide_cover(course_data, output_path):
         next_y += banner_h + 8
 
     # ── 하단 ※ 주석 ──
-    font_footnote = get_font(FONT_REGULAR, 20)
+    font_footnote = get_font(FONT_REGULAR, 23)
     footnote = get_benefits_footnote(course_data)
     draw.text((60, next_y), footnote,
-              font=font_footnote, fill=hex_to_rgb("#888888"))
+              font=font_footnote, fill=hex_to_rgb(COLORS["text_dark"]))
 
     # ── 하단 바 ──
     footer_y = H - 80
@@ -376,14 +387,14 @@ def _draw_slide_detail_goal(draw, W, H, course_data, training_goal):
     # 태그 데이터 수집
     info_tags = []
     if institution:
-        info_tags.append(("🏫", institution[:18]))
+        info_tags.append(institution[:20])
     if hours > 0:
-        info_tags.append(("⏱️", f"총 {hours}시간"))
+        info_tags.append(f"총 {hours}시간")
     if ncs_name:
-        info_tags.append(("📋", ncs_name[:18]))
+        info_tags.append(ncs_name[:20])
     ctype_labels = {"short": "단기과정", "general": "일반과정", "long": "장기과정"}
     if ctype in ctype_labels:
-        info_tags.append(("🏷️", ctype_labels[ctype]))
+        info_tags.append(ctype_labels[ctype])
 
     # 태그 영역 높이 계산
     info_area_h = 0
@@ -415,7 +426,7 @@ def _draw_slide_detail_goal(draw, W, H, course_data, training_goal):
     # 카드 내부 라벨
     label_y = card_top + 22
     font_goal_label = get_font(FONT_BOLD, 30)
-    draw.text((card_left + 30, label_y), "📋  훈련목표",
+    draw.text((card_left + 30, label_y), "■  훈련목표",
               font=font_goal_label, fill=hex_to_rgb(COLORS["primary"]))
 
     # 라벨 아래 얇은 구분선
@@ -429,7 +440,7 @@ def _draw_slide_detail_goal(draw, W, H, course_data, training_goal):
     available_h = text_bottom - text_top
 
     font_sizes = [32, 29, 26, 24, 21]
-    line_spacings = [50, 46, 42, 38, 34]
+    line_spacings = [56, 52, 48, 44, 40]
 
     chosen_idx = 0
     for idx, (fsize, lspace) in enumerate(zip(font_sizes, line_spacings)):
@@ -462,16 +473,14 @@ def _draw_slide_detail_goal(draw, W, H, course_data, training_goal):
     # ── 하단 과정정보 태그 (카드 아래) ──
     if info_tags:
         tag_y = card_bottom + 18
-        font_tag = get_font(FONT_REGULAR, 22)
-        font_tag_icon = get_font(FONT_REGULAR, 22)
+        font_tag = get_font(FONT_BOLD, 27)
         tag_x = card_left
-        tag_h = 38
+        tag_h = 42
         tag_gap = 12
-        tag_pad_x = 16
+        tag_pad_x = 18
 
-        for icon, label in info_tags:
-            tag_text = f"{icon} {label}"
-            bbox = draw.textbbox((0, 0), tag_text, font=font_tag)
+        for tag_label in info_tags:
+            bbox = draw.textbbox((0, 0), tag_label, font=font_tag)
             tw = bbox[2] - bbox[0]
             tag_w = tw + tag_pad_x * 2
 
@@ -487,7 +496,7 @@ def _draw_slide_detail_goal(draw, W, H, course_data, training_goal):
                               fill=hex_to_rgb(COLORS["tag_bg"]))
             # 태그 텍스트
             text_y = tag_y + (tag_h - (bbox[3] - bbox[1])) // 2
-            draw.text((tag_x + tag_pad_x, text_y), tag_text,
+            draw.text((tag_x + tag_pad_x, text_y), tag_label,
                       font=font_tag, fill=hex_to_rgb(COLORS["primary"]))
 
             tag_x += tag_w + tag_gap
@@ -619,6 +628,8 @@ def generate_slide_howto(course_data, output_path):
 
     # ── 3단계 프로세스 ──
     step3_title, step3_desc = get_step3_text(course_data)
+    title = course_data.get("title", "")
+    title_short_for_step = title[:25] + ("..." if len(title) > 25 else "")
 
     steps = [
         {
@@ -629,7 +640,7 @@ def generate_slide_howto(course_data, output_path):
         {
             "num": "2",
             "title": "원하는 과정 찾아서 신청하기",
-            "desc": "고용24에서 '제주' + 관심 분야로 검색하고\n마음에 드는 과정에 바로 신청!",
+            "desc": f"고용24에서 '{title_short_for_step}'으로\n검색하고 해당 과정을 바로 신청!",
         },
         {
             "num": "3",
@@ -728,22 +739,22 @@ def generate_slide_howto(course_data, output_path):
     font_info_detail = get_font(FONT_REGULAR, 24)
     font_info_url = get_font(FONT_BOLD, 24)
 
-    draw.text((78, info_y + 12), "💬 궁금한 점은",
+    draw.text((78, info_y + 12), "■ 궁금한 점은",
               font=font_info_title, fill=hex_to_rgb(COLORS["accent"]))
 
     contact = course_data.get("contact", "제주고용센터 ☎ 064-728-7201")
-    draw.text((78, info_y + 50), f"📞 {contact}",
+    draw.text((78, info_y + 50), contact,
               font=font_info_detail, fill=hex_to_rgb(COLORS["text_dark"]))
 
-    draw.text((78, info_y + 84), "🌐 work24.go.kr",
+    draw.text((78, info_y + 84), "▸ work24.go.kr",
               font=font_info_url, fill=hex_to_rgb(COLORS["primary"]))
 
     # ── 하단 ※ 주석 ──
     footer_y = H - 80
-    font_footnote = get_font(FONT_REGULAR, 20)
+    font_footnote = get_font(FONT_REGULAR, 23)
     footnote = get_benefits_footnote(course_data)
     draw.text((60, footer_y - 28), footnote,
-              font=font_footnote, fill=hex_to_rgb("#888888"))
+              font=font_footnote, fill=hex_to_rgb(COLORS["text_dark"]))
 
     # ── 하단 바 ──
     draw.rectangle((0, footer_y, W, H), fill=hex_to_rgb(COLORS["primary"]))

@@ -202,15 +202,15 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     line_y = inst_y + 48
     draw.line((60, line_y, W - 60, line_y), fill=(220, 220, 220), width=2)
 
-    # ── 정보 아이콘 카드 (가로 배치) ──
+    # ── 정보 카드 (가로 배치, 배움기간 넓게) ──
     info_items = []
     if course_data.get("period"):
-        info_items.append(("🗓️", "배움 기간", course_data["period"]))
+        info_items.append(("배움 기간", course_data["period"], 1.4))
     hours = get_total_hours(course_data)
     if hours > 0:
-        info_items.append(("⏱️", "배움 시간", f"{hours}시간"))
+        info_items.append(("배움 시간", f"{hours}시간", 0.8))
     if course_data.get("capacity"):
-        info_items.append(("👥", "모집 인원", course_data["capacity"]))
+        info_items.append(("모집 인원", course_data["capacity"], 0.8))
 
     item_y = line_y + 14
     n_items = len(info_items)
@@ -218,24 +218,34 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     if n_items > 0:
         info_gap = 14
         total_gap = info_gap * (n_items - 1)
-        info_card_w = (W - 120 - total_gap) // n_items
+        usable_w = W - 120 - total_gap
+        total_weight = sum(item[2] for item in info_items)
         info_card_h = 80
 
         font_info_label = get_font(FONT_REGULAR, 19)
         font_info_value = get_font(FONT_BOLD, 24)
-        font_icon = get_font(FONT_REGULAR, 27)
+        font_marker = get_font(FONT_BOLD, 20)
 
-        for i, (icon, label, value) in enumerate(info_items):
-            cx = 60 + i * (info_card_w + info_gap)
+        cx = 60
+        for i, (label, value, weight) in enumerate(info_items):
+            info_card_w = int(usable_w * weight / total_weight)
             draw_rounded_rect(draw,
                               (cx, item_y, cx + info_card_w, item_y + info_card_h),
                               radius=10, fill=(240, 245, 250))
-            draw.text((cx + 14, item_y + 10), icon, font=font_icon,
-                      fill=hex_to_rgb(PRIMARY))
-            draw.text((cx + 48, item_y + 8), label, font=font_info_label,
+            # 원형 마커
+            dot_r = 12
+            dot_cx = cx + 22
+            dot_cy = item_y + info_card_h // 2
+            draw_rounded_rect(draw,
+                              (dot_cx - dot_r, dot_cy - dot_r, dot_cx + dot_r, dot_cy + dot_r),
+                              radius=dot_r, fill=hex_to_rgb(PRIMARY))
+            draw.text((dot_cx - 5, dot_cy - 9), "▷", font=font_marker,
+                      fill=(255, 255, 255))
+            draw.text((cx + 44, item_y + 8), label, font=font_info_label,
                       fill=(127, 140, 141))
-            draw.text((cx + 48, item_y + 38), value, font=font_info_value,
+            draw.text((cx + 44, item_y + 38), value, font=font_info_value,
                       fill=(44, 62, 80))
+            cx += info_card_w + info_gap
 
         item_y += info_card_h + 10
     else:
@@ -255,7 +265,7 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
         font_cost_big = get_font(FONT_BLACK, 44)
         font_cost_small = get_font(FONT_REGULAR, 19)
 
-        draw.text((72, cost_y + 8), "💰 자부담금",
+        draw.text((72, cost_y + 8), "■ 자부담금",
                   font=font_cost_label, fill=hex_to_rgb(PRIMARY))
         if self_cost:
             prefix_text = "단,"
@@ -292,7 +302,7 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     font_benefit_icon = get_font(FONT_BOLD, 25)
     font_benefit = get_font(FONT_REGULAR, 21)
 
-    draw.text((72, benefit_y + 6), "🎁",
+    draw.text((72, benefit_y + 6), "★",
               font=font_benefit_icon, fill=hex_to_rgb(ACCENT))
     for bi, bline in enumerate(benefit_lines[:3]):
         draw.text((100, benefit_y + 6 + bi * 30), bline,
@@ -300,10 +310,10 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
 
     # ── 하단 ※ 주석 (혜택 박스 바로 아래) ──
     footnote_y = benefit_y + benefit_box_h + 5
-    font_footnote = get_font(FONT_REGULAR, 19)
+    font_footnote = get_font(FONT_REGULAR, 22)
     footnote = get_benefits_footnote(course_data)
     draw.text((50, footnote_y), footnote,
-              font=font_footnote, fill=(136, 136, 136))
+              font=font_footnote, fill=(44, 62, 80))
 
     # ── 하단 바 ──
     footer_y = H - 75
@@ -389,10 +399,10 @@ def generate_detail_v2(course_data, bg_image, output_path):
 
     # ── 하단 ※ 주석 ──
     footer_y = H - 60
-    font_footnote = get_font(FONT_REGULAR, 19)
+    font_footnote = get_font(FONT_REGULAR, 22)
     footnote = get_benefits_footnote(course_data)
     draw.text((50, footer_y - 25), footnote,
-              font=font_footnote, fill=(136, 136, 136))
+              font=font_footnote, fill=(44, 62, 80))
 
     # ── 하단 바 ──
     footer_bar_h = H - footer_y
@@ -423,14 +433,14 @@ def _draw_v2_detail_goal(draw, W, H, header_h, course_data, training_goal):
 
     info_tags = []
     if institution:
-        info_tags.append(("🏫", institution[:18]))
+        info_tags.append(institution[:20])
     if hours > 0:
-        info_tags.append(("⏱️", f"총 {hours}시간"))
+        info_tags.append(f"총 {hours}시간")
     if ncs_name:
-        info_tags.append(("📋", ncs_name[:18]))
+        info_tags.append(ncs_name[:20])
     ctype_labels = {"short": "단기과정", "general": "일반과정", "long": "장기과정"}
     if ctype in ctype_labels:
-        info_tags.append(("🏷️", ctype_labels[ctype]))
+        info_tags.append(ctype_labels[ctype])
 
     info_area_h = 100 if info_tags else 0
 
@@ -455,7 +465,7 @@ def _draw_v2_detail_goal(draw, W, H, header_h, course_data, training_goal):
     # 카드 라벨
     label_y = card_top + 20
     font_goal_label = get_font(FONT_BOLD, 30)
-    draw.text((card_left + 28, label_y), "📋  훈련목표",
+    draw.text((card_left + 28, label_y), "■  훈련목표",
               font=font_goal_label, fill=hex_to_rgb(PRIMARY))
 
     # 구분선
@@ -469,7 +479,7 @@ def _draw_v2_detail_goal(draw, W, H, header_h, course_data, training_goal):
     available_h = text_bottom - text_top
 
     font_sizes = [30, 27, 24, 22, 19]
-    line_spacings = [46, 42, 38, 35, 31]
+    line_spacings = [52, 48, 44, 41, 37]
 
     chosen_idx = 0
     for idx, (fsize, lspace) in enumerate(zip(font_sizes, line_spacings)):
@@ -501,15 +511,14 @@ def _draw_v2_detail_goal(draw, W, H, header_h, course_data, training_goal):
     # ── 하단 과정정보 태그 ──
     if info_tags:
         tag_y = card_bottom + 16
-        font_tag = get_font(FONT_REGULAR, 21)
+        font_tag = get_font(FONT_BOLD, 26)
         tag_x = card_left
-        tag_h = 36
+        tag_h = 40
         tag_gap = 10
-        tag_pad_x = 14
+        tag_pad_x = 16
 
-        for icon, label in info_tags:
-            tag_text = f"{icon} {label}"
-            bbox = draw.textbbox((0, 0), tag_text, font=font_tag)
+        for tag_label in info_tags:
+            bbox = draw.textbbox((0, 0), tag_label, font=font_tag)
             tw = bbox[2] - bbox[0]
             tag_w = tw + tag_pad_x * 2
 
@@ -522,7 +531,7 @@ def _draw_v2_detail_goal(draw, W, H, header_h, course_data, training_goal):
                               radius=tag_h // 2,
                               fill=hex_to_rgb("#EBF5FB"))
             text_y_inner = tag_y + (tag_h - (bbox[3] - bbox[1])) // 2
-            draw.text((tag_x + tag_pad_x, text_y_inner), tag_text,
+            draw.text((tag_x + tag_pad_x, text_y_inner), tag_label,
                       font=font_tag, fill=hex_to_rgb(PRIMARY))
             tag_x += tag_w + tag_gap
 
