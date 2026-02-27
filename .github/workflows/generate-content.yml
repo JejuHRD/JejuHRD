@@ -62,6 +62,7 @@ jobs:
             echo "새로 생성된 콘텐츠 없음 — 스킵"
           else
             git commit -m "🤖 콘텐츠 자동 생성 ($(date +%Y-%m-%d))"
+            git pull --rebase origin main
             git push
           fi
 
