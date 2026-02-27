@@ -251,12 +251,12 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     else:
         item_y += 8
 
-    # ── 비용 강조 영역 (임팩트 강화) ──
+    # ── 비용 강조 영역 (박스 확대 + 세로 중앙 정렬) ──
     self_cost = course_data.get("selfCost", "")
     course_cost = course_data.get("courseCost", "")
     if self_cost or course_cost:
         cost_y = item_y + 4
-        cost_box_h = 100
+        cost_box_h = 112
         draw_rounded_rect(draw,
                            (50, cost_y, W - 50, cost_y + cost_box_h),
                            radius=12, fill=(235, 245, 251))
@@ -265,11 +265,22 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
         font_cost_big = get_font(FONT_BLACK, 44)
         font_cost_small = get_font(FONT_REGULAR, 19)
 
-        draw.text((72, cost_y + 8), "■ 자부담금",
+        # 콘텐츠 높이 계산
+        label_text = "■ 자부담금"
+        label_bbox = draw.textbbox((0, 0), label_text, font=font_cost_label)
+        label_h = label_bbox[3] - label_bbox[1]
+        cost_line_bbox = draw.textbbox((0, 0), "단, 000,000원", font=font_cost_big)
+        cost_line_h = cost_line_bbox[3] - cost_line_bbox[1]
+        content_gap = 10
+        total_content_h = label_h + content_gap + cost_line_h
+        content_top = cost_y + (cost_box_h - total_content_h) // 2
+
+        draw.text((72, content_top), label_text,
                   font=font_cost_label, fill=hex_to_rgb(PRIMARY))
+
+        cost_row_y = content_top + label_h + content_gap
         if self_cost:
             prefix_text = "단,"
-            cost_row_y = cost_y + 48
             draw.text((72, cost_row_y), prefix_text,
                       font=font_cost_prefix, fill=(44, 62, 80))
             prefix_bbox = draw.textbbox((0, 0), prefix_text, font=font_cost_prefix)
@@ -286,15 +297,17 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
                           f"(수강비 {course_cost})",
                           font=font_cost_small, fill=(136, 136, 136))
         elif course_cost:
-            draw.text((72, cost_y + 48), course_cost,
+            draw.text((72, cost_row_y), course_cost,
                       font=font_cost_big, fill=hex_to_rgb(ACCENT))
         item_y = cost_y + cost_box_h + 8
 
-    # ── 혜택 배너 (간결한 배너 스타일) ──
+    # ── 혜택 배너 (세로 중앙 정렬) ──
     benefit_y = item_y + 4
     benefits = course_data.get("benefits", "") or get_benefits_text(course_data)
     benefit_lines = [l.strip() for l in benefits.split('\n') if l.strip()]
-    benefit_box_h = 38 + min(len(benefit_lines), 3) * 30
+    visible_lines = benefit_lines[:3]
+    line_h = 30
+    benefit_box_h = max(52, len(visible_lines) * line_h + 20)
     draw_rounded_rect(draw,
                        (50, benefit_y, W - 50, benefit_y + benefit_box_h),
                        radius=12, fill=(255, 248, 230))
@@ -302,23 +315,24 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     font_benefit_icon = get_font(FONT_BOLD, 25)
     font_benefit = get_font(FONT_REGULAR, 21)
 
-    draw.text((72, benefit_y + 6), "★",
+    total_text_h = len(visible_lines) * line_h
+    text_start_y = benefit_y + (benefit_box_h - total_text_h) // 2
+
+    draw.text((72, text_start_y), "★",
               font=font_benefit_icon, fill=hex_to_rgb(ACCENT))
-    for bi, bline in enumerate(benefit_lines[:3]):
-        draw.text((100, benefit_y + 6 + bi * 30), bline,
+    for bi, bline in enumerate(visible_lines):
+        draw.text((100, text_start_y + bi * line_h), bline,
                   font=font_benefit, fill=(60, 60, 60))
 
-    # ── 하단 ※ 주석 (혜택 박스 바로 아래) ──
-    footnote_y = benefit_y + benefit_box_h + 5
+    # ── 하단 ※ 주석 (footer bar 위 충분한 여백) ──
     font_footnote = get_font(FONT_REGULAR, 22)
     footnote = get_benefits_footnote(course_data)
+    footnote_y = H - 75 - 35  # footer bar 시작(H-75) 위 35px
     draw.text((50, footnote_y), footnote,
               font=font_footnote, fill=(44, 62, 80))
 
     # ── 하단 바 ──
     footer_y = H - 75
-
-    # ── 하단 바 ──
     footer_bar_bottom = H - 30
     footer_bar_h = footer_bar_bottom - footer_y
     draw.rectangle((30, footer_y, W - 30, footer_bar_bottom), fill=hex_to_rgb(PRIMARY))
@@ -397,11 +411,11 @@ def generate_detail_v2(course_data, bg_image, output_path):
     else:
         _draw_v2_detail_fallback(draw, W, H, header_h, course_data)
 
-    # ── 하단 ※ 주석 ──
+    # ── 하단 ※ 주석 (footer 위 충분한 여백) ──
     footer_y = H - 60
     font_footnote = get_font(FONT_REGULAR, 22)
     footnote = get_benefits_footnote(course_data)
-    draw.text((50, footer_y - 25), footnote,
+    draw.text((50, footer_y - 50), footnote,
               font=font_footnote, fill=(44, 62, 80))
 
     # ── 하단 바 ──
