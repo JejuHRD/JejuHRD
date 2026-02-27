@@ -187,9 +187,9 @@ def generate_slide_cover(course_data, output_path):
         total_gap = gap * (n_items - 1)
         usable_w = W - card_margin * 2 - total_gap
         total_weight = sum(item[2] for item in info_items)
-        card_h = 95
+        card_h = 105
 
-        font_info_label = get_font(FONT_REGULAR, 21)
+        font_info_label = get_font(FONT_BOLD, 25)
         font_info_value = get_font(FONT_BOLD, 27)
 
         cx = card_margin
@@ -207,14 +207,14 @@ def generate_slide_cover(course_data, output_path):
                               (dot_cx - dot_r, dot_cy - dot_r, dot_cx + dot_r, dot_cy + dot_r),
                               radius=dot_r, fill=hex_to_rgb(COLORS["primary"]))
             # 라벨
-            draw.text((cx + 42, card_top + 14), label, font=font_info_label,
-                      fill=hex_to_rgb(COLORS["text_gray"]))
+            draw.text((cx + 42, card_top + 16), label, font=font_info_label,
+                      fill=hex_to_rgb(COLORS["primary"]))
             # 값
-            draw.text((cx + 42, card_top + 46), value, font=font_info_value,
+            draw.text((cx + 42, card_top + 52), value, font=font_info_value,
                       fill=hex_to_rgb(COLORS["text_dark"]))
             cx += card_w + gap
 
-        next_y = card_top + card_h + 18
+        next_y = card_top + card_h + 12
     else:
         next_y = card_top + 10
 
@@ -701,7 +701,9 @@ def generate_slide_howto(course_data, output_path):
         num_bbox = draw.textbbox((0, 0), step["num"], font=font_num)
         num_w = num_bbox[2] - num_bbox[0]
         num_h = num_bbox[3] - num_bbox[1]
-        draw.text((timeline_x - num_w // 2, circle_cy - num_h // 2 - 2),
+        num_x = timeline_x - num_w // 2
+        num_y = circle_cy - num_h // 2 - num_bbox[1]  # baseline 보정
+        draw.text((num_x, num_y),
                   step["num"], font=font_num, fill=hex_to_rgb(COLORS["white"]))
 
         # ── 카드 배경 (그림자 + 본체) ──
@@ -755,19 +757,21 @@ def generate_slide_howto(course_data, output_path):
                        outline=hex_to_rgb(COLORS["accent"]), width=2)
 
     font_info_title = get_font(FONT_BOLD, 27)
-    font_info_detail = get_font(FONT_REGULAR, 24)
-    font_info_url = get_font(FONT_BOLD, 24)
+    font_info_line = get_font(FONT_BOLD, 24)
 
     draw.text((78, info_y + 12), "■ 궁금한 점은",
               font=font_info_title, fill=hex_to_rgb(COLORS["accent"]))
 
     contact = course_data.get("contact", "제주고용센터 064-728-7201")
-    contact = contact.replace("☎", "").replace("📞", "").replace("  ", " ").strip()
+    contact = contact.replace("☎", "").replace("📞", "").replace("Tel:", "").replace("  ", " ").strip()
     draw.text((78, info_y + 50), contact,
-              font=font_info_detail, fill=hex_to_rgb(COLORS["text_dark"]))
+              font=font_info_line, fill=hex_to_rgb(COLORS["primary"]))
 
-    draw.text((78, info_y + 84), "work24.go.kr",
-              font=font_info_url, fill=hex_to_rgb(COLORS["primary"]))
+    address = course_data.get("address", "")
+    if address:
+        addr_short = address[:40] + ("..." if len(address) > 40 else "")
+        draw.text((78, info_y + 84), addr_short,
+                  font=font_info_line, fill=hex_to_rgb(COLORS["primary"]))
 
     # ── 하단 ※ 주석 (footer 위 충분한 여백) ──
     footer_y = H - 80

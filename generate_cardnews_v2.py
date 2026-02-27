@@ -220,9 +220,9 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
         total_gap = info_gap * (n_items - 1)
         usable_w = W - 120 - total_gap
         total_weight = sum(item[2] for item in info_items)
-        info_card_h = 80
+        info_card_h = 90
 
-        font_info_label = get_font(FONT_REGULAR, 19)
+        font_info_label = get_font(FONT_BOLD, 24)
         font_info_value = get_font(FONT_BOLD, 24)
 
         cx = 60
@@ -238,13 +238,13 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
             draw_rounded_rect(draw,
                               (dot_cx - dot_r, dot_cy - dot_r, dot_cx + dot_r, dot_cy + dot_r),
                               radius=dot_r, fill=hex_to_rgb(PRIMARY))
-            draw.text((cx + 38, item_y + 8), label, font=font_info_label,
-                      fill=(127, 140, 141))
-            draw.text((cx + 38, item_y + 38), value, font=font_info_value,
+            draw.text((cx + 38, item_y + 14), label, font=font_info_label,
+                      fill=hex_to_rgb(PRIMARY))
+            draw.text((cx + 38, item_y + 48), value, font=font_info_value,
                       fill=(44, 62, 80))
             cx += info_card_w + info_gap
 
-        item_y += info_card_h + 10
+        item_y += info_card_h + 6
     else:
         item_y += 8
 

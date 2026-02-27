@@ -238,6 +238,8 @@ def fetch_courses_from_api():
                 if detail:
                     course["totalHours"] = detail.get("totalHours", 0)
                     course["ncsName"] = detail.get("ncsName", "")
+                    if not course.get("address") and detail.get("address"):
+                        course["address"] = detail["address"]
 
                 # API 부하 방지 (0.3초 간격)
                 time.sleep(0.3)
@@ -322,7 +324,8 @@ def _fetch_course_detail(api_key, url, trpr_id, trpr_degr, torg_id, is_first=Fal
             print(f"  [DEBUG] L02 → 훈련시간: {total_hours}, NCS직종: {ncs_name}")
             print()
 
-        return {"totalHours": total_hours, "ncsName": ncs_name}
+        return {"totalHours": total_hours, "ncsName": ncs_name,
+                "address": _get_field(base_info, "addr1", "ADDR1", "address") or ""}
 
     except Exception as e:
         return None
@@ -577,6 +580,7 @@ def _parse_list_item(api_item):
             "courseStrength": "",     # 3단계 크롤링에서 채워짐
             "outcome": "",
             "contact": f"{institution} Tel: {_get_field(api_item, 'telNo', 'TEL_NO', 'trprChapTel', 'TRPR_CHAP_TEL')}",
+            "address": _get_field(api_item, "addr1", "ADDR1", "address", "ADDRESS") or "",
             "hrd_url": (
                 f"https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do"
                 f"?tracseId={trpr_id}"
