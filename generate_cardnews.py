@@ -171,12 +171,12 @@ def generate_slide_cover(course_data, output_path):
     # ── 정보 아이콘 카드 (가로 배치, 배움기간 넓게) ──
     info_items = []
     if course_data.get("period"):
-        info_items.append(("▷", "배움 기간", course_data["period"], 1.4))
+        info_items.append(("배움 기간", course_data["period"], 1.4))
     hours = get_total_hours(course_data)
     if hours > 0:
-        info_items.append(("▷", "배움 시간", f"{hours}시간", 0.8))
+        info_items.append(("배움 시간", f"{hours}시간", 0.8))
     if course_data.get("capacity"):
-        info_items.append(("▷", "모집 인원", course_data["capacity"], 0.8))
+        info_items.append(("모집 인원", course_data["capacity"], 0.8))
 
     card_top = 540
     card_margin = 50
@@ -186,36 +186,31 @@ def generate_slide_cover(course_data, output_path):
         gap = 16
         total_gap = gap * (n_items - 1)
         usable_w = W - card_margin * 2 - total_gap
-        total_weight = sum(item[3] for item in info_items)
+        total_weight = sum(item[2] for item in info_items)
         card_h = 95
 
         font_info_label = get_font(FONT_REGULAR, 21)
         font_info_value = get_font(FONT_BOLD, 27)
-        font_marker = get_font(FONT_BOLD, 22)
 
         cx = card_margin
-        for i, (marker, label, value, weight) in enumerate(info_items):
+        for i, (label, value, weight) in enumerate(info_items):
             card_w = int(usable_w * weight / total_weight)
             # 카드 배경
             draw_rounded_rect(draw,
                               (cx, card_top, cx + card_w, card_top + card_h),
                               radius=12, fill=hex_to_rgb(COLORS["bg_light"]))
-            # 마커 (작은 원형 뱃지)
-            dot_r = 14
-            dot_cx = cx + 24
+            # 원형 도트 마커
+            dot_r = 7
+            dot_cx = cx + 22
             dot_cy = card_top + card_h // 2
             draw_rounded_rect(draw,
                               (dot_cx - dot_r, dot_cy - dot_r, dot_cx + dot_r, dot_cy + dot_r),
                               radius=dot_r, fill=hex_to_rgb(COLORS["primary"]))
-            m_bbox = draw.textbbox((0, 0), marker, font=font_marker)
-            m_w = m_bbox[2] - m_bbox[0]
-            draw.text((dot_cx - m_w // 2, dot_cy - 10), marker,
-                      font=font_marker, fill=hex_to_rgb(COLORS["white"]))
             # 라벨
-            draw.text((cx + 50, card_top + 14), label, font=font_info_label,
+            draw.text((cx + 42, card_top + 14), label, font=font_info_label,
                       fill=hex_to_rgb(COLORS["text_gray"]))
             # 값
-            draw.text((cx + 50, card_top + 46), value, font=font_info_value,
+            draw.text((cx + 42, card_top + 46), value, font=font_info_value,
                       fill=hex_to_rgb(COLORS["text_dark"]))
             cx += card_w + gap
 
@@ -657,7 +652,7 @@ def generate_slide_howto(course_data, output_path):
         {
             "num": "2",
             "title": "원하는 과정 찾아서 신청하기",
-            "desc": f"고용24에서 '{title}'으로\n검색하고 해당 과정을 바로 신청!",
+            "desc": f"고용24에서 '{title}'으로 검색하고 해당 과정을 바로 신청!",
         },
         {
             "num": "3",
@@ -768,10 +763,10 @@ def generate_slide_howto(course_data, output_path):
 
     contact = course_data.get("contact", "제주고용센터 064-728-7201")
     contact = contact.replace("☎", "").replace("📞", "").replace("  ", " ").strip()
-    draw.text((78, info_y + 50), f"Tel. {contact}",
+    draw.text((78, info_y + 50), contact,
               font=font_info_detail, fill=hex_to_rgb(COLORS["text_dark"]))
 
-    draw.text((78, info_y + 84), "▸ work24.go.kr",
+    draw.text((78, info_y + 84), "work24.go.kr",
               font=font_info_url, fill=hex_to_rgb(COLORS["primary"]))
 
     # ── 하단 ※ 주석 (footer 위 충분한 여백) ──

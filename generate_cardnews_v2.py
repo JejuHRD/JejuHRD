@@ -224,7 +224,6 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
 
         font_info_label = get_font(FONT_REGULAR, 19)
         font_info_value = get_font(FONT_BOLD, 24)
-        font_marker = get_font(FONT_BOLD, 20)
 
         cx = 60
         for i, (label, value, weight) in enumerate(info_items):
@@ -232,18 +231,16 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
             draw_rounded_rect(draw,
                               (cx, item_y, cx + info_card_w, item_y + info_card_h),
                               radius=10, fill=(240, 245, 250))
-            # 원형 마커
-            dot_r = 12
-            dot_cx = cx + 22
+            # 원형 도트 마커
+            dot_r = 6
+            dot_cx = cx + 20
             dot_cy = item_y + info_card_h // 2
             draw_rounded_rect(draw,
                               (dot_cx - dot_r, dot_cy - dot_r, dot_cx + dot_r, dot_cy + dot_r),
                               radius=dot_r, fill=hex_to_rgb(PRIMARY))
-            draw.text((dot_cx - 5, dot_cy - 9), "▷", font=font_marker,
-                      fill=(255, 255, 255))
-            draw.text((cx + 44, item_y + 8), label, font=font_info_label,
+            draw.text((cx + 38, item_y + 8), label, font=font_info_label,
                       fill=(127, 140, 141))
-            draw.text((cx + 44, item_y + 38), value, font=font_info_value,
+            draw.text((cx + 38, item_y + 38), value, font=font_info_value,
                       fill=(44, 62, 80))
             cx += info_card_w + info_gap
 
