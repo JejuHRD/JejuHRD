@@ -125,12 +125,12 @@ def extract_seo_keywords(course_data):
 
 def generate_seo_title(course_data):
     """네이버 블로그 SEO에 최적화된 제목을 생성합니다."""
-    from benefits_helper import is_long_course
+    from benefits_helper import get_course_type
 
     title = course_data.get("title", "")
-    long = is_long_course(course_data)
+    ctype = get_course_type(course_data)
 
-    benefit_tag = "자부담 10% + 훈련장려금" if long else "자부담 10%"
+    benefit_tag = "자부담 10% + 훈련장려금" if ctype in ("general", "long") else "자부담 10%"
     seo_title = f"[제주 국비지원] {title} | {benefit_tag}"
 
     if len(seo_title) > 60:
@@ -197,13 +197,13 @@ def generate_instagram_hashtags(course_data):
 
 def generate_instagram_caption(course_data):
     """인스타그램 캡션을 생성합니다."""
-    from benefits_helper import is_long_course, get_benefits_text
+    from benefits_helper import get_course_type, get_benefits_text
 
     title = course_data.get("title", "")
     institution = course_data.get("institution", "")
     period = course_data.get("period", "")
     time_info = course_data.get("time", "")
-    long = is_long_course(course_data)
+    ctype = get_course_type(course_data)
     benefits = get_benefits_text(course_data)
     field = detect_course_field(title)
 
@@ -239,7 +239,7 @@ def generate_instagram_caption(course_data):
 ✅ 내일배움카드 있으면 누구나 신청 가능!
 """
 
-    if long is True:
+    if ctype in ("general", "long"):
         caption += "🎁 훈련장려금 월 최대 20만원까지 받을 수 있어요\n"
 
     caption += """
@@ -369,11 +369,11 @@ def generate_reels_script(course_data):
     Returns:
         str: Sora AI 릴스 가이드 텍스트
     """
-    from benefits_helper import is_long_course
+    from benefits_helper import get_course_type
 
     title = course_data.get("title", "")
     field = detect_course_field(title)
-    long = is_long_course(course_data)
+    ctype = get_course_type(course_data)
     institution = course_data.get("institution", "")
     time_info = course_data.get("time", "")
 
@@ -411,7 +411,9 @@ def generate_reels_script(course_data):
     hook = hooks.get(field, hooks["default"])
 
     # ── 혜택 한 줄 ──
-    if long is True:
+    if ctype == "long":
+        benefit_line = "자부담 10% + 훈련장려금 월 최대 40만원"
+    elif ctype == "general":
         benefit_line = "자부담 10% + 훈련장려금 월 최대 20만원"
     else:
         benefit_line = "자부담 10%로 부담 없이"
