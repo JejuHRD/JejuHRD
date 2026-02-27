@@ -325,7 +325,7 @@ def _fetch_course_detail(api_key, url, trpr_id, trpr_degr, torg_id, is_first=Fal
             print()
 
         return {"totalHours": total_hours, "ncsName": ncs_name,
-                "address": _get_field(base_info, "addr1", "ADDR1", "address") or ""}
+                "address": _get_field(base_info, "addr2", "ADDR2") or ""}
 
     except Exception as e:
         return None
@@ -580,7 +580,7 @@ def _parse_list_item(api_item):
             "courseStrength": "",     # 3단계 크롤링에서 채워짐
             "outcome": "",
             "contact": f"{institution} Tel: {_get_field(api_item, 'telNo', 'TEL_NO', 'trprChapTel', 'TRPR_CHAP_TEL')}",
-            "address": _get_field(api_item, "addr1", "ADDR1", "address", "ADDRESS") or "",
+            "address": _get_field(api_item, "addr2", "ADDR2") or "",
             "hrd_url": (
                 f"https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do"
                 f"?tracseId={trpr_id}"
