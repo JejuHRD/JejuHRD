@@ -17,10 +17,10 @@ import os
 import re
 from datetime import datetime
 from benefits_helper import (
-    is_long_course,
+    get_course_type,
+    get_total_hours,
     get_benefits_detail_lines,
     get_cost_info_text,
-    parse_course_hours,
 )
 from seo_helper import (
     generate_seo_title,
@@ -60,8 +60,8 @@ def generate_blog_post(course_data, output_dir="output"):
     benefit_lines = get_benefits_detail_lines(course_data)
     benefit_text = "\n".join(line.replace("- ", "✔ ") for line in benefit_lines)
     cost_info = get_cost_info_text(course_data)
-    hours = parse_course_hours(course_data)
-    long = is_long_course(course_data)
+    hours = get_total_hours(course_data)
+    ctype = get_course_type(course_data)
 
     # ── SEO 최적화 ──
     blog_title = generate_seo_title(course_data)
@@ -89,7 +89,7 @@ def generate_blog_post(course_data, output_dir="output"):
             curriculum_text += "\n"
 
     # ── 훈련장려금 관련 문구 (140시간 이상일 때만) ──
-    if long is True:
+    if ctype in ("general", "long"):
         allowance_step3 = "열심히 다니면 (출석 80% 이상) 매달 훈련장려금이 들어와요."
     else:
         allowance_step3 = "자부담 10%로 부담 없이 새로운 기술을 배울 수 있어요."
@@ -98,7 +98,7 @@ def generate_blog_post(course_data, output_dir="output"):
     seo_section = _build_seo_section(course_data, field, year)
 
     # ── 누구에게 추천하나요 섹션 ──
-    recommend_section = _build_recommend_section(field, long)
+    recommend_section = _build_recommend_section(field, ctype)
 
     # ── 공감형 도입부에서 마크다운 볼드(**) 제거 ──
     empathy_clean = empathy_intro.replace("**", "")
@@ -311,7 +311,7 @@ def _build_seo_section(course_data, field, year):
 """)
 
 
-def _build_recommend_section(field, long):
+def _build_recommend_section(field, ctype):
     """
     '이런 분에게 추천해요' 섹션을 생성합니다.
     체류 시간 증가 + 독자 공감 유도.
@@ -354,7 +354,9 @@ def _build_recommend_section(field, long):
     for r in recommends:
         section += f"✅ {r}\n"
 
-    if long is True:
+    if ctype == "long":
+        section += "\n350시간 이상 장기과정이라 훈련장려금 + 특별훈련수당(월 최대 40만원)도 받을 수 있어서, 배우면서 생활비 부담도 줄일 수 있어요."
+    elif ctype == "general":
         section += "\n140시간 이상 과정이라 훈련장려금(월 최대 20만원)도 받을 수 있어서, 배우면서 생활비 부담도 줄일 수 있어요."
     else:
         section += "\n단기 과정이라 빠르게 핵심만 배울 수 있어요. 바쁜 분들에게 딱 맞는 구성이에요."
