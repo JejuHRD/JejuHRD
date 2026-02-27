@@ -152,6 +152,43 @@ def generate_empathy_intro(course_data):
 # 인스타그램 해시태그 / 캡션
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+def generate_blog_hashtags(course_data):
+    """네이버 블로그용 해시태그를 생성합니다."""
+    title = course_data.get("title", "")
+    field = detect_course_field(title)
+    year = datetime.now().year
+
+    common = [
+        f"#{year}국비지원", "#내일배움카드", "#제주무료교육",
+        "#제주취업", "#제주직업훈련", "#제주특화훈련",
+        "#국비지원무료교육", "#내일배움카드추천",
+    ]
+
+    field_tags = {
+        "AI": ["#AI교육", "#인공지능교육", "#ChatGPT교육", "#생성형AI"],
+        "영상": ["#영상편집교육", "#영상제작", "#프리미어프로", "#유튜브교육"],
+        "디자인": ["#디자인교육", "#UIUX교육", "#피그마", "#웹디자인교육"],
+        "출판": ["#출판교육", "#인디자인", "#전자책제작", "#편집디자인"],
+        "콘텐츠": ["#콘텐츠제작교육", "#크리에이터교육", "#SNS콘텐츠"],
+        "마케팅": ["#디지털마케팅교육", "#SNS마케팅", "#마케팅교육"],
+        "데이터": ["#데이터분석교육", "#빅데이터", "#파이썬교육"],
+        "코딩": ["#코딩교육", "#프로그래밍교육", "#개발자교육"],
+        "default": ["#직업훈련", "#스킬업", "#자기계발", "#커리어전환"],
+    }
+
+    specific = field_tags.get(field, field_tags["default"])
+    all_tags = common + specific
+
+    seen = set()
+    unique = []
+    for t in all_tags:
+        if t not in seen:
+            unique.append(t)
+            seen.add(t)
+
+    return " ".join(unique[:15])
+
+
 def generate_instagram_hashtags(course_data):
     """인스타그램 해시태그 20개를 대형+중소형+지역+분야별로 믹스합니다."""
     title = course_data.get("title", "")
