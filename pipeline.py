@@ -117,8 +117,37 @@ def fetch_courses_from_api():
     }
 
     try:
+        # ── 디버깅: 요청 URL 확인 ──
+        req = requests.Request("GET", url, params=params)
+        prepared = req.prepare()
+        # API 키는 일부만 표시
+        safe_url = prepared.url.replace(api_key, api_key[:8] + "***") if api_key else prepared.url
+        print(f"  요청 URL: {safe_url}")
+
         response = requests.get(url, params=params, timeout=30)
-        data = response.json()
+
+        # ── 디버깅: 응답 상태 확인 ──
+        print(f"  API 응답 코드: {response.status_code}")
+        print(f"  Content-Type: {response.headers.get('Content-Type', 'N/A')}")
+
+        # JSON 파싱 전 응답 내용 확인
+        raw = response.text.strip()
+        if not raw:
+            print("  ⚠️ API 응답이 비어 있습니다.")
+            return []
+
+        # JSON이 아닌 응답 감지 (HTML 에러 페이지 등)
+        if raw.startswith("<") or raw.startswith("<!"):
+            print(f"  ⚠️ API가 HTML을 반환했습니다 (앞 200자):")
+            print(f"  {raw[:200]}")
+            return []
+
+        try:
+            data = response.json()
+        except json.JSONDecodeError as je:
+            print(f"  ⚠️ JSON 파싱 실패: {je}")
+            print(f"  응답 앞 300자: {raw[:300]}")
+            return []
 
         courses = []
         for item in data.get("srchList", []):
@@ -160,6 +189,8 @@ def parse_api_course(api_item):
             "period": period,
             "time": f"총 {api_item.get('courseMan', '?')}시간",
             "courseMan": api_item.get("courseMan", ""),  # 시간 수 (혜택 문구 결정용)
+            "totalHours": api_item.get("courseMan", 0),  # benefits_helper용 (get_total_hours)
+            "traingGoal": api_item.get("traingGoal", ""),  # 훈련목표 (릴스 키워드 추출용)
             "capacity": f"{api_item.get('yardMan', '?')}명",
             "target": "내일배움카드 있으면 누구나",
             "benefits": "",  # 비워두면 benefits_helper가 시간 기반으로 자동 결정
@@ -275,7 +306,7 @@ if __name__ == "__main__":
         with open(json_path, "r", encoding="utf-8") as f:
             courses = json.load(f)
     else:
-        print("\n  고용24 API에서 데이터 조회 중...\n")
+        print(f"\n  고용24 API에서 데이터 조회 중...\n")
         courses = fetch_courses_from_api()
 
     if courses:
