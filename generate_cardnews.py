@@ -235,7 +235,7 @@ def generate_slide_cover(course_data, output_path):
         font_cost_small = get_font(FONT_REGULAR, 21)
 
         # 콘텐츠 높이 계산 (라벨 + 금액행)
-        label_text = "■ 자부담금"
+        label_text = "■ 훈련에 참여할 때 내는 자부담금"
         label_bbox = draw.textbbox((0, 0), label_text, font=font_cost_label)
         label_h = label_bbox[3] - label_bbox[1]
         cost_line_bbox = draw.textbbox((0, 0), "단, 000,000원", font=font_cost_big)
@@ -264,7 +264,7 @@ def generate_slide_cover(course_data, output_path):
                 cost_w = cost_bbox[2] - cost_bbox[0]
                 small_x = card_margin + 22 + prefix_w + 12 + cost_w + 14
                 draw.text((small_x, cost_row_y + 8),
-                          f"(수강비 {course_cost})",
+                          f"(원래 수강료 {course_cost})",
                           font=font_cost_small, fill=hex_to_rgb("#888888"))
         elif course_cost:
             draw.text((card_margin + 22, cost_row_y), course_cost,
