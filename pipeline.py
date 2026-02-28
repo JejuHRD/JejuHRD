@@ -74,65 +74,38 @@ def save_processed_ids(processed):
 
 
 def make_course_key(course):
-    """
-    과정의 고유 키를 생성합니다.
-
-    같은 과정(trprId)이라도 회차(trprDegr)나 훈련기간이 다르면
-    별도의 콘텐츠로 취급합니다.
-
-    키 구성: {과정ID}_{회차}_{훈련시작일}_{훈련종료일}
-    """
+    """과정의 고유 키를 생성합니다."""
     parts = []
-
     course_id = course.get("trprId", course.get("id", ""))
     if course_id:
         parts.append(str(course_id))
-
     degr = course.get("trprDegr", "")
     if degr:
         parts.append(str(degr))
-
     start = course.get("traStartDate", "")
     end = course.get("traEndDate", "")
     if start:
         parts.append(start)
     if end:
         parts.append(end)
-
     if not start and not end and course.get("period"):
         period_clean = course["period"].replace(".", "").replace(" ", "")
         parts.append(period_clean[:20])
-
     if not parts:
         parts.append(course.get("title", "unknown"))
         parts.append(course.get("institution", ""))
-
     return "_".join(parts)
 
 
 def format_date(raw):
-    """
-    API 응답의 날짜 문자열을 YYYY.MM.DD 형식으로 변환합니다.
-
-    다양한 입력 형식 대응:
-    - '20260315'        → '2026.03.15'
-    - '2026-03-15'      → '2026.03.15'
-    - '2026.03.15'      → '2026.03.15' (그대로)
-    - 그 외 / 빈값      → 원본 반환
-    """
+    """API 응답의 날짜 문자열을 YYYY.MM.DD 형식으로 변환합니다."""
     if not raw:
         return ""
     raw = str(raw).strip()
-
-    # YYYYMMDD (8자리 숫자)
     if re.match(r"^\d{8}$", raw):
         return f"{raw[:4]}.{raw[4:6]}.{raw[6:8]}"
-
-    # YYYY-MM-DD
     if re.match(r"^\d{4}-\d{2}-\d{2}", raw):
         return raw[:10].replace("-", ".")
-
-    # 이미 YYYY.MM.DD 형식이거나 기타
     return raw
 
 
@@ -144,9 +117,6 @@ def fetch_courses_from_api():
     2단계: L02(과정/기관정보 API) → 과정별 trtm(총훈련시간), ncsNm(NCS직종명) 등 상세
 
     ※ 3단계(훈련목표 크롤링)는 enrich_training_goals()에서 별도 실행
-
-    - 훈련유형: C0102 (산업구조변화대응 등 특화훈련)
-    - 지역: 50 (제주)
     """
     import requests
     import time
@@ -217,15 +187,12 @@ def fetch_courses_from_api():
 
         courses = []
         for idx, item in enumerate(srch_list):
-            # L01에서 기본 데이터 파싱
             course = _parse_list_item(item)
             if not course:
                 continue
 
-            # L02 상세 호출에 필요한 ID들
             trpr_id = course["trprId"]
             trpr_degr = course["trprDegr"]
-            # 훈련기관ID: L01 응답에서 가능한 키들 시도
             torg_id = _get_field(item, "instCd", "trainstCstId", "torgId",
                                   "INST_CD", "TRAINST_CST_ID", "TORG_ID",
                                   "instIno", "INST_INO")
@@ -238,10 +205,12 @@ def fetch_courses_from_api():
                 if detail:
                     course["totalHours"] = detail.get("totalHours", 0)
                     course["ncsName"] = detail.get("ncsName", "")
+                    # L02에서 ncsCd가 확보되면 덮어쓰기 (더 정확)
+                    if detail.get("ncsCd"):
+                        course["ncsCd"] = detail["ncsCd"]
                     if not course.get("address") and detail.get("address"):
                         course["address"] = detail["address"]
 
-                # API 부하 방지 (0.3초 간격)
                 time.sleep(0.3)
             else:
                 if idx == 0:
@@ -249,10 +218,10 @@ def fetch_courses_from_api():
 
             courses.append(course)
 
-        # 결과 요약
         has_hours = sum(1 for c in courses if c.get("totalHours", 0) > 0)
         has_ncs = sum(1 for c in courses if c.get("ncsName", ""))
-        print(f"\n  ✅ 총 {len(courses)}개 과정 (훈련시간 {has_hours}건, NCS직종 {has_ncs}건 확보)")
+        has_ncs_cd = sum(1 for c in courses if c.get("ncsCd", ""))
+        print(f"\n  ✅ 총 {len(courses)}개 과정 (훈련시간 {has_hours}건, NCS직종 {has_ncs}건, NCS코드 {has_ncs_cd}건 확보)")
 
         return courses
 
@@ -271,7 +240,7 @@ def _fetch_course_detail(api_key, url, trpr_id, trpr_degr, torg_id, is_first=Fal
     """
     L02 과정/기관정보 API로 상세 정보를 가져옵니다.
 
-    반환값: {"totalHours": int, "ncsName": str} 또는 None
+    반환값: {"totalHours": int, "ncsName": str, "ncsCd": str, ...} 또는 None
     """
     import requests
 
@@ -291,14 +260,10 @@ def _fetch_course_detail(api_key, url, trpr_id, trpr_degr, torg_id, is_first=Fal
 
         data = resp.json()
 
-        # L02 응답 구조: inst_base_info 안에 상세 필드
         base_info = data.get("inst_base_info", data.get("instBaseInfo", {}))
-
-        # 응답이 리스트인 경우 첫 번째 아이템
         if isinstance(base_info, list):
             base_info = base_info[0] if base_info else {}
 
-        # 첫 번째 과정일 때 L02 응답 키 덤프
         if is_first and base_info:
             print(f"\n  ┌─ [DEBUG] L02 상세 API inst_base_info 필드 ({len(base_info)}개) ─┐")
             for k, v in base_info.items():
@@ -306,7 +271,6 @@ def _fetch_course_detail(api_key, url, trpr_id, trpr_degr, torg_id, is_first=Fal
                 print(f"  │  {k:25s} = {val_str}")
             print(f"  └──────────────────────────────────────────────────────────┘")
 
-        # inst_base_info가 비어있으면 최상위에서 시도
         if not base_info:
             base_info = data
 
@@ -320,30 +284,31 @@ def _fetch_course_detail(api_key, url, trpr_id, trpr_degr, torg_id, is_first=Fal
         # ncsNm 추출
         ncs_name = _get_field(base_info, "ncsNm", "NCS_NM", "ncsNM", "ncsnm")
 
+        # ncsCd 추출 (seo_helper v4 NCS 기반 분야 감지용)
+        ncs_cd = _get_field(base_info, "ncsCd", "NCS_CD", "ncscd", "ncsCdArr")
+
         if is_first:
-            print(f"  [DEBUG] L02 → 훈련시간: {total_hours}, NCS직종: {ncs_name}")
+            print(f"  [DEBUG] L02 → 훈련시간: {total_hours}, NCS직종: {ncs_name}, NCS코드: {ncs_cd}")
             print()
 
-        return {"totalHours": total_hours, "ncsName": ncs_name,
-                "address": " ".join(filter(None, [
-                    _get_field(base_info, "addr1", "ADDR1"),
-                    _get_field(base_info, "addr2", "ADDR2"),
-                ]))}
+        return {
+            "totalHours": total_hours,
+            "ncsName": ncs_name,
+            "ncsCd": ncs_cd,
+            "address": " ".join(filter(None, [
+                _get_field(base_info, "addr1", "ADDR1"),
+                _get_field(base_info, "addr2", "ADDR2"),
+            ])),
+        }
 
     except Exception as e:
         return None
 
 
 def enrich_training_goals(courses):
-    """
-    과정 목록에 훈련목표/과정강점을 크롤링하여 채웁니다.
-
-    API 모드, JSON 모드 관계없이 항상 실행됩니다.
-    이미 trainingGoal이 있는 과정은 건너뜁니다.
-    """
+    """과정 목록에 훈련목표/과정강점을 크롤링하여 채웁니다."""
     import time
 
-    # 크롤링이 필요한 과정만 필터링
     need_crawl = [c for c in courses
                   if c.get("hrd_url") and not c.get("trainingGoal")]
 
@@ -364,15 +329,12 @@ def enrich_training_goals(courses):
     goal_count = 0
     for idx, course in enumerate(need_crawl):
         hrd_url = course.get("hrd_url", "")
-
         goal_data = _fetch_training_goal(hrd_url, is_first=(idx == 0))
         if goal_data:
             course["trainingGoal"] = goal_data.get("trainingGoal", "")
             course["courseStrength"] = goal_data.get("courseStrength", "")
             if course["trainingGoal"]:
                 goal_count += 1
-
-        # 크롤링 부하 방지 (0.5초 간격)
         time.sleep(0.5)
 
     total_goals = sum(1 for c in courses if c.get("trainingGoal"))
@@ -380,15 +342,7 @@ def enrich_training_goals(courses):
 
 
 def _fetch_training_goal(hrd_url, is_first=False):
-    """
-    고용24 과정 상세 페이지에서 훈련목표/훈련과정 강점을 크롤링합니다.
-
-    시도 순서:
-    1. www.work24.go.kr (원본 URL, 데스크톱 User-Agent)
-    2. m.work24.go.kr (모바일 URL, 모바일 User-Agent) — fallback
-
-    반환값: {"trainingGoal": str, "courseStrength": str} 또는 None
-    """
+    """고용24 과정 상세 페이지에서 훈련목표/훈련과정 강점을 크롤링합니다."""
     import requests
 
     if not HAS_BS4:
@@ -396,10 +350,9 @@ def _fetch_training_goal(hrd_url, is_first=False):
             print("  ⚠️  beautifulsoup4 사용 불가 — 크롤링 건너뜀")
         return None
 
-    # 시도할 URL + User-Agent 조합
     attempts = [
         {
-            "url": hrd_url,  # 원본 www URL 그대로
+            "url": hrd_url,
             "ua": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                    "AppleWebKit/537.36 (KHTML, like Gecko) "
                    "Chrome/120.0.0.0 Safari/537.36"),
@@ -423,27 +376,20 @@ def _fetch_training_goal(hrd_url, is_first=False):
                 "Accept-Encoding": "gzip, deflate",
                 "Connection": "keep-alive",
             }
-
             resp = requests.get(attempt["url"], headers=headers, timeout=15,
                                 allow_redirects=True)
-
             if is_first:
                 print(f"  [DEBUG] 크롤링 시도 ({attempt['label']}): {resp.status_code} "
                       f"({len(resp.text)}자)")
-
             if resp.status_code != 200:
                 if is_first:
                     print(f"  ⚠️  {attempt['label']} → HTTP {resp.status_code}")
                 continue
-
-            # HTML 파싱
             result = _parse_training_goal_html(resp.text, is_first)
             if result and result.get("trainingGoal"):
                 return result
-
             if is_first:
                 print(f"  ⚠️  {attempt['label']} → HTML에서 훈련목표를 찾지 못함")
-
         except requests.exceptions.Timeout:
             if is_first:
                 print(f"  ⚠️  {attempt['label']} → 타임아웃 (15초)")
@@ -459,26 +405,15 @@ def _fetch_training_goal(hrd_url, is_first=False):
 
 
 def _parse_training_goal_html(html_text, is_first=False):
-    """
-    HTML에서 훈련목표/과정 강점을 파싱합니다.
-
-    work24 상세 페이지 구조:
-    <table>
-      <tr><th>훈련목표</th><td>...</td></tr>
-      <tr><th>훈련대상 요건 훈련과정의 강점</th><td>...</td></tr>
-    </table>
-    """
+    """HTML에서 훈련목표/과정 강점을 파싱합니다."""
     from bs4 import BeautifulSoup
 
     soup = BeautifulSoup(html_text, "html.parser")
-
     training_goal = ""
     course_strength = ""
 
-    # 방법 1: th 텍스트로 매칭
     for th in soup.find_all("th"):
         th_text = th.get_text(strip=True)
-
         if th_text == "훈련목표":
             td = th.find_next_sibling("td")
             if not td:
@@ -487,7 +422,6 @@ def _parse_training_goal_html(html_text, is_first=False):
                     td = tr.find("td")
             if td:
                 training_goal = td.get_text(separator="\n", strip=True)
-
         elif "훈련과정의 강점" in th_text or "훈련과정의강점" in th_text:
             td = th.find_next_sibling("td")
             if not td:
@@ -497,12 +431,10 @@ def _parse_training_goal_html(html_text, is_first=False):
             if td:
                 course_strength = td.get_text(separator="\n", strip=True)
 
-    # 방법 2: "훈련목표" 텍스트를 포함하는 모든 요소에서 탐색 (fallback)
     if not training_goal:
         for elem in soup.find_all(string=lambda t: t and "훈련목표" in t):
             parent = elem.find_parent("th") or elem.find_parent("dt") or elem.find_parent("strong")
             if parent:
-                # 다음 sibling에서 td/dd 찾기
                 next_td = parent.find_next(["td", "dd"])
                 if next_td:
                     training_goal = next_td.get_text(separator="\n", strip=True)
@@ -570,6 +502,7 @@ def _parse_list_item(api_item):
             "traEndDate": str(end_raw),
             "title": _get_field(api_item, "title", "TITLE", "trprNm", "TRPR_NM"),
             "ncsName": "",          # L02에서 채워짐
+            "ncsCd": _get_field(api_item, "ncsCd", "NCS_CD", "ncscd"),  # NCS 직무분류 코드 (L01에서 1차, L02에서 덮어쓸 수 있음)
             "institution": institution,
             "period": period,
             "courseCost": course_cost,
@@ -619,6 +552,8 @@ def generate_content_for_course(course, output_dir):
     safe_name = course["title"][:30].replace(" ", "_").replace("/", "_")
     caption_path = os.path.join(output_dir, f"{safe_name}_instagram_caption.txt")
     reels_path = os.path.join(output_dir, f"{safe_name}_reels_script.txt")
+    sora_path = os.path.join(output_dir, f"{safe_name}_reels_sora.txt")
+    vrew_path = os.path.join(output_dir, f"{safe_name}_reels_vrew.txt")
     guide_path = os.path.join(output_dir, f"{safe_name}_posting_guide.txt")
 
     return {
@@ -627,16 +562,14 @@ def generate_content_for_course(course, output_dir):
         "blog_html": blog_html,
         "instagram_caption": caption_path if os.path.exists(caption_path) else None,
         "reels_script": reels_path if os.path.exists(reels_path) else None,
+        "reels_sora": sora_path if os.path.exists(sora_path) else None,
+        "reels_vrew": vrew_path if os.path.exists(vrew_path) else None,
         "posting_guide": guide_path if os.path.exists(guide_path) else None,
     }
 
 
 def run_pipeline(courses):
-    """
-    메인 파이프라인 실행
-    - 같은 과정이라도 회차/훈련기간이 다르면 새로 생성
-    - 이미 동일 키로 처리한 과정은 건너뜀
-    """
+    """메인 파이프라인 실행"""
     processed = load_processed_ids()
     new_count = 0
     skip_count = 0
@@ -676,7 +609,9 @@ def run_pipeline(courses):
         print(f"    - *_2_detail.png      : 카드뉴스 상세 이미지")
         print(f"    - *_3_howto.png       : 카드뉴스 신청방법 이미지")
         print(f"    - *_instagram_caption.txt : 인스타그램 캡션 + 해시태그")
-        print(f"    - *_reels_script.txt  : 릴스(숏폼) 대본")
+        print(f"    - *_reels_script.txt  : 릴스 대본 (필수 요소 + 워크플로)")
+        print(f"    - *_reels_sora.txt    : Sora 컷 시나리오 (영상만, 자막 없음)")
+        print(f"    - *_reels_vrew.txt    : Vrew 자막 원고 (타임코드 + 텍스트)")
         print(f"    - *_posting_guide.txt : 게시 타이밍/시리즈 전략 가이드")
 
     return new_count
@@ -689,10 +624,10 @@ if __name__ == "__main__":
     print("  🎯 대상: 산업구조변화대응 등 특화훈련 (C0102) / 제주")
     print("=" * 60)
 
-    # --force: 캐시 초기화 후 전체 재생성
     if "--force" in sys.argv:
-        if os.path.exists(PROCESSED_FILE):
-            os.remove(PROCESSED_FILE)
+        cache_file = os.path.join(OUTPUT_DIR, "processed_ids.json")
+        if os.path.exists(cache_file):
+            os.remove(cache_file)
             print("\n  🔄 --force: 캐시 초기화 완료 → 전체 과정 재생성합니다")
         else:
             print("\n  🔄 --force: 캐시 없음 → 전체 과정 새로 생성합니다")
@@ -717,6 +652,7 @@ if __name__ == "__main__":
         print(f"  ── 첫 번째 과정 파싱 결과 확인 ──")
         print(f"  과정명:     {c.get('title', '?')}")
         print(f"  NCS직종명:  {c.get('ncsName') or '❌ 비어있음 (API 필드명 확인 필요)'}")
+        print(f"  NCS코드:    {c.get('ncsCd') or '❌ 비어있음 (분야 감지가 제목 기반으로 동작)'}")
         print(f"  훈련시간:   {c.get('totalHours') or '❌ 0 (API 필드명 확인 필요)'}")
         print(f"  훈련목표:   {(c.get('trainingGoal', '')[:50] + '...') if c.get('trainingGoal') else '❌ 비어있음 (크롤링 확인 필요)'}")
         print(f"  기관명:     {c.get('institution', '?')}")
