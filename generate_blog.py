@@ -28,7 +28,7 @@ from seo_helper import (
     generate_blog_hashtags,
     generate_instagram_caption,
     generate_instagram_hashtags,
-    generate_reels_script,
+    generate_reels_package,
     generate_posting_guide,
     extract_seo_keywords,
     detect_course_field,
@@ -53,7 +53,6 @@ def generate_blog_post(course_data, output_dir="output"):
     target = course_data.get("target", "내일배움카드 있으면 누구나")
     curriculum = course_data.get("curriculum", [])
     outcome = course_data.get("outcome", "")
-    training_goal = course_data.get("trainingGoal", "")
     contact = course_data.get("contact", "")
     hrd_url = course_data.get("hrd_url", "https://www.hrd.go.kr")
 
@@ -146,9 +145,9 @@ def generate_blog_post(course_data, output_dir="output"):
 
 [구분선]
 
-[소제목] 어떤 것들을 배우나요
+[소제목] 배우고 나면
 
-{training_goal if training_goal else outcome if outcome else "상세 내용은 고용24에서 확인해주세요."}
+{outcome}
 
 [구분선]
 
@@ -214,13 +213,33 @@ STEP 3. 배우면서 혜택도 받기
 
     print(f"  📸 인스타그램 캡션 생성: {caption_filepath}")
 
-    # ── 릴스 대본 생성 ──
-    reels_filepath = os.path.join(output_dir, f"{safe_name}_reels_script.txt")
-    reels_script = generate_reels_script(course_data)
-    with open(reels_filepath, "w", encoding="utf-8") as f:
-        f.write(reels_script)
+    # ── 릴스 3종 패키지 생성 (대본 + Sora 컷 + Vrew 자막) ──
+    reels_result = generate_reels_package(course_data)
 
-    print(f"  🎬 릴스 대본 생성: {reels_filepath}")
+    if isinstance(reels_result, str):
+        # "[SKIP] ..." — 이미 시작된 과정
+        reels_filepath = os.path.join(output_dir, f"{safe_name}_reels_script.txt")
+        with open(reels_filepath, "w", encoding="utf-8") as f:
+            f.write(reels_result)
+        print(f"  ⏭️  릴스 스킵: {reels_result[:60]}")
+    else:
+        # 1) 릴스 대본 (기본)
+        script_path = os.path.join(output_dir, f"{safe_name}_reels_script.txt")
+        with open(script_path, "w", encoding="utf-8") as f:
+            f.write(reels_result["script"])
+        print(f"  🎬 릴스 대본 생성: {script_path}")
+
+        # 2) Sora 컷 시나리오 (영상만)
+        sora_path = os.path.join(output_dir, f"{safe_name}_reels_sora.txt")
+        with open(sora_path, "w", encoding="utf-8") as f:
+            f.write(reels_result["sora"])
+        print(f"  🎬 Sora 컷 시나리오 생성: {sora_path}")
+
+        # 3) Vrew 자막 원고
+        vrew_path = os.path.join(output_dir, f"{safe_name}_reels_vrew.txt")
+        with open(vrew_path, "w", encoding="utf-8") as f:
+            f.write(reels_result["vrew"])
+        print(f"  🎬 Vrew 자막 원고 생성: {vrew_path}")
 
     # ── 게시 가이드 생성 ──
     guide_filepath = os.path.join(output_dir, f"{safe_name}_posting_guide.txt")
