@@ -1,15 +1,7 @@
 {
-  "updated": "2026-03-02 06:44",
+  "updated": "2026-03-02 07:21",
   "count": 4,
   "data": [
-    {
-      "address": "제주 제주시",
-      "subTitle": "주식회사 제원직업전문학교",
-      "title": "(산대특) 챗GPT를 활용한 SNS마케팅과 빅데이터의 이해",
-      "traStartDate": "2026-03-09",
-      "traEndDate": "2026-04-16",
-      "titleLink": "https://hrd.work24.go.kr/hrdp/co/pcobo/PCOBO0100P.do?tracseId=AIG20253001086241&tracseTme=7&trainstCstmrId=500020051252&crseTracseSe=C0061"
-    },
     {
       "address": "제주 서귀포시",
       "subTitle": "중앙컴퓨터직업전문학원",
@@ -17,6 +9,14 @@
       "traStartDate": "2026-03-09",
       "traEndDate": "2026-04-17",
       "titleLink": "https://hrd.work24.go.kr/hrdp/co/pcobo/PCOBO0100P.do?tracseId=AIG20253001129433&tracseTme=3&trainstCstmrId=500020018203&crseTracseSe=C0061"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "주식회사 제원직업전문학교",
+      "title": "(산대특) 챗GPT를 활용한 SNS마케팅과 빅데이터의 이해",
+      "traStartDate": "2026-03-09",
+      "traEndDate": "2026-04-16",
+      "titleLink": "https://hrd.work24.go.kr/hrdp/co/pcobo/PCOBO0100P.do?tracseId=AIG20253001086241&tracseTme=7&trainstCstmrId=500020051252&crseTracseSe=C0061"
     },
     {
       "address": "제주 제주시",
