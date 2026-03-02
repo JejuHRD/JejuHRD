@@ -111,7 +111,7 @@ TOOL_SCENE_MAP = {
     "일러스트레이터": "Adobe Illustrator workspace with vector artwork on screen, clean minimalist desk setup",
     "파이썬": "a developer's setup with Python code on a dark-themed IDE, dual monitors, coffee cup beside keyboard",
     "블렌더": "a 3D modeling workspace with Blender showing a detailed 3D model, high-spec workstation setup",
-    "ChatGPT": "a modern workspace with ChatGPT conversation on screen, person typing prompt, futuristic blue ambient light",
+    "ChatGPT": "a modern workspace with ChatGPT conversation on screen, Korean person typing prompt, futuristic blue ambient light",
     "미드저니": "a creative studio with Midjourney AI-generated art displayed on a large monitor, colorful and artistic atmosphere",
     "영상 편집": "a professional video editing suite with multiple monitors showing timeline and preview, headphones on desk",
     "영상촬영": "a studio with professional camera on tripod, ring light, and green screen setup",
@@ -545,7 +545,7 @@ def generate_instagram_hashtags(course_data):
     """인스타그램 해시태그 20개를 대형+중소형+지역+분야별로 믹스합니다."""
     title = course_data.get("title", "")
     field = detect_course_field(title, course_data.get("ncsCd"))
-    big_tags = ["#국비지원", "#국비지원교육", "#내일배움카드", "#직업훈련", "#자기계발"]
+    big_tags = ["#국비지원", "#무료교육", "#내일배움카드", "#직업훈련", "#자기계발"]
     mid_tags = ["#제주교육", "#제주취업", "#제주취업준비", "#제주직업훈련", "#내일배움카드신청"]
     local_tags = ["#제주", "#제주시", "#제주도생활", "#제주이직", "#제주살이"]
     field_tags = {
@@ -593,15 +593,7 @@ def generate_instagram_caption(course_data):
         "데이터": "📈", "코딩": "💻",
     }
     emoji = field_emoji.get(field, "📌")
-
-    # ── 훈련목표 키워드 추출 ──
-    training_goal = (
-        course_data.get("traingGoal", "")
-        or course_data.get("training_goal", "")
-        or course_data.get("trainingGoal", "")
-    )
-    goal_summary = summarize_training_goal(training_goal)
-    hook = _generate_dynamic_hook(title, field, goal_summary)
+    hook = _generate_dynamic_hook(title, field)
 
     caption = f"""{emoji} {hook}
 
@@ -611,11 +603,6 @@ def generate_instagram_caption(course_data):
         caption += f"\n🗓️ {period}"
     if time_info:
         caption += f"\n⏰ {time_info}"
-
-    # ── 훈련목표 키워드 섹션 (과정별 차별화) ──
-    if goal_summary:
-        caption += f"\n\n✨ 이 과정에서 배우는 것: {goal_summary}"
-
     caption += f"""
 
 💰 {benefits}
@@ -641,117 +628,132 @@ def generate_instagram_caption(course_data):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# [아이디어 6] 과정 기간별 타임라인 구조
+# Sora 컷 시나리오 빌더 (영상만, 텍스트/자막 지시 없음)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-def _build_short_course_timeline(hook, goal_summary, benefit_line, cta_text, cta_sub, scenes, mood):
-    """단기과정 (140h 미만): 속도감 있는 빠른 컷 전환."""
-    scene_cuts = ""
+def _build_sora_cuts_short(scenes, mood):
+    """단기과정: 속도감 빠른 컷 전환 (영상만)."""
+    cuts = []
+    cuts.append({
+        "time": "0~2초", "label": "임팩트 오프닝",
+        "scene": "작업 화면 빠른 줌인 클로즈업. 마우스 클릭하는 손, 모니터 화면 빠르게 스크롤.",
+        "camera": "빠른 줌인 → 0.5초 홀드",
+        "mood": "글리치 효과, 에너지 넘치는 시작",
+    })
     for i, s in enumerate(scenes):
         start = 2.0 + i * 1.7
         end = start + 1.5
-        scene_cuts += f"""
-  [{start:.0f}~{end:.0f}s] 빠른 컷 #{i+1}: {s['keyword']}
-    장면: {s['scene']}
-    효과: 빠른 줌인 → 0.3초 홀드 → 스위시 전환"""
-
-    return f"""
-⏱️ 0~2초 (훅 - 임팩트 있는 시작)
-  텍스트: "{hook}"
-  장면: 빠른 줌인으로 작업 화면 클로즈업
-  효과: 글리치 효과 + bold 텍스트 팝인
-  연출: 단기과정답게 "빠르고 핵심적" 느낌
-
-⏱️ 2~7초 (핵심 스킬 - 빠른 컷 몽타주)
-  텍스트: "✨ {goal_summary}"
-  장면 전환 (1.5초씩 빠른 컷):{scene_cuts}
-  효과: 빠른 스위시 전환, 비트에 맞춘 컷 체인지
-
-⏱️ 7~11초 (혜택)
-  텍스트: "{benefit_line}"
-  보조: "내일배움카드만 있으면 OK ✅"
-  장면: 밝은 배경에 텍스트 중심 모션그래픽
-  효과: 숫자/금액 카운트업 애니메이션
-
-⏱️ 11~15초 (CTA)
-  텍스트: "{cta_text}"
-  보조: "{cta_sub}"
-  장면: 로고 + CTA 버튼 그래픽, 화면 밝아짐
-  효과: 펄스 애니메이션 + 화면 플래시"""
+        cuts.append({
+            "time": f"{start:.0f}~{end:.0f}초", "label": f"빠른 컷 #{i+1}: {s['keyword']}",
+            "scene": s["scene"],
+            "camera": "빠른 줌인 → 0.3초 홀드 → 스위시 전환",
+            "mood": "비트에 맞춘 빠른 컷 체인지",
+        })
+    cuts.append({
+        "time": "7~11초", "label": "혜택 강조",
+        "scene": "밝은 배경의 교실/작업 공간. 한국인 수강생이 웃으며 동료와 대화하는 모습.",
+        "camera": "미디엄 샷 → 천천히 줌인",
+        "mood": "밝은 톤, 따뜻한 조명으로 전환",
+    })
+    cuts.append({
+        "time": "11~15초", "label": "엔딩",
+        "scene": "밝아지는 화면, 깨끗한 배경. 로고/기관명이 들어갈 여백이 있는 정리된 엔딩 프레임.",
+        "camera": "정면 고정 → 화면 서서히 밝아짐",
+        "mood": "클린 마무리, 밝은 화이트 톤",
+    })
+    return cuts
 
 
-def _build_long_course_timeline(hook, goal_summary, benefit_line, cta_text, cta_sub, scenes, mood):
-    """장기과정 (350h 이상): Before→After 성장 서사 구조."""
+def _build_sora_cuts_long(scenes, mood):
+    """장기과정: Before→After 성장 서사 (영상만)."""
     main_scene = scenes[0] if scenes else {"keyword": "", "scene": ""}
-    return f"""
-⏱️ 0~3초 (Before - 고민하는 모습)
-  텍스트: "{hook}"
-  장면: 한숨 쉬는 인물 → 노트북 앞에서 고민하는 실루엣
-         어두운 톤, 데스크에 빈 이력서/포트폴리오
-  효과: 슬로우 줌인, 약간 어두운 그레이딩
-  연출: "이때의 나" - 시작 전 막막함 공감
+    return [
+        {
+            "time": "0~3초", "label": "Before — 고민",
+            "scene": "어두운 방, 노트북 앞에서 한숨 쉬는 한국인의 실루엣. 데스크 위에 빈 이력서, 어두운 톤.",
+            "camera": "슬로우 줌인, 한국인 뒷모습에서 시작",
+            "mood": "어두운 그레이딩, 블루 톤, 고민의 무게감",
+        },
+        {
+            "time": "3~4.5초", "label": "학습 시작",
+            "scene": "밝은 강의실, 한국인이 문을 열고 들어와 자리에 앉으며 노트북을 펼침.",
+            "camera": "팔로우 샷 → 자리에 앉으면서 미디엄 샷",
+            "mood": "톤이 살짝 밝아지기 시작, 희망의 조짐",
+        },
+        {
+            "time": "4.5~6초", "label": "실습",
+            "scene": main_scene["scene"],
+            "camera": "화면 위 작업물 클로즈업 → 집중하는 손과 표정",
+            "mood": "따뜻한 조명, 몰입감 있는 중간톤",
+        },
+        {
+            "time": "6~8초", "label": "협업/성장",
+            "scene": "한국인 팀원들과 모니터를 함께 보며 토론. 표정이 점점 밝아지고, 서로 고개를 끄덕이는 장면.",
+            "camera": "그룹 미디엄 샷, 약간의 핸드헬드 느낌",
+            "mood": "확실하게 밝아진 색감, warm 톤 전환",
+        },
+        {
+            "time": "8~12초", "label": "After — 달라진 나",
+            "scene": "자신감 있는 표정으로 완성된 작업물/포트폴리오를 보여주는 한국인. 환한 조명, 모니터에 결과물.",
+            "camera": "한국인 → 작업물 클로즈업 → 다시 미소",
+            "mood": "밝고 따뜻한 golden hour 톤, 성취감",
+        },
+        {
+            "time": "12~15초", "label": "엔딩",
+            "scene": "수료식 혹은 한국인 동료와의 하이파이브. 이어서 깨끗한 배경으로 전환, 로고/기관명 여백.",
+            "camera": "미디엄 → 정면 고정, 화면 밝아짐",
+            "mood": "따뜻한 블러 전환 → 선명한 엔딩",
+        },
+    ]
 
-⏱️ 3~8초 (학습 여정 - 성장 몽타주)
-  텍스트: "✨ {goal_summary}"
-  보조: 기관명·기간 하단 자막
-  장면 흐름 (점점 밝아지는 톤):
-    [3~4.5s] 수업 첫날 - 강의실 입장, 노트북 펼치기
-    [4.5~6s] 실습 중 - {main_scene['scene']}
-    [6~8s]   협업 장면 - 팀원과 화면 보며 토론, 표정이 점점 밝아짐
-  효과: 타임랩스 느낌의 점진적 전환, 색감이 점점 warm하게
-  연출: "성장하는 과정" - 어둠에서 빛으로
 
-⏱️ 8~12초 (After + 혜택 - 달라진 나)
-  텍스트: "{benefit_line}"
-  보조: "배우면서 월 최대 40만원까지"
-  장면: 자신감 있는 표정으로 포트폴리오/작업물을 보여주는 인물
-  효과: 밝은 톤 전환 + 혜택 금액 강조 모션
-  연출: "이렇게 달라질 수 있어요" + 경제적 혜택 동시 전달
-
-⏱️ 12~15초 (CTA)
-  텍스트: "{cta_text}"
-  보조: "{cta_sub}"
-  장면: 수료식/동료와의 하이파이브 → 로고·기관명 엔딩
-  효과: 따뜻한 블러 전환 → 선명한 CTA"""
-
-
-def _build_general_course_timeline(hook, goal_summary, benefit_line, cta_text, cta_sub, scenes, mood):
-    """일반과정 (140~349h): 밸런스형."""
-    scene_detail = ""
+def _build_sora_cuts_general(scenes, mood):
+    """일반과정: 밸런스형 (영상만)."""
+    cuts = [
+        {
+            "time": "0~3초", "label": "오프닝",
+            "scene": "한국인이 카메라를 향해 걸어오며 현대적인 작업 공간에 진입. 문을 열고 들어서는 동작.",
+            "camera": "다이나믹 줌인, 한국인 팔로우",
+            "mood": "활기찬 시작, 밝은 자연광",
+        },
+    ]
     for i, s in enumerate(scenes[:2]):
-        scene_detail += f"\n    [{3 + i*2.5:.0f}~{3 + (i+1)*2.5:.0f}s] {s['keyword']}: {s['scene']}"
-
-    return f"""
-⏱️ 0~3초 (훅)
-  텍스트: "{hook}"
-  장면: 인물이 카메라를 향해 걸어오며 작업 공간 진입
-  효과: 다이나믹 줌인 + 텍스트 슬라이드인
-
-⏱️ 3~8초 (배우는 내용)
-  텍스트: "✨ {goal_summary}"
-  보조: 기관명·기간 하단 자막
-  장면 전환:{scene_detail}
-  효과: 부드러운 크로스 디졸브, 키워드 타이핑 애니메이션
-
-⏱️ 8~12초 (혜택)
-  텍스트: "{benefit_line}"
-  보조: "내일배움카드만 있으면 OK ✅"
-  장면: 밝은 표정의 수강생, 동료와 화면 보며 대화
-  효과: 혜택 금액 볼드 강조 + 체크마크 애니메이션
-
-⏱️ 12~15초 (CTA)
-  텍스트: "{cta_text}"
-  보조: "{cta_sub}"
-  장면: 로고/기관명 + CTA 버튼 느낌의 그래픽 엔딩
-  효과: 텍스트 확대 + 화면 밝아짐"""
+        start = 3 + i * 2.5
+        end = start + 2.5
+        cuts.append({
+            "time": f"{start:.0f}~{end:.0f}초", "label": f"실무 장면: {s['keyword']}",
+            "scene": s["scene"],
+            "camera": "부드러운 크로스 디졸브 전환",
+            "mood": "집중과 몰입의 분위기",
+        })
+    cuts.append({
+        "time": "8~12초", "label": "밝은 분위기",
+        "scene": "밝은 표정의 한국인 수강생, 동료와 화면을 함께 보며 대화. 웃는 얼굴 클로즈업.",
+        "camera": "미디엄 → 클로즈업 전환",
+        "mood": "따뜻하고 긍정적인 톤",
+    })
+    cuts.append({
+        "time": "12~15초", "label": "엔딩",
+        "scene": "깨끗한 배경, 밝아지는 화면. 로고/기관명이 들어갈 여백 확보.",
+        "camera": "정면 고정, 화면 밝아짐",
+        "mood": "클린 마무리",
+    })
+    return cuts
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# [통합] Sora AI용 15초 릴스 가이드
+# [통합] 릴스 3종 패키지 생성 (대본 + Sora 컷 + Vrew 자막)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-def generate_reels_script(course_data):
-    """7가지 차별화 아이디어가 모두 반영된 Sora AI 릴스 가이드를 생성합니다."""
+def generate_reels_package(course_data):
+    """
+    릴스 제작에 필요한 3종 패키지를 생성합니다.
+
+    Returns:
+        dict | str:
+            성공 시 {"script": str, "sora": str, "vrew": str}
+            만료 과정이면 "[SKIP] ..." 문자열
+    """
     from benefits_helper import get_course_type, get_total_hours
 
     title = course_data.get("title", "")
@@ -761,10 +763,12 @@ def generate_reels_script(course_data):
     ctype = get_course_type(course_data)
     hours = get_total_hours(course_data)
     institution = course_data.get("institution", "")
-    time_info = course_data.get("time", "")
+    period = course_data.get("period", "")
 
     # 훈련목표 키워드
-    training_goal = course_data.get("traingGoal", "") or course_data.get("training_goal", "") or course_data.get("trainingGoal", "")
+    training_goal = (course_data.get("traingGoal", "")
+                     or course_data.get("training_goal", "")
+                     or course_data.get("trainingGoal", ""))
     goal_summary = summarize_training_goal(training_goal)
     if not goal_summary:
         fallback = {
@@ -789,32 +793,84 @@ def generate_reels_script(course_data):
     # 타임라인 구조 선택
     if ctype == "long":
         structure_label = "성장 서사형 (Before→After)"
-        timeline = _build_long_course_timeline(hook, goal_summary, benefit_line, cta_text, cta_sub, scenes, mood)
+        sora_cuts = _build_sora_cuts_long(scenes, mood)
     elif ctype == "short":
         structure_label = "빠른 컷 몽타주형 (속도감)"
-        timeline = _build_short_course_timeline(hook, goal_summary, benefit_line, cta_text, cta_sub, scenes, mood)
+        sora_cuts = _build_sora_cuts_short(scenes, mood)
     else:
         structure_label = "밸런스형 (실무 중심)"
-        timeline = _build_general_course_timeline(hook, goal_summary, benefit_line, cta_text, cta_sub, scenes, mood)
+        sora_cuts = _build_sora_cuts_general(scenes, mood)
 
-    scene_list = ""
-    for i, s in enumerate(scenes):
-        scene_list += f"\n  [{i+1}] {s['keyword']}: {s['scene']}"
+    # ═══════════════════════════════════════════════════
+    # 1. 릴스 대본 (기본)
+    # ═══════════════════════════════════════════════════
+    script = f"""[릴스 대본] {title}
+총 길이: 15초 | 구조: {structure_label}
 
-    scene_prompt_parts = []
-    for i, s in enumerate(scenes):
-        scene_prompt_parts.append(f"Scene {i+1}: {s['scene']}")
-    scene_prompts_joined = "\n".join(scene_prompt_parts)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+필수 요소
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  훅:           {hook}
+  과정명:       {title}
+  핵심 키워드:  {goal_summary}
+  혜택:         {benefit_line}
+  CTA:          {cta_text}
+  긴급도:       {urgency}
 
-    urgency_style = {
-        "urgent": "ending with URGENT pulsing red text and countdown timer visual",
-        "soon": "ending with amber-toned countdown and gentle urgency",
-        "open": "ending with inviting blue CTA button animation",
-        "normal": "ending with clean white CTA text on brightening screen",
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+타임라인 구성
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  [0~3초]  훅          → {hook}
+  [3~8초]  과정 소개   → {title}
+                         {goal_summary}
+                         {institution}{(' | ' + period) if period else ''}
+  [8~12초] 혜택        → {benefit_line}
+                         내일배움카드 있으면 누구나 신청 가능
+  [12~15초] CTA        → {cta_text}
+                         {cta_sub}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+제작 워크플로
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  1) Sora에서 영상+BGM 생성  →  *_reels_sora.txt 참고
+  2) Vrew에서 자막 삽입       →  *_reels_vrew.txt 복사-붙여넣기
+  3) BGM 볼륨 조절 (자막과 겹치지 않게)
+  4) 인스타그램 릴스 업로드 (캡션: *_instagram_caption.txt)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+게시 설정
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  화면 비율:    9:16 (세로형)
+  커버 이미지:  3~8초 구간 캡처 권장
+  게시 우선순위: {'높음 🔴 (마감 임박)' if urgency == 'urgent' else '보통 🟢'}
+"""
+
+    # ═══════════════════════════════════════════════════
+    # 2. Sora 컷 시나리오 (영상만, 텍스트/자막 지시 없음)
+    # ═══════════════════════════════════════════════════
+    cuts_text = ""
+    for cut in sora_cuts:
+        cuts_text += f"""
+[{cut['time']}] {cut['label']}
+  장면: {cut['scene']}
+  카메라: {cut['camera']}
+  분위기: {cut['mood']}
+"""
+
+    # Sora 프롬프트 (텍스트/자막 지시 완전 제거)
+    scene_prompt_lines = []
+    for cut in sora_cuts:
+        scene_prompt_lines.append(f"[{cut['time']}] {cut['scene']}")
+    scene_prompt_block = "\n".join(scene_prompt_lines)
+
+    urgency_ending_visual = {
+        "urgent": "The final 3 seconds: screen flashes briefly, then fades to a clean bright frame.",
+        "soon": "The final 3 seconds: warm amber tones gradually brighten to a clean ending frame.",
+        "open": "The final 3 seconds: smooth transition to a bright, clean ending frame.",
+        "normal": "The final 3 seconds: screen gradually brightens to a clean white ending frame.",
     }
-    ending_style = urgency_style.get(urgency, urgency_style["normal"])
 
-    sora_prompt = f"""A 15-second vertical promotional video for a vocational training course.
+    sora_prompt = f"""A 15-second vertical (9:16) cinematic video. NO TEXT, NO SUBTITLES, NO OVERLAYS — video footage only.
 
 Visual Style:
   Color palette: {mood['palette']}
@@ -822,67 +878,128 @@ Visual Style:
   Lighting: {mood['lighting']}
   Textures: {mood['texture']}
 
-Timeline Structure: {structure_label}
+Scene flow ({structure_label}):
+{scene_prompt_block}
 
-[0-3s] Opening hook with text "{hook}" appearing with dynamic zoom-in.
-{scene_prompts_joined}
-[8-12s] Benefit overlay: "{benefit_line}" with emphasis on numbers.
-[12-15s] Call-to-action: "{cta_text}" - {ending_style}.
+{urgency_ending_visual.get(urgency, urgency_ending_visual['normal'])}
 
-Korean text overlays throughout. Aspect ratio: 9:16 (vertical/portrait).
-Duration: exactly 15 seconds. No audio, designed for adding BGM separately."""
+IMPORTANT: Do NOT generate any text, titles, subtitles, or captions in the video.
+All text will be added separately in post-production.
+All people appearing in the video must be Korean.
+Duration: exactly 15 seconds. Include upbeat background music suitable for a promotional video.
+Korean workplace setting with Korean people."""
 
-    script = f"""[Sora AI 릴스 가이드 - {title}]
-총 재생시간: 15초 | 타임라인 구조: {structure_label}
+    sora = f"""[Sora 컷 시나리오] {title}
+영상만 생성 — 자막/텍스트는 Vrew에서 별도 작업
+구조: {structure_label} | 15초 | 9:16 세로형
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🎨 비주얼 무드 (분야: {field})
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   팔레트: {mood['palette']}
   분위기: {mood['mood']}
-  조명: {mood['lighting']}
-  질감: {mood['texture']}
+  조명:   {mood['lighting']}
+  질감:   {mood['texture']}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎬 키워드별 Sora 장면 매핑
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{scene_list}
-
+🎬 컷별 장면 (Sora → 영상만 생성)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⏱️ 타임라인 ({structure_label})
+{cuts_text}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-{timeline}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 차별화 요소 요약
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  훅: {hook}  (과정 제목 기반 동적 생성)
-  키워드: {goal_summary}  (훈련목표 자동 추출)
-  혜택: {benefit_line}  (기간·금액 구체화)
-  CTA: {cta_text}  (D-day 긴급도: {urgency})
-  구조: {structure_label}  (과정 시간 {hours}h 기준)
-  분야: {field}  (NCS: {ncs_cd or '제목 기반'})"""
-
-    if training_goal:
-        goal_preview = training_goal[:150] + "..." if len(training_goal) > 150 else training_goal
-        script += f"\n  훈련목표 원문: {goal_preview}"
-
-    script += f"""
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🤖 Sora AI 프롬프트
+🤖 Sora 프롬프트 (복사용)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {sora_prompt}
+"""
+
+    # ═══════════════════════════════════════════════════
+    # 3. Vrew 자막 원고 (타임코드 + 자막 텍스트)
+    # ═══════════════════════════════════════════════════
+
+    # 타임라인 구조별 자막 블록
+    if ctype == "long":
+        vrew_blocks = [
+            ("00:00.0", "00:03.0", hook),
+            ("00:03.0", "00:05.0", title),
+            ("00:05.0", "00:08.0", goal_summary),
+            ("00:08.0", "00:10.0", benefit_line.replace(" 💰", "")),
+            ("00:10.0", "00:12.0", "내일배움카드 있으면 누구나 신청 가능"),
+            ("00:12.0", "00:15.0", cta_text.replace(" 🔥", "").replace(" 👆", "")),
+        ]
+    elif ctype == "short":
+        vrew_blocks = [
+            ("00:00.0", "00:02.0", hook),
+            ("00:02.0", "00:04.5", title),
+            ("00:04.5", "00:07.0", goal_summary),
+            ("00:07.0", "00:09.5", benefit_line.replace(" 💰", "")),
+            ("00:09.5", "00:11.0", "내일배움카드만 있으면 OK"),
+            ("00:11.0", "00:15.0", cta_text.replace(" 🔥", "").replace(" 👆", "")),
+        ]
+    else:
+        vrew_blocks = [
+            ("00:00.0", "00:03.0", hook),
+            ("00:03.0", "00:05.5", title),
+            ("00:05.5", "00:08.0", goal_summary),
+            ("00:08.0", "00:10.0", benefit_line.replace(" 💰", "")),
+            ("00:10.0", "00:12.0", "내일배움카드 있으면 누구나 신청 가능"),
+            ("00:12.0", "00:15.0", cta_text.replace(" 🔥", "").replace(" 👆", "")),
+        ]
+
+    # 기관명+기간 보조 자막 (3~8초 구간 하단)
+    sub_info = institution
+    if period:
+        sub_info += f" | {period}"
+
+    vrew_text = f"""[Vrew 자막 원고] {title}
+Vrew에 직접 붙여넣기하거나, 타임코드를 참고하여 수동 입력하세요.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📌 게시 설정
+메인 자막 (상단/중앙 배치)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  - 화면 비율: 9:16 (세로형)
-  - 캡션: instagram_caption.txt 파일 내용 사용
-  - 커버: 3~8초 구간 캡처 (핵심키워드가 보이는 장면)
-  - 음악: Sora AI 생성 영상에 별도 BGM 추가 권장 (저작권 프리)
-  - CTA 긴급도: {urgency} → 게시 우선순위 {'높음 🔴' if urgency == 'urgent' else '보통 🟢'}
 """
-    return script
+    for start_tc, end_tc, text in vrew_blocks:
+        vrew_text += f"[{start_tc} → {end_tc}]  {text}\n"
+
+    vrew_text += f"""
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+보조 자막 (하단 작은 글씨)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[00:03.0 → 00:08.0]  {sub_info}
+[00:12.0 → 00:15.0]  {cta_sub}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+자막 스타일 가이드
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  메인 자막:
+    폰트: Pretendard Bold (또는 노토산스 Bold)
+    크기: 화면 너비의 70~80%
+    색상: 흰색 (#FFFFFF), 검은 그림자 또는 반투명 배경 박스
+    위치: 화면 중앙~상단 1/3
+    애니메이션: 페이드인 (0.2초)
+
+  보조 자막:
+    폰트: Pretendard Regular
+    크기: 메인의 50~60%
+    색상: 연한 흰색 (#E0E0E0)
+    위치: 화면 하단
+    애니메이션: 없음 (고정)
+
+  혜택 구간 (8~12초):
+    숫자/금액 부분만 강조색 적용 (노란색 #FFD93D 또는 분야 포인트색)
+"""
+
+    return {
+        "script": script,
+        "sora": sora,
+        "vrew": vrew_text,
+    }
+
+
+def generate_reels_script(course_data):
+    """하위 호환용 래퍼. 기존 코드에서 단일 문자열 반환이 필요한 경우."""
+    result = generate_reels_package(course_data)
+    if isinstance(result, str):
+        return result  # "[SKIP] ..."
+    return result["script"]
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -943,7 +1060,7 @@ def generate_posting_guide(course_data):
 
 🔑 인스타그램 프로필 설정
   - 프로필 링크: 고용24 과정 신청 페이지 또는 링크트리
-  - 프로필 소개: "제주 국비지원 특화훈련 과정 안내 | 내일배움카드"
+  - 프로필 소개: "제주 무료교육·국비지원 과정 안내 | 내일배움카드"
   - 하이라이트: "신청방법", "모집중", "수강후기" 카테고리 생성
 """
     return guide
