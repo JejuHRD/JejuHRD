@@ -275,11 +275,16 @@ def _generate_dynamic_hook(title, field, goal_summary=""):
         "default": ["새로운 기술, 제주에서 배워요", "국비지원으로 부담 없이 스킬업!"],
     }
 
-    candidates = dynamic_templates + goal_hooks + field_hooks.get(field, field_hooks["default"])
-    idx = hash(title) % len(candidates)
-    hook = candidates[idx]
-    if len(hook) > 25:
-        hook = hook[:24] + "…"
+    # 짧은 훅 우선: field_hooks → goal_hooks → dynamic_templates
+    # 나레이션에서 잘리지 않도록 완전한 문장만 사용
+    short_candidates = field_hooks.get(field, field_hooks["default"]) + goal_hooks
+    long_candidates = dynamic_templates
+
+    idx = hash(title) % max(len(short_candidates), 1)
+    if short_candidates:
+        hook = short_candidates[idx % len(short_candidates)]
+    else:
+        hook = long_candidates[idx % len(long_candidates)]
     return hook
 
 
