@@ -545,7 +545,7 @@ def generate_instagram_hashtags(course_data):
     """인스타그램 해시태그 20개를 대형+중소형+지역+분야별로 믹스합니다."""
     title = course_data.get("title", "")
     field = detect_course_field(title, course_data.get("ncsCd"))
-    big_tags = ["#국비지원", "#무료교육", "#내일배움카드", "#직업훈련", "#자기계발"]
+    big_tags = ["#국비지원", "#국비지원교육", "#내일배움카드", "#직업훈련", "#자기계발"]
     mid_tags = ["#제주교육", "#제주취업", "#제주취업준비", "#제주직업훈련", "#내일배움카드신청"]
     local_tags = ["#제주", "#제주시", "#제주도생활", "#제주이직", "#제주살이"]
     field_tags = {
@@ -593,7 +593,15 @@ def generate_instagram_caption(course_data):
         "데이터": "📈", "코딩": "💻",
     }
     emoji = field_emoji.get(field, "📌")
-    hook = _generate_dynamic_hook(title, field)
+
+    # ── 훈련목표 키워드 추출 ──
+    training_goal = (
+        course_data.get("traingGoal", "")
+        or course_data.get("training_goal", "")
+        or course_data.get("trainingGoal", "")
+    )
+    goal_summary = summarize_training_goal(training_goal)
+    hook = _generate_dynamic_hook(title, field, goal_summary)
 
     caption = f"""{emoji} {hook}
 
@@ -603,6 +611,11 @@ def generate_instagram_caption(course_data):
         caption += f"\n🗓️ {period}"
     if time_info:
         caption += f"\n⏰ {time_info}"
+
+    # ── 훈련목표 키워드 섹션 (과정별 차별화) ──
+    if goal_summary:
+        caption += f"\n\n✨ 이 과정에서 배우는 것: {goal_summary}"
+
     caption += f"""
 
 💰 {benefits}
@@ -930,7 +943,7 @@ def generate_posting_guide(course_data):
 
 🔑 인스타그램 프로필 설정
   - 프로필 링크: 고용24 과정 신청 페이지 또는 링크트리
-  - 프로필 소개: "제주 무료교육·국비지원 과정 안내 | 내일배움카드"
+  - 프로필 소개: "제주 국비지원 특화훈련 과정 안내 | 내일배움카드"
   - 하이라이트: "신청방법", "모집중", "수강후기" 카테고리 생성
 """
     return guide
