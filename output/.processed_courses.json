@@ -66,5 +66,24 @@
       "reels_script": "output/(산대특)_제주_소상공인을_위한_AI활용_실전_브랜드__reels_script.txt",
       "posting_guide": "output/(산대특)_제주_소상공인을_위한_AI활용_실전_브랜드__posting_guide.txt"
     }
+  },
+  "AIG20253001086241_7_2026-03-09_2026-04-20": {
+    "title": "(산대특) 챗GPT를 활용한 SNS마케팅과 빅데이터의 이해",
+    "period": "2026.03.09 ~ 2026.04.20",
+    "generated_at": "2026-03-04T01:01:58.429705",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_챗GPT를_활용한_SNS마케팅과_빅데이터의__v2_1_cover.png",
+        "output/(산대특)_챗GPT를_활용한_SNS마케팅과_빅데이터의__v2_2_detail.png",
+        "output/(산대특)_챗GPT를_활용한_SNS마케팅과_빅데이터의__v2_3_howto.png"
+      ],
+      "blog_md": "output/(산대특)_챗GPT를_활용한_SNS마케팅과_빅데이터의__blog_naver.txt",
+      "blog_html": null,
+      "instagram_caption": "output/(산대특)_챗GPT를_활용한_SNS마케팅과_빅데이터의__instagram_caption.txt",
+      "reels_script": "output/(산대특)_챗GPT를_활용한_SNS마케팅과_빅데이터의__reels_script.txt",
+      "reels_sora": "output/(산대특)_챗GPT를_활용한_SNS마케팅과_빅데이터의__reels_sora.txt",
+      "reels_vrew": "output/(산대특)_챗GPT를_활용한_SNS마케팅과_빅데이터의__reels_vrew.txt",
+      "posting_guide": "output/(산대특)_챗GPT를_활용한_SNS마케팅과_빅데이터의__posting_guide.txt"
+    }
   }
 }
