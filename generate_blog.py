@@ -213,29 +213,23 @@ STEP 3. 배우면서 혜택도 받기
 
     print(f"  📸 인스타그램 캡션 생성: {caption_filepath}")
 
-    # ── 릴스 3종 패키지 생성 (대본 + Sora 컷 + Vrew 자막) ──
+    # ── 릴스 2종 패키지 생성 (Grok 영상 가이드 + Vrew 자막) ──
     reels_result = generate_reels_package(course_data)
 
     if isinstance(reels_result, str):
         # "[SKIP] ..." — 이미 시작된 과정
-        reels_filepath = os.path.join(output_dir, f"{safe_name}_reels_script.txt")
+        reels_filepath = os.path.join(output_dir, f"{safe_name}_reels_grok.txt")
         with open(reels_filepath, "w", encoding="utf-8") as f:
             f.write(reels_result)
         print(f"  ⏭️  릴스 스킵: {reels_result[:60]}")
     else:
-        # 1) 릴스 대본 (기본)
-        script_path = os.path.join(output_dir, f"{safe_name}_reels_script.txt")
-        with open(script_path, "w", encoding="utf-8") as f:
-            f.write(reels_result["script"])
-        print(f"  🎬 릴스 대본 생성: {script_path}")
+        # 1) Grok 영상 가이드
+        grok_path = os.path.join(output_dir, f"{safe_name}_reels_grok.txt")
+        with open(grok_path, "w", encoding="utf-8") as f:
+            f.write(reels_result["grok"])
+        print(f"  🎬 Grok 영상 가이드 생성: {grok_path}")
 
-        # 2) Sora 컷 시나리오 (영상만)
-        sora_path = os.path.join(output_dir, f"{safe_name}_reels_sora.txt")
-        with open(sora_path, "w", encoding="utf-8") as f:
-            f.write(reels_result["sora"])
-        print(f"  🎬 Sora 컷 시나리오 생성: {sora_path}")
-
-        # 3) Vrew 자막 원고
+        # 2) Vrew 자막 원고
         vrew_path = os.path.join(output_dir, f"{safe_name}_reels_vrew.txt")
         with open(vrew_path, "w", encoding="utf-8") as f:
             f.write(reels_result["vrew"])
