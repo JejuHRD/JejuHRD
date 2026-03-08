@@ -1,0 +1,163 @@
+[Grok 영상 가이드] (산대특) 제주 소상공인을 위한 AI활용 실전 브랜드 마케팅
+영상 + BGM + 나레이션 생성 — 자막은 Vrew에서 음성인식으로 자동 생성
+구조: 밸런스형 (실무 중심) | 30초 (10초×3) | 9:16 세로형
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 제작 워크플로
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  1) Grok에서 세그먼트 1 (0~10초) 영상 생성
+  2) 세그먼트 1 영상을 기반으로 +10초 연장 → 세그먼트 2 (10~20초)
+  3) 세그먼트 2 영상을 기반으로 +10초 연장 → 세그먼트 3 (20~30초)
+  4) 완성된 30초 영상을 Vrew에 불러오기
+  5) Vrew 음성인식으로 자동 자막 생성 → *_reels_vrew.txt로 교정
+  6) 인스타그램 릴스 업로드 (캡션: *_instagram_caption.txt)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎨 비주얼 무드 (분야: 마케팅)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  팔레트: bold red (#E63946) and navy (#1D3557) with clean white (#F1FAEE)
+  분위기: professional, data-driven, strategic
+  조명:   clean office lighting with screen glow on face
+  질감:   chart elements, growth arrows, dashboard cards
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔊 오디오 설정
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  나레이션: 한국어 여성 음성, 밝고 또렷한 톤
+  BGM: 업비트 프로모션용 배경음악
+  BGM 볼륨: 나레이션 대비 30~40%
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎬 세그먼트 1 — 처음 생성 (0~10초)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[0~4초] 오프닝
+  장면: 한국인이 카메라를 향해 걸어오며 현대적인 작업 공간에 진입. 문을 열고 들어서는 동작.
+  카메라: 다이나믹 줌인, 한국인 팔로우
+  분위기: 활기찬 시작, 밝은 자연광
+
+[4~7초] 실무 장면: 디지털 마케팅
+  장면: a marketing workspace with social media analytics dashboard on screen, campaign performance graphs
+  카메라: 부드러운 크로스 디졸브 전환
+  분위기: 집중과 몰입의 분위기
+
+🤖 Grok 프롬프트 (세그먼트 1 — 복사용)
+────────────────────────────────────────────
+A 10-second vertical (9:16) cinematic video. NO TEXT, NO SUBTITLES, NO OVERLAYS.
+
+
+Visual Style:
+  Color palette: bold red (#E63946) and navy (#1D3557) with clean white (#F1FAEE)
+  Mood: professional, data-driven, strategic
+  Lighting: clean office lighting with screen glow on face
+
+Scene flow:
+[0~4초] 한국인이 카메라를 향해 걸어오며 현대적인 작업 공간에 진입. 문을 열고 들어서는 동작.
+[4~7초] a marketing workspace with social media analytics dashboard on screen, campaign performance graphs
+
+Audio:
+  Include upbeat background music.
+  Include Korean female voice-over narration:
+
+[00:00.0~00:04.0] "데이터로 성과를 만드는 마케팅"
+[00:04.0~00:10.0] "제주 소상공인을 위한 AI활용 실전 브랜드 마케팅."
+
+IMPORTANT: Do NOT generate any text, titles, or captions.
+All people must be Korean. Korean workplace setting.
+Duration: exactly 10 seconds.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎬 세그먼트 2 — +10초 연장 (10~20초)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[10~14초] 실습 장면
+  장면: 한국인 수강생이 모니터 앞에서 집중하며 작업하는 모습. 동료와 화면을 함께 보며 대화.
+  카메라: 오버숄더 → 미디엄 샷
+  분위기: 집중과 몰입
+
+[14~20초] 밝은 분위기/혜택
+  장면: 밝은 표정의 한국인 수강생, 동료와 화면을 함께 보며 대화. 웃는 얼굴 클로즈업.
+  카메라: 미디엄 → 클로즈업 전환
+  분위기: 따뜻하고 긍정적인 톤
+
+🤖 Grok 프롬프트 (세그먼트 2 — 복사용)
+────────────────────────────────────────────
+A 10-second vertical (9:16) cinematic video. NO TEXT, NO SUBTITLES, NO OVERLAYS.
+This is an EXTENSION of the previous video. Continue seamlessly from where it ended.
+
+Visual Style:
+  Color palette: bold red (#E63946) and navy (#1D3557) with clean white (#F1FAEE)
+  Mood: professional, data-driven, strategic
+  Lighting: clean office lighting with screen glow on face
+
+Scene flow:
+[10~14초] 한국인 수강생이 모니터 앞에서 집중하며 작업하는 모습. 동료와 화면을 함께 보며 대화.
+[14~20초] 밝은 표정의 한국인 수강생, 동료와 화면을 함께 보며 대화. 웃는 얼굴 클로즈업.
+
+Audio:
+  Include upbeat background music.
+  Include Korean female voice-over narration:
+
+[00:10.0~00:16.0] "디지털 마케팅 · SNS 운영 실무까지 배울 수 있습니다."
+[00:16.0~00:22.0] "자부담 10%로 만 부담."
+
+IMPORTANT: Do NOT generate any text, titles, or captions.
+All people must be Korean. Korean workplace setting.
+Duration: exactly 10 seconds.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎬 세그먼트 3 — +10초 연장 (20~30초)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[20~25초] 성과/자신감
+  장면: 한국인이 완성된 결과물을 동료에게 보여주는 장면. 서로 고개를 끄덕이고 박수.
+  카메라: 한국인 → 결과물 클로즈업 → 그룹 미디엄 샷
+  분위기: 성취감, golden hour 톤
+
+[25~30초] 엔딩 CTA
+  장면: 깨끗한 배경, 밝아지는 화면. 로고/기관명이 들어갈 여백 확보.
+  카메라: 정면 고정, 화면 밝아짐
+  분위기: 클린 마무리
+
+🤖 Grok 프롬프트 (세그먼트 3 — 복사용)
+────────────────────────────────────────────
+A 10-second vertical (9:16) cinematic video. NO TEXT, NO SUBTITLES, NO OVERLAYS.
+This is an EXTENSION of the previous video. Continue seamlessly from where it ended.
+
+Visual Style:
+  Color palette: bold red (#E63946) and navy (#1D3557) with clean white (#F1FAEE)
+  Mood: professional, data-driven, strategic
+  Lighting: clean office lighting with screen glow on face
+
+Scene flow:
+[20~25초] 한국인이 완성된 결과물을 동료에게 보여주는 장면. 서로 고개를 끄덕이고 박수.
+[25~30초] 깨끗한 배경, 밝아지는 화면. 로고/기관명이 들어갈 여백 확보.
+
+Audio:
+  Include upbeat background music.
+  Include Korean female voice-over narration:
+
+[00:16.0~00:22.0] "자부담 10%로 만 부담."
+[00:22.0~00:26.0] "내일배움카드 있으면 누구나 신청 가능합니다."
+[00:26.0~00:30.0] "지금 바로 신청하세요."
+
+IMPORTANT: Do NOT generate any text, titles, or captions.
+All people must be Korean. Korean workplace setting.
+Duration: exactly 10 seconds.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎤 전체 나레이션 원고 (30초)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[00:00.0 → 00:04.0]  데이터로 성과를 만드는 마케팅
+[00:04.0 → 00:10.0]  제주 소상공인을 위한 AI활용 실전 브랜드 마케팅.
+[00:10.0 → 00:16.0]  디지털 마케팅 · SNS 운영 실무까지 배울 수 있습니다.
+[00:16.0 → 00:22.0]  자부담 10%로 만 부담.
+[00:22.0 → 00:26.0]  내일배움카드 있으면 누구나 신청 가능합니다.
+[00:26.0 → 00:30.0]  지금 바로 신청하세요.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 게시 설정
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  화면 비율:      9:16 (세로형)
+  커버 이미지:    4~10초 구간 캡처 권장
+  게시 우선순위:  보통 🟢
