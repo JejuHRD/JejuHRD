@@ -39,6 +39,12 @@ jobs:
           sudo apt-get install -y fonts-noto-cjk fonts-noto-cjk-extra
           find /usr/share/fonts -name "NotoSansCJK*" -type f
 
+      - name: Install Noto Sans CJK fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-noto-cjk fonts-noto-cjk-extra
+          find /usr/share/fonts -name "NotoSansCJK*" -type f
+
       - name: Run pipeline
         env:
           HRD_API_KEY: ${{ secrets.HRD_API_KEY }}
