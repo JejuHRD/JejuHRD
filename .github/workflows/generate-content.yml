@@ -57,13 +57,29 @@ jobs:
             python pipeline.py
           fi
 
+      - name: 만료 콘텐츠 정리
+        run: python cleanup_expired.py
+
+      - name: Run pipeline
+        env:
+          HRD_API_KEY: ${{ secrets.HRD_API_KEY }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+        run: |
+          mkdir -p output
+          if [ -n "${{ github.event.inputs.json_file }}" ]; then
+            python pipeline.py --json "${{ github.event.inputs.json_file }}"
+          else
+            python pipeline.py
+          fi
+
       - name: Commit generated content
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config core.quotepath false
           git add output/
-          git add -u output/        # ← 삭제된 파일도 스테이징
+          git add -u output/
+          git add -f output/.processed_courses.json    # ← 숨김파일 강제 추가
           if git diff --staged --quiet; then
             echo "변경사항 없음 — 스킵"
           else
