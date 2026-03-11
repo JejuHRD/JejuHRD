@@ -348,7 +348,9 @@ def generate_slide_detail(course_data, output_path):
     draw.rectangle((0, 0, W, 8), fill=hex_to_rgb(COLORS["accent"]))
     draw.rectangle((0, 8, W, 12), fill=hex_to_rgb(COLORS["primary"]))
 
-    training_goal = course_data.get("trainingGoal", "")
+    training_goal = (course_data.get("trainingGoal", "")
+                     or course_data.get("traingGoal", "")
+                     or course_data.get("training_goal", ""))
     curriculum = course_data.get("curriculum", [])
 
     if training_goal:

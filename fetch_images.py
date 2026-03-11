@@ -10,23 +10,29 @@ import hashlib
 from io import BytesIO
 
 
-# ── 과정 키워드 → 영문 검색어 매핑 ──
+# ── 과정 키워드 → 영문 검색어 매핑 (구체적 키워드 우선) ──
 KEYWORD_MAP = {
-    "AI": "artificial intelligence technology",
+    # 구체적 키워드 (우선 매칭)
+    "드론": "drone aerial photography",
+    "3D": "3d modeling technology",
+    "모델링": "3d modeling digital",
+    "바리스타": "coffee barista cafe",
+    "커피": "coffee beans cafe",
     "인공지능": "artificial intelligence",
+    "AI": "artificial intelligence technology",
     "프로그래밍": "programming code computer",
     "코딩": "coding laptop developer",
     "빅데이터": "data analytics technology",
     "클라우드": "cloud computing server",
-    "웹": "web development design",
-    "디지털": "digital technology modern",
-    "드론": "drone aerial photography",
-    "항공": "drone aerial landscape",
+    "영상": "video production camera",
+    "편집": "video editing creative",
     "촬영": "camera photography professional",
-    "관광": "tourism travel beautiful destination",
-    "바리스타": "coffee barista cafe",
-    "커피": "coffee beans cafe",
+    "마케팅": "digital marketing business",
+    "SNS": "social media marketing",
+    "콘텐츠": "content creation digital",
     "디자인": "design creative studio",
+    "출판": "publishing books design",
+    "데이터": "data science analytics",
     "미용": "beauty salon hairstyle",
     "건설": "construction building architecture",
     "요리": "cooking chef kitchen",
@@ -36,16 +42,11 @@ KEYWORD_MAP = {
     "자동차": "automotive car mechanic",
     "물류": "logistics warehouse shipping",
     "간호": "healthcare nursing hospital",
-    "3D": "3d modeling technology",
-    "모델링": "3d modeling digital",
-    "영상": "video production camera",
-    "편집": "video editing creative",
-    "마케팅": "digital marketing business",
-    "SNS": "social media marketing",
-    "콘텐츠": "content creation digital",
-    "출판": "publishing books design",
-    "데이터": "data science analytics",
     "정비": "maintenance repair technical",
+    "관광": "tourism travel beautiful destination",
+    # 일반적 키워드 (후순위)
+    "웹": "web development design",
+    "디지털": "digital technology modern",
 }
 
 # ── NCS 직종명 → 영문 검색어 매핑 ──
@@ -93,33 +94,20 @@ def _stable_hash_index(text, mod):
 
 def extract_search_query(course_data):
     """
-    과정 데이터에서 가장 적합한 Pexels 검색어를 추출합니다.
-    우선순위: NCS직종명 → 과정제목 키워드 → 폴백
+    과정 데이터에서 Pexels 검색어를 추출합니다.
+    우선순위: 과정제목 핵심 키워드 1개 → 폴백
     """
     if isinstance(course_data, str):
-        # 하위호환: 문자열(제목)만 전달된 경우
         title = course_data
-        ncs_name = ""
     else:
         title = course_data.get("title", "")
-        ncs_name = course_data.get("ncsName", "")
 
-    # 1순위: NCS 직종명 매칭
-    if ncs_name:
-        for ncs_keyword, english_query in NCS_KEYWORD_MAP.items():
-            if ncs_keyword in ncs_name:
-                return english_query
-
-    # 2순위: 과정 제목 키워드 매칭
-    matched_queries = []
+    # 과정 제목에서 핵심 키워드 1개 매칭
     for korean_keyword, english_query in KEYWORD_MAP.items():
         if korean_keyword in title:
-            matched_queries.append(english_query)
+            return english_query
 
-    if matched_queries:
-        return matched_queries[0]
-
-    # 3순위: 폴백
+    # 폴백
     idx = _stable_hash_index(title, len(FALLBACK_QUERIES))
     return FALLBACK_QUERIES[idx]
 

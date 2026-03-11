@@ -394,11 +394,17 @@ def generate_detail_v2(course_data, bg_image, output_path):
     font_header = get_font(FONT_BOLD, 39)
     draw.text((60, 38), "이런 걸 배워요", font=font_header, fill=(255, 255, 255))
 
-    font_subtitle = get_font(FONT_REGULAR, 27)
-    title_short = course_data["title"][:40] + ("..." if len(course_data["title"]) > 40 else "")
-    draw.text((60, 88), title_short, font=font_subtitle, fill=(200, 210, 220))
+    font_subtitle = get_font(FONT_REGULAR, 25)
+    title_full = course_data["title"]
+    title_lines = wrap_text(title_full, font_subtitle, W - 120, draw)
+    title_display = " ".join(title_lines[:2])  # 최대 2줄 합쳐서 1줄 표시
+    if len(title_lines) > 2:
+        title_display = title_display[:60] + "..."
+    draw.text((60, 88), title_display, font=font_subtitle, fill=(200, 210, 220))
 
-    training_goal = course_data.get("trainingGoal", "")
+    training_goal = (course_data.get("trainingGoal", "")
+                     or course_data.get("traingGoal", "")
+                     or course_data.get("training_goal", ""))
     curriculum = course_data.get("curriculum", [])
 
     if training_goal:
