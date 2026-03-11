@@ -91,21 +91,54 @@ def make_course_key(course):
     return "_".join(parts)
 
 
+def _get_field(item, *keys):
+    """API 응답에서 여러 가능한 키 이름을 시도하여 값을 가져옵니다."""
+    for key in keys:
+        val = item.get(key, "")
+        if val not in ("", None):
+            return val
+    return ""
+
+
+def format_cost(raw_value):
+    """숫자 문자열을 '1,077,960원' 형태로 포맷합니다."""
+    if not raw_value:
+        return ""
+    try:
+        return f"{int(raw_value):,}원"
+    except (ValueError, TypeError):
+        return f"{raw_value}원"
+
+
+def format_date(raw):
+    """YYYYMMDD → YYYY.MM.DD 변환"""
+    raw = str(raw).replace("-", "").replace(".", "").replace(" ", "")
+    if len(raw) >= 8:
+        return f"{raw[:4]}.{raw[4:6]}.{raw[6:8]}"
+    return str(raw) if raw else ""
+
+
 def fetch_course_detail(course, api_key):
     """
     L02 API로 과정 상세 정보를 조회하여 course dict에 업데이트합니다.
-    totalHours, trainingGoal, institution 등 L01에 없는 필드를 보완합니다.
+    totalHours, trainingGoal, ncsName, address 등 L01에 없는 필드를 보완합니다.
     """
     import requests
 
     url = "https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L02.do"
+    trpr_id = course.get("trprId", "")
+    trpr_degr = course.get("trprDegr", "")
+    torg_id = course.get("instCd", "") or course.get("trainstCstId", "")
+
     params = {
         "authKey": api_key,
         "returnType": "JSON",
         "outType": "2",
-        "srchTrprId": course.get("trprId", ""),
-        "srchTrprDegr": course.get("trprDegr", ""),
+        "srchTrprId": trpr_id,
+        "srchTrprDegr": trpr_degr,
     }
+    if torg_id:
+        params["srchTorgId"] = torg_id
 
     try:
         resp = requests.get(url, params=params, timeout=30)
@@ -116,52 +149,58 @@ def fetch_course_detail(course, api_key):
             return
 
         data = resp.json()
-        inst = data.get("inst_det_info", {})
 
-        # 훈련시간
-        total_hours = inst.get("totTraingHr", 0)
+        # L02 응답 키: inst_base_info 또는 inst_det_info
+        base_info = data.get("inst_base_info", data.get("instBaseInfo", data.get("inst_det_info", {})))
+        if isinstance(base_info, list):
+            base_info = base_info[0] if base_info else {}
+        if not base_info:
+            base_info = data
+
+        # 훈련시간 (다중 키 시도)
+        raw_hours = _get_field(base_info, "trtm", "TRTM", "totTraingHr", "teTm")
         try:
-            total_hours = int(total_hours)
+            total_hours = int(raw_hours)
         except (ValueError, TypeError):
             total_hours = 0
-
         if total_hours > 0:
             course["totalHours"] = total_hours
             course["time"] = f"총 {total_hours}시간"
 
-        # 훈련기관명
-        inst_name = inst.get("inoNm", "") or inst.get("addr1", "")
+        # NCS 직종명
+        ncs_name = _get_field(base_info, "ncsNm", "NCS_NM", "ncsCdNm")
+        if ncs_name:
+            course["ncsName"] = ncs_name
+
+        # 기관명
+        inst_name = _get_field(base_info, "inoNm", "INO_NM", "instNm")
         if inst_name:
             course["institution"] = inst_name
 
         # 훈련목표
-        training_goal = inst.get("traingGoal", "")
+        training_goal = _get_field(base_info, "traingGoal", "trainingGoal")
         if training_goal:
-            course["trainingGoal"] = training_goal  # 통일된 필드명
+            course["trainingGoal"] = training_goal
 
         # 연락처
-        tel = inst.get("hpNo", "") or inst.get("telNo", "")
+        tel = _get_field(base_info, "hpNo", "telNo", "HP_NO", "TEL_NO")
         if tel:
             course["contact"] = f"{course.get('institution', '')} Tel: {tel}"
 
         # 주소
-        addr = inst.get("addr1", "")
+        addr = _get_field(base_info, "addr1", "ADDR1", "address")
         if addr:
             course["address"] = addr
 
-        # NCS 직무분류명
-        ncs_name = inst.get("ncsCdNm", "")
-        if ncs_name:
-            course["ncsName"] = ncs_name
+        # 자부담금 / 수강비 (L02에서 보완)
+        per_trco = _get_field(base_info, "perTrco", "PER_TRCO")
+        tot_trco = _get_field(base_info, "totTrco", "TOT_TRCO")
+        if per_trco and not course.get("selfCost"):
+            course["selfCost"] = format_cost(per_trco)
+        if tot_trco and not course.get("courseCost"):
+            course["courseCost"] = format_cost(tot_trco)
 
-        # 자부담금 / 수강비
-        course["selfCost"] = inst.get("perTrco", "")
-        course["courseCost"] = inst.get("totTrco", "")
-
-        # 사용자용 웹 URL 업데이트
-        course["hrd_url"] = course.get("web_url", course["hrd_url"])
-
-        print(f"    ✅ L02 상세: {total_hours}시간, 목표={'있음' if training_goal else '없음'}")
+        print(f"    ✅ L02 상세: {total_hours}h, NCS={ncs_name or '없음'}, 목표={'있음' if training_goal else '없음'}")
 
     except Exception as e:
         print(f"    ⚠️ L02 조회 실패: {e}")
@@ -260,69 +299,62 @@ def fetch_courses_from_api():
 
 def parse_api_course(api_item):
     """
-    API 응답 데이터를 콘텐츠 생성기 형식으로 변환합니다.
-    work24.go.kr L01 API 응답 필드 기준.
+    L01 목록 API 아이템을 파싱합니다.
+    _get_field()로 다중 키 조회하여 API 버전 차이를 흡수합니다.
     """
     try:
-        start = api_item.get("traStartDate", "")
-        end = api_item.get("traEndDate", "")
-        if start and end:
-            # 다양한 날짜 포맷 대응 (YYYYMMDD, YYYY-MM-DD 등)
-            start_clean = start.replace("-", "").replace(".", "").replace(" ", "")
-            end_clean = end.replace("-", "").replace(".", "").replace(" ", "")
-            if len(start_clean) >= 8 and len(end_clean) >= 8:
-                period = f"{start_clean[:4]}.{start_clean[4:6]}.{start_clean[6:8]} ~ {end_clean[:4]}.{end_clean[4:6]}.{end_clean[6:8]}"
-            else:
-                period = f"{start} ~ {end}"
-        else:
-            period = ""
+        start_raw = _get_field(api_item, "traStartDate", "TRA_START_DATE")
+        end_raw = _get_field(api_item, "traEndDate", "TRA_END_DATE")
 
-        # L01에서 courseMan은 수강비(원), realMan은 실제훈련비
-        # 훈련시간은 L02에서 가져와야 하므로, 일단 0으로 세팅
-        course_man_raw = api_item.get("courseMan", "0")
+        start_fmt = format_date(start_raw)
+        end_fmt = format_date(end_raw)
+        period = f"{start_fmt} ~ {end_fmt}" if start_fmt and end_fmt else ""
 
-        course = {
-            # 원본 필드 보존 (고유 키 생성에 사용)
-            "trprId": api_item.get("trprId", ""),
-            "trprDegr": api_item.get("trprDegr", ""),
-            "traStartDate": start_clean if start else "",
-            "traEndDate": end_clean if end else "",
-            "instCd": api_item.get("instCd", ""),           # L02 호출용
-            "trainstCstId": api_item.get("trainstCstId", ""), # L02 호출용
-            "ncsCd": api_item.get("ncsCd", ""),             # NCS 직무분류 코드
+        institution = _get_field(api_item, "subTitle", "SUB_TITLE", "instNm", "INST_NM", "inoNm")
+        trpr_id = _get_field(api_item, "trprId", "TRPR_ID")
+        trpr_degr = _get_field(api_item, "trprDegr", "TRPR_DEGR")
 
-            # 콘텐츠 생성용 필드
-            "title": api_item.get("title", api_item.get("subTitle", "")),
-            "institution": api_item.get("subTitle", ""),      # L01에서는 subTitle이 기관명
+        raw_course_man = _get_field(api_item, "courseMan", "COURSE_MAN")
+        course_cost = format_cost(raw_course_man)
+
+        # 자부담 10% 계산
+        try:
+            self_cost = format_cost(str(round(int(raw_course_man) * 0.1)))
+        except (ValueError, TypeError):
+            self_cost = ""
+
+        return {
+            "trprId": trpr_id,
+            "trprDegr": trpr_degr,
+            "traStartDate": str(start_raw),
+            "traEndDate": str(end_raw),
+            "instCd": _get_field(api_item, "instCd", "INST_CD", "trainstCstId"),
+            "trainstCstId": _get_field(api_item, "trainstCstId", "TRAINST_CST_ID"),
+            "ncsCd": _get_field(api_item, "ncsCd", "NCS_CD"),
+
+            "title": _get_field(api_item, "title", "TITLE", "trprNm", "TRPR_NM"),
+            "ncsName": "",                  # L02에서 채워짐
+            "institution": institution,
             "period": period,
-            "time": "",               # L02에서 업데이트
-            "totalHours": 0,          # L02에서 업데이트 (benefits_helper용)
-            "courseMan": course_man_raw,
-            "capacity": f"{api_item.get('yardMan', '?')}명",
-            "target": "내일배움카드 있으면 누구나",
-            "trainingGoal": "",        # L02에서 업데이트 (릴스 키워드 추출용)
-            "address": "",             # L02에서 업데이트
-            "ncsName": "",             # L02에서 업데이트
+            "courseCost": course_cost,      # 전체 수강비
+            "selfCost": self_cost,          # 자부담금 (10%)
+            "totalHours": 0,               # L02에서 채워짐
+            "time": "",                    # L02에서 채워짐
+            "capacity": f"{_get_field(api_item, 'yardMan', 'YARD_MAN') or '?'}명",
+            "target": "국민내일배움카드 있으면 누구나",
+            "trainingGoal": "",            # L02에서 채워짐
+            "address": _get_field(api_item, "addr1", "ADDR1", "address") or "",
             "benefits": "",
             "curriculum": [],
             "outcome": "",
-            "contact": api_item.get("telNo", ""),
+            "contact": f"{institution} Tel: {_get_field(api_item, 'telNo', 'TEL_NO', 'trprChapTel')}",
             "hrd_url": (
-                f"https://www.work24.go.kr/cm/openApi/call/hr/callOpenApiSvcInfo310L02.do"
-                f"?authKey={os.environ.get('HRD_API_KEY', '')}"
-                f"&returnType=JSON&outType=2"
-                f"&srchTrprId={api_item.get('trprId', '')}"
-                f"&srchTrprDegr={api_item.get('trprDegr', '')}"
-            ),
-            # 사용자가 브라우저에서 볼 수 있는 URL
-            "web_url": (
                 f"https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do"
-                f"?tracseId={api_item.get('trprId', '')}"
-                f"&tracseTme={api_item.get('trprDegr', '')}"
+                f"?tracseId={trpr_id}"
+                f"&tracseTme={trpr_degr}"
+                f"&crseTracseSe=C0102"
             ),
         }
-
-        return course
 
     except Exception as e:
         print(f"  과정 파싱 실패: {e}")
