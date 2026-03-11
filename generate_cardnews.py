@@ -751,7 +751,7 @@ def generate_slide_howto(course_data, output_path):
 
     # ── 하단: 문의 정보 (아이콘 + URL 포함) ──
     info_y = step_y + 5
-    info_box_h = 120
+    info_box_h = 150
     draw_rounded_rect(draw, (50, info_y, W - 50, info_y + info_box_h),
                        radius=15, fill=hex_to_rgb("#FEF9E7"),
                        outline=hex_to_rgb(COLORS["accent"]), width=2)
@@ -762,9 +762,16 @@ def generate_slide_howto(course_data, output_path):
     draw.text((78, info_y + 12), "■ 궁금한 점은",
               font=font_info_title, fill=hex_to_rgb(COLORS["accent"]))
 
+    institution = course_data.get("institution", "")
     contact = course_data.get("contact", "제주고용센터 064-728-7201")
     contact = contact.replace("☎", "").replace("📞", "").replace("Tel:", "").replace("  ", " ").strip()
-    draw.text((78, info_y + 50), contact,
+
+    info_line_y = info_y + 46
+    if institution:
+        draw.text((78, info_line_y), institution,
+                  font=font_info_line, fill=hex_to_rgb(COLORS["primary"]))
+        info_line_y += 32
+    draw.text((78, info_line_y), contact,
               font=font_info_line, fill=hex_to_rgb(COLORS["primary"]))
 
     address = course_data.get("address", "")

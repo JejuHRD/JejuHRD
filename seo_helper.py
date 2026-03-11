@@ -520,9 +520,9 @@ def generate_blog_hashtags(course_data):
     field = detect_course_field(title, course_data.get("ncsCd"))
     year = datetime.now().year
     common = [
-        f"#{year}국비지원", "#내일배움카드", "#제주무료교육",
+        f"#{year}국비지원", "#내일배움카드", "#제주국비지원교육",
         "#제주취업", "#제주직업훈련", "#제주특화훈련",
-        "#국비지원무료교육", "#내일배움카드추천",
+        "#국비지원교육추천", "#내일배움카드추천",
     ]
     field_tags = {
         "AI": ["#AI교육", "#인공지능교육", "#ChatGPT교육", "#생성형AI"],
@@ -550,7 +550,7 @@ def generate_instagram_hashtags(course_data):
     """인스타그램 해시태그 20개를 대형+중소형+지역+분야별로 믹스합니다."""
     title = course_data.get("title", "")
     field = detect_course_field(title, course_data.get("ncsCd"))
-    big_tags = ["#국비지원", "#무료교육", "#내일배움카드", "#직업훈련", "#자기계발"]
+    big_tags = ["#국비지원", "#국비지원교육", "#내일배움카드", "#직업훈련", "#자기계발"]
     mid_tags = ["#제주교육", "#제주취업", "#제주취업준비", "#제주직업훈련", "#내일배움카드신청"]
     local_tags = ["#제주", "#제주시", "#제주도생활", "#제주이직", "#제주살이"]
     field_tags = {
@@ -627,6 +627,16 @@ def generate_instagram_caption(course_data):
 프로필 링크에서 바로 확인하세요!
 
 💬 궁금한 점은 DM 또는 댓글로 물어봐 주세요"""
+
+    # 훈련목표 요약 (있을 때만)
+    training_goal = course_data.get("trainingGoal", "")
+    if training_goal:
+        goal_sentences = [s.strip() for s in training_goal.replace("\n", ".").split(".")
+                          if s.strip()]
+        goal_short = ". ".join(goal_sentences[:2])
+        if len(goal_short) > 80:
+            goal_short = goal_short[:77] + "..."
+        caption += f"\n\n📋 이 과정을 배우면?\n→ {goal_short}"
     hashtags = generate_instagram_hashtags(course_data)
     caption += hashtags
     return caption
@@ -765,9 +775,8 @@ def generate_reels_package(course_data):
     period = course_data.get("period", "")
 
     # 훈련목표 키워드
-    training_goal = (course_data.get("traingGoal", "")
-                     or course_data.get("training_goal", "")
-                     or course_data.get("trainingGoal", ""))
+    training_goal = (course_data.get("trainingGoal", "")
+                     or course_data.get("training_goal", ""))
     goal_summary = summarize_training_goal(training_goal)
     if not goal_summary:
         fallback = {
@@ -1106,7 +1115,7 @@ def generate_posting_guide(course_data):
   - 최적 요일: 월~수
 
 📊 게시 후 체크리스트
-  □ 블로그: 발행 후 24시간 내 네이버 서치어드바이저에서 색인 요청
+  □ 블로그: 발행 후 네이버 검색에서 제목 검색 → 노출 여부 확인 (보통 수 시간 내 자동 색인)
   □ 인스타: 게시 후 1시간 내 댓글에 직접 답글 달기 (알고리즘 부스트)
   □ 인스타: 스토리에 게시물 공유 + "자세히 보기" 유도
   □ 릴스: 첫 3초 이탈 방지를 위해 훅 문장 확인

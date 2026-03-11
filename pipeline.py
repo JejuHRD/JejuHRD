@@ -94,7 +94,7 @@ def make_course_key(course):
 def fetch_course_detail(course, api_key):
     """
     L02 API로 과정 상세 정보를 조회하여 course dict에 업데이트합니다.
-    totalHours, traingGoal, institution 등 L01에 없는 필드를 보완합니다.
+    totalHours, trainingGoal, institution 등 L01에 없는 필드를 보완합니다.
     """
     import requests
 
@@ -137,12 +137,22 @@ def fetch_course_detail(course, api_key):
         # 훈련목표
         training_goal = inst.get("traingGoal", "")
         if training_goal:
-            course["traingGoal"] = training_goal
+            course["trainingGoal"] = training_goal  # 통일된 필드명
 
         # 연락처
         tel = inst.get("hpNo", "") or inst.get("telNo", "")
         if tel:
             course["contact"] = f"{course.get('institution', '')} Tel: {tel}"
+
+        # 주소
+        addr = inst.get("addr1", "")
+        if addr:
+            course["address"] = addr
+
+        # NCS 직무분류명
+        ncs_name = inst.get("ncsCdNm", "")
+        if ncs_name:
+            course["ncsName"] = ncs_name
 
         # 자부담금 / 수강비
         course["selfCost"] = inst.get("perTrco", "")
@@ -257,7 +267,13 @@ def parse_api_course(api_item):
         start = api_item.get("traStartDate", "")
         end = api_item.get("traEndDate", "")
         if start and end:
-            period = f"{start[:4]}.{start[4:6]}.{start[6:8]} ~ {end[:4]}.{end[4:6]}.{end[6:8]}"
+            # 다양한 날짜 포맷 대응 (YYYYMMDD, YYYY-MM-DD 등)
+            start_clean = start.replace("-", "").replace(".", "").replace(" ", "")
+            end_clean = end.replace("-", "").replace(".", "").replace(" ", "")
+            if len(start_clean) >= 8 and len(end_clean) >= 8:
+                period = f"{start_clean[:4]}.{start_clean[4:6]}.{start_clean[6:8]} ~ {end_clean[:4]}.{end_clean[4:6]}.{end_clean[6:8]}"
+            else:
+                period = f"{start} ~ {end}"
         else:
             period = ""
 
@@ -269,8 +285,8 @@ def parse_api_course(api_item):
             # 원본 필드 보존 (고유 키 생성에 사용)
             "trprId": api_item.get("trprId", ""),
             "trprDegr": api_item.get("trprDegr", ""),
-            "traStartDate": start,
-            "traEndDate": end,
+            "traStartDate": start_clean if start else "",
+            "traEndDate": end_clean if end else "",
             "instCd": api_item.get("instCd", ""),           # L02 호출용
             "trainstCstId": api_item.get("trainstCstId", ""), # L02 호출용
             "ncsCd": api_item.get("ncsCd", ""),             # NCS 직무분류 코드
@@ -284,7 +300,9 @@ def parse_api_course(api_item):
             "courseMan": course_man_raw,
             "capacity": f"{api_item.get('yardMan', '?')}명",
             "target": "내일배움카드 있으면 누구나",
-            "traingGoal": "",         # L02에서 업데이트 (릴스 키워드 추출용)
+            "trainingGoal": "",        # L02에서 업데이트 (릴스 키워드 추출용)
+            "address": "",             # L02에서 업데이트
+            "ncsName": "",             # L02에서 업데이트
             "benefits": "",
             "curriculum": [],
             "outcome": "",

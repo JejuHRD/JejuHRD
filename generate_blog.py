@@ -53,6 +53,14 @@ def generate_blog_post(course_data, output_dir="output"):
     target = course_data.get("target", "내일배움카드 있으면 누구나")
     curriculum = course_data.get("curriculum", [])
     outcome = course_data.get("outcome", "")
+    # outcome이 비어있으면 훈련목표를 활용
+    if not outcome:
+        training_goal_for_outcome = course_data.get("trainingGoal", "")
+        if training_goal_for_outcome:
+            outcome = (
+                f"이 과정을 수료하면 다음과 같은 역량을 갖출 수 있어요.\n\n"
+                f"> {training_goal_for_outcome}"
+            )
     contact = course_data.get("contact", "")
     hrd_url = course_data.get("hrd_url", "https://www.hrd.go.kr")
 
@@ -75,9 +83,13 @@ def generate_blog_post(course_data, output_dir="output"):
     # 해시태그에서 마크다운 볼드(**) 제거
     hashtags = hashtags_raw.replace("**", "")
 
-    # ── 커리큘럼 텍스트 ──
+    # ── 커리큘럼 텍스트 (우선순위: trainingGoal → curriculum → 빈 값) ──
+    training_goal = course_data.get("trainingGoal", "")
     curriculum_text = ""
-    if curriculum:
+    if training_goal:
+        curriculum_text = "\n[소제목] 이런 걸 배워요\n\n"
+        curriculum_text += f"📋 훈련목표\n\n{training_goal}\n\n"
+    elif curriculum:
         curriculum_text = "\n[소제목] 이런 걸 배워요\n\n"
         for i, item in enumerate(curriculum, 1):
             if isinstance(item, dict):
@@ -145,9 +157,9 @@ def generate_blog_post(course_data, output_dir="output"):
 
 [구분선]
 
-[소제목] 배우고 나면
+[소제목] 어떤 것들을 배우나요
 
-{outcome}
+{outcome if outcome else "상세 내용은 고용24에서 확인해주세요."}
 
 [구분선]
 
@@ -175,7 +187,8 @@ STEP 3. 배우면서 혜택도 받기
 
 [소제목] 궁금하신 점은
 
-{contact}
+{institution + chr(10) if institution and institution not in contact else ''}{contact}
+{('📍 ' + course_data.get('address', '')) if course_data.get('address') else ''}
 
 편하게 전화 주시면 친절하게 안내해드려요!
 
