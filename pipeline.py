@@ -206,6 +206,108 @@ def fetch_course_detail(course, api_key):
         print(f"    ⚠️ L02 조회 실패: {e}")
 
 
+def _fetch_training_goal(hrd_url, is_first=False):
+    """
+    고용24 과정 상세 페이지에서 훈련목표/훈련과정 강점을 크롤링합니다.
+    www 먼저 시도, 실패 시 m(모바일) fallback.
+    """
+    import requests
+
+    try:
+        from bs4 import BeautifulSoup
+    except ImportError:
+        if is_first:
+            print("  ⚠️  beautifulsoup4 미설치 — pip install beautifulsoup4 필요")
+        return None
+
+    attempts = [
+        {
+            "url": hrd_url,
+            "ua": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                   "AppleWebKit/537.36 (KHTML, like Gecko) "
+                   "Chrome/120.0.0.0 Safari/537.36"),
+            "label": "www",
+        },
+        {
+            "url": hrd_url.replace("www.work24.go.kr", "m.work24.go.kr"),
+            "ua": ("Mozilla/5.0 (Linux; Android 13) "
+                   "AppleWebKit/537.36 (KHTML, like Gecko) "
+                   "Chrome/120.0.0.0 Mobile Safari/537.36"),
+            "label": "mobile",
+        },
+    ]
+
+    for attempt in attempts:
+        try:
+            headers = {
+                "User-Agent": attempt["ua"],
+                "Accept": "text/html,application/xhtml+xml",
+                "Accept-Language": "ko-KR,ko;q=0.9",
+            }
+
+            resp = requests.get(attempt["url"], headers=headers, timeout=15,
+                                allow_redirects=True)
+
+            if is_first:
+                print(f"  [DEBUG] 크롤링 ({attempt['label']}): HTTP {resp.status_code}")
+
+            if resp.status_code != 200:
+                continue
+
+            soup = BeautifulSoup(resp.text, "html.parser")
+
+            training_goal = ""
+            course_strength = ""
+
+            for th in soup.find_all("th"):
+                th_text = th.get_text(strip=True)
+
+                if th_text == "훈련목표":
+                    td = th.find_next_sibling("td")
+                    if not td:
+                        tr = th.find_parent("tr")
+                        if tr:
+                            td = tr.find("td")
+                    if td:
+                        training_goal = td.get_text(separator="\n", strip=True)
+
+                elif "훈련과정의 강점" in th_text or "훈련과정의강점" in th_text:
+                    td = th.find_next_sibling("td")
+                    if not td:
+                        tr = th.find_parent("tr")
+                        if tr:
+                            td = tr.find("td")
+                    if td:
+                        course_strength = td.get_text(separator="\n", strip=True)
+
+            # fallback: "훈련목표" 텍스트를 포함하는 모든 요소
+            if not training_goal:
+                for elem in soup.find_all(string=lambda t: t and "훈련목표" in t):
+                    parent = elem.find_parent("th") or elem.find_parent("dt") or elem.find_parent("strong")
+                    if parent:
+                        next_td = parent.find_next(["td", "dd"])
+                        if next_td:
+                            training_goal = next_td.get_text(separator="\n", strip=True)
+                            break
+
+            if training_goal:
+                if is_first:
+                    print(f"  ✅ 크롤링 → 훈련목표: {training_goal[:60]}...")
+                return {
+                    "trainingGoal": training_goal,
+                    "courseStrength": course_strength,
+                }
+
+            if is_first:
+                print(f"  ⚠️  {attempt['label']} → HTML에서 훈련목표를 찾지 못함")
+
+        except Exception as e:
+            if is_first:
+                print(f"  ⚠️  {attempt['label']} → 크롤링 실패: {e}")
+
+    return None
+
+
 def fetch_courses_from_api():
     """
     고용24 API에서 제주지역 특화훈련 과정을 조회합니다.
@@ -283,12 +385,36 @@ def fetch_courses_from_api():
 
         # ── L02: 각 과정별 상세 정보 보완 ──
         if courses:
-            print(f"\n  L02 상세 정보 조회 중... ({len(courses)}건)")
+            print(f"\n  [2단계] L02 상세 정보 조회 중... ({len(courses)}건)")
             import time
             for i, course in enumerate(courses):
                 print(f"  [{i+1}/{len(courses)}] {course['title'][:40]}")
                 fetch_course_detail(course, api_key)
                 time.sleep(0.3)  # API 부하 방지
+
+        # ── 3단계: 훈련목표 크롤링 (L02에서 못 가져온 경우) ──
+        need_crawl = [c for c in courses if not c.get("trainingGoal")]
+        if need_crawl:
+            print(f"\n  [3단계] 훈련목표 크롤링 중... ({len(need_crawl)}건)")
+            import time
+            for i, course in enumerate(need_crawl):
+                hrd_url = course.get("hrd_url", "")
+                if not hrd_url:
+                    continue
+                print(f"  [{i+1}/{len(need_crawl)}] {course['title'][:40]}")
+                result = _fetch_training_goal(hrd_url, is_first=(i == 0))
+                if result:
+                    if result.get("trainingGoal"):
+                        course["trainingGoal"] = result["trainingGoal"]
+                    if result.get("courseStrength"):
+                        course["courseStrength"] = result["courseStrength"]
+                time.sleep(0.5)  # 크롤링 부하 방지
+
+        # 결과 요약
+        has_goal = sum(1 for c in courses if c.get("trainingGoal"))
+        has_hours = sum(1 for c in courses if c.get("totalHours", 0) > 0)
+        has_ncs = sum(1 for c in courses if c.get("ncsName"))
+        print(f"\n  ✅ 총 {len(courses)}개 과정 (훈련시간 {has_hours}건, NCS {has_ncs}건, 훈련목표 {has_goal}건)")
 
         return courses
 
