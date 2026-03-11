@@ -1,0 +1,91 @@
+[Grok 영상 가이드] (산대특) 드론과 3D 모델링 기술을 활용한 제주 관광자원 디지털화 향상과정
+영상 + 나레이션 생성 — Vrew에서 자막 교정
+구조: 빠른 전개형 (에너지) | 30초 (10초×3) | 9:16 세로형
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 제작 워크플로
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  1) Grok에서 세그먼트 1 (0~10초) 영상 생성
+  2) 세그먼트 1 영상을 기반으로 +10초 연장 → 세그먼트 2 (10~20초)
+  3) 세그먼트 2 영상을 기반으로 +10초 연장 → 세그먼트 3 (20~30초)
+  4) 완성된 30초 영상을 Vrew에 불러오기
+  5) Vrew 음성인식으로 자막 자동 생성
+  6) *_reels_vrew.txt 나레이션 원고와 대조하여 자막 교정
+  7) 자막 스타일 적용 + 내보내기
+  8) 인스타그램 릴스 업로드 (캡션: *_instagram_caption.txt)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎨 비주얼 무드 (분야: default)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  팔레트: sky blue (#4A90D9) and warm gray (#F5F5F5) with accent yellow (#FFC107)
+  분위기: friendly, approachable, professional
+  조명:   bright and welcoming, natural classroom light
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚙️ 핵심 원칙
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  • 세그먼트당 장면 1개 (장면 전환 없음)
+  • 동일 인물 · 동일 공간 · 동일 조명 유지
+  • 나레이션은 쉼표(,)로 호흡 단위 구분
+  • 긴 텍스트(과정명, 혜택 상세)는 Vrew 자막으로만 표시
+  • 연장 프롬프트는 이전 장면을 구체적으로 언급
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎬 세그먼트 1 — 처음 생성 (0~10초)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  장면: 입장 → 자리에 앉자마자 카메라 보며 말하기
+  분위기: energetic, bright, dynamic entry
+  나레이션: 전문 기술부터 실무까지 한 번에, 드론과 3D 모델링 기술을 활용한 제주 관광자원 디지털화 향상과정.
+
+🤖 Grok 프롬프트 (복사용)
+────────────────────────────────────────────
+A cinematic video. NO TEXT, NO SUBTITLES.
+
+A Korean person walking into a workspace, sitting down, and immediately speaking to the camera with energy. a bright modern Korean classroom with laptops on desks, large windows, natural light. Quick, confident movement. Bright lighting.
+
+The person says in Korean: "전문 기술부터 실무까지 한 번에, 드론과 3D 모델링 기술을 활용한 제주 관광자원 디지털화 향상과정."
+Mood: energetic, bright, dynamic entry
+All people must be Korean.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎬 세그먼트 2 — +10초 연장 (10~20초)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  장면: 카메라 보며 말하면서 모니터 훈련 화면 가리키기
+  분위기: intense focus, active energy, steady pace
+  나레이션: 전문 기술과 실무 역량을, 배울 수 있어요.
+
+🤖 Grok 프롬프트 (복사용)
+────────────────────────────────────────────
+Continue extending the video for 10 more seconds.
+
+A Korean person speaking to the camera while the screen beside shows professional training course interface with progress indicators. a bright modern Korean classroom with laptops on desks, large windows, natural light. The person points at the screen while talking with enthusiasm.
+
+The person says in Korean: "전문 기술과 실무 역량을, 배울 수 있어요."
+Mood: intense focus, active energy, steady pace
+Keep the speaking voice volume loud and clear, same as the beginning.
+NO TEXT, NO SUBTITLES.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎬 세그먼트 3 — +10초 연장 (20~30초)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  장면: 카메라 보며 마무리 멘트 → 엄지척 → 밝은 엔딩
+  분위기: confident, warm bright energy
+  나레이션: 지금 바로 신청하세요.
+
+🤖 Grok 프롬프트 (복사용)
+────────────────────────────────────────────
+Continue extending the video for 10 more seconds.
+
+A Korean person actively talking to the camera with energetic hand movements. a bright modern Korean classroom with laptops on desks, large windows, natural light. The person keeps speaking and gives a thumbs up while talking. Bright lighting.
+
+The person says in Korean: "지금 바로 신청하세요."
+Mood: confident, warm bright energy
+Keep the speaking voice volume loud and clear, same as the beginning.
+NO TEXT, NO SUBTITLES.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 게시 설정
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  화면 비율:      9:16 (세로형)
+  커버 이미지:    4~10초 구간 캡처 권장
+  게시 우선순위:  보통 🟢
