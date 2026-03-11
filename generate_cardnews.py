@@ -767,12 +767,14 @@ def generate_slide_howto(course_data, output_path):
     contact = contact.replace("☎", "").replace("📞", "").replace("Tel:", "").replace("  ", " ").strip()
 
     info_line_y = info_y + 46
-    if institution:
-        draw.text((78, info_line_y), institution,
+    # 연락처에 기관명이 포함되어 있으면 연락처만 표시
+    if institution and institution not in contact:
+        draw.text((78, info_line_y), f"{institution} {contact}",
                   font=font_info_line, fill=hex_to_rgb(COLORS["primary"]))
-        info_line_y += 32
-    draw.text((78, info_line_y), contact,
-              font=font_info_line, fill=hex_to_rgb(COLORS["primary"]))
+    else:
+        draw.text((78, info_line_y), contact,
+                  font=font_info_line, fill=hex_to_rgb(COLORS["primary"]))
+    info_line_y += 32
 
     address = course_data.get("address", "")
     if address:

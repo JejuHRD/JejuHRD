@@ -638,7 +638,7 @@ def generate_cardnews_v2(course_data, output_dir="output"):
     os.makedirs(output_dir, exist_ok=True)
     safe_name = course_data["title"][:30].replace(" ", "_").replace("/", "_")
 
-    bg_image, credit = get_course_image(course_data["title"])
+    bg_image, credit = get_course_image(course_data)
 
     paths = []
 
