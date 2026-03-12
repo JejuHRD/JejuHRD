@@ -1,6 +1,6 @@
 """
 카드뉴스 v2 - 배경 이미지 지원 버전
-Gemini API 또는 그라데이션 배경 위에 텍스트를 오버레이합니다.
+Grok API 또는 그라데이션 배경 위에 텍스트를 오버레이합니다.
 """
 
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
