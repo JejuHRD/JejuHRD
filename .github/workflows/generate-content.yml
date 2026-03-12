@@ -37,7 +37,7 @@ jobs:
       - name: Run pipeline
         env:
           HRD_API_KEY: ${{ secrets.HRD_API_KEY }}
-          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
         run: |
           mkdir -p output
           if [ -n "${{ github.event.inputs.json_file }}" ]; then
