@@ -10,6 +10,15 @@ import os
 import hashlib
 from io import BytesIO
 
+# 파이프라인 실행 중 이미 사용된 이미지 ID 추적
+_used_photo_ids = set()
+
+
+def reset_used_images():
+    """파이프라인 시작 시 호출하여 추적 초기화"""
+    global _used_photo_ids
+    _used_photo_ids = set()
+
 
 # ── 과정 키워드 → 영문 검색어 매핑 (구체적 키워드 우선) ──
 KEYWORD_MAP = {
@@ -113,8 +122,12 @@ def extract_search_query(course_data):
     return FALLBACK_QUERIES[idx]
 
 
-def fetch_unsplash_image(query, orientation="squarish"):
-    """Unsplash API에서 이미지를 검색하고 다운로드합니다."""
+def fetch_unsplash_image(query, course_title="", orientation="squarish"):
+    """
+    Unsplash API에서 이미지를 검색하고 다운로드합니다.
+    같은 검색어라도 course_title이 다르면 다른 이미지를 선택합니다.
+    이미 사용된 이미지는 자동으로 건너뜁니다.
+    """
     import requests
     from PIL import Image
 
@@ -128,7 +141,7 @@ def fetch_unsplash_image(query, orientation="squarish"):
     params = {
         "query": query,
         "orientation": orientation,
-        "per_page": 5,
+        "per_page": 20,  # 선택지를 넓혀서 중복 방지
         "page": 1,
     }
 
@@ -142,8 +155,24 @@ def fetch_unsplash_image(query, orientation="squarish"):
             print(f"  ⚠️  '{query}' 검색 결과가 없습니다.")
             return None, None
 
-        photo_idx = _stable_hash_index(query, len(photos))
-        photo = photos[photo_idx]
+        # 과정 제목 기반 해시로 시작 인덱스 결정 (같은 검색어라도 과정마다 다름)
+        hash_key = course_title if course_title else query
+        start_idx = _stable_hash_index(hash_key, len(photos))
+
+        # 사용되지 않은 이미지 찾기 (순환 탐색)
+        photo = None
+        for offset in range(len(photos)):
+            candidate_idx = (start_idx + offset) % len(photos)
+            candidate = photos[candidate_idx]
+            candidate_id = candidate.get("id", "")
+            if candidate_id not in _used_photo_ids:
+                photo = candidate
+                _used_photo_ids.add(candidate_id)
+                break
+
+        # 모든 이미지가 사용됨 → 해시 기반으로 하나 선택
+        if not photo:
+            photo = photos[start_idx % len(photos)]
 
         img_url = photo.get("urls", {}).get("regular", "")
         if not img_url:
@@ -275,9 +304,10 @@ def get_course_image(course_data, target_size=(1080, 1080)):
     from PIL import Image
 
     query = extract_search_query(course_data)
+    title = course_data.get("title", "") if isinstance(course_data, dict) else str(course_data)
     print(f"  🔍 이미지 검색: '{query}'")
 
-    img, credit = fetch_unsplash_image(query, orientation="squarish")
+    img, credit = fetch_unsplash_image(query, course_title=title, orientation="squarish")
 
     if img:
         img = crop_center(img, target_size)

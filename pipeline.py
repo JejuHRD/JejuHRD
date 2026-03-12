@@ -532,6 +532,13 @@ def run_pipeline(courses):
     new_count = 0
     skip_count = 0
 
+    # 이미지 중복 방지 초기화
+    try:
+        from fetch_images import reset_used_images
+        reset_used_images()
+    except ImportError:
+        pass
+
     for course in courses:
         course_key = make_course_key(course)
 
