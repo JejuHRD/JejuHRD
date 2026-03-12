@@ -1,200 +1,135 @@
 """
-Unsplash 무료 스톡 이미지 API 연동 모듈
+Gemini API 이미지 생성 모듈
 
-환경변수: UNSPLASH_ACCESS_KEY
-발급: https://unsplash.com/developers (무료, 월 50,000건)
-훈련과정 주제에 맞는 배경 이미지를 자동으로 검색/다운로드합니다.
+환경변수: GEMINI_API_KEY
+모델: gemini-2.5-flash (무료 티어, 하루 500장)
+훈련과정명을 기반으로 배경 이미지를 AI 생성합니다.
 """
 
 import os
 import hashlib
 from io import BytesIO
 
-# 파이프라인 실행 중 이미 사용된 이미지 ID 추적
-_used_photo_ids = set()
 
-
-def reset_used_images():
-    """파이프라인 시작 시 호출하여 추적 초기화"""
-    global _used_photo_ids
-    _used_photo_ids = set()
-
-
-# ── 과정 키워드 → 영문 검색어 매핑 (구체적 키워드 우선) ──
-KEYWORD_MAP = {
-    # 구체적 키워드 (우선 매칭)
-    "드론": "drone aerial photography",
-    "3D": "3d modeling technology",
-    "모델링": "3d modeling digital",
-    "바리스타": "coffee barista cafe",
-    "커피": "coffee beans cafe",
-    "인공지능": "artificial intelligence",
-    "AI": "artificial intelligence technology",
-    "프로그래밍": "programming code computer",
-    "코딩": "coding laptop developer",
-    "빅데이터": "data analytics technology",
-    "클라우드": "cloud computing server",
-    "영상": "video production camera",
-    "편집": "video editing creative",
-    "촬영": "camera photography professional",
-    "마케팅": "digital marketing business",
-    "SNS": "social media marketing",
-    "콘텐츠": "content creation digital",
-    "디자인": "design creative studio",
-    "출판": "publishing books design",
-    "데이터": "data science analytics",
-    "미용": "beauty salon hairstyle",
-    "건설": "construction building architecture",
-    "요리": "cooking chef kitchen",
-    "농업": "agriculture farming green",
-    "전기": "electrical engineering power",
-    "용접": "welding industrial manufacturing",
-    "자동차": "automotive car mechanic",
-    "물류": "logistics warehouse shipping",
-    "간호": "healthcare nursing hospital",
-    "정비": "maintenance repair technical",
-    "관광": "tourism travel beautiful destination",
-    # 일반적 키워드 (후순위)
-    "웹": "web development design",
-    "디지털": "digital technology modern",
-}
-
-# ── NCS 직종명 → 영문 검색어 매핑 ──
-NCS_KEYWORD_MAP = {
-    "소형무인기운용": "drone pilot aerial",
-    "소형무인기정비": "drone repair maintenance",
-    "영상촬영": "video camera filming",
-    "영상편집": "video editing production",
-    "멀티미디어": "multimedia design creative",
-    "웹디자인": "web design ui ux",
-    "시각디자인": "graphic design creative",
-    "광고": "advertising marketing creative",
-    "커피": "coffee barista latte art",
-    "조리": "cooking chef professional",
-    "건축설계": "architecture blueprint design",
-    "전기설비": "electrical installation engineering",
-    "용접": "welding metal industrial",
-    "자동차정비": "automotive mechanic repair",
-    "네트워크": "network server technology",
-    "정보보안": "cybersecurity technology",
-    "빅데이터분석": "data analytics dashboard",
-    "인공지능": "artificial intelligence robot",
-    "응용SW": "software development coding",
-    "디지털마케팅": "digital marketing analytics",
-    "관광기획": "tourism planning travel",
-    "3D모델링": "3d modeling rendering",
-}
-
-FALLBACK_QUERIES = [
-    "modern office workspace",
-    "learning education technology",
-    "professional development training",
-    "career growth success",
-    "creative workspace design",
-    "technology innovation",
-    "teamwork collaboration",
-]
-
-
-def _stable_hash_index(text, mod):
-    """실행마다 동일한 인덱스를 보장하는 해시 함수"""
-    digest = hashlib.md5(text.encode("utf-8")).hexdigest()
-    return int(digest, 16) % mod
-
-
-def extract_search_query(course_data):
+def _build_image_prompt(course_data):
     """
-    과정 데이터에서 Unsplash 검색어를 추출합니다.
-    우선순위: 과정제목 핵심 키워드 1개 → 폴백
+    과정 데이터에서 Gemini 이미지 생성 프롬프트를 만듭니다.
+    과정명에서 핵심 키워드를 추출하여 장면을 구성합니다.
     """
     if isinstance(course_data, str):
         title = course_data
     else:
         title = course_data.get("title", "")
 
-    # 과정 제목에서 핵심 키워드 1개 매칭
-    for korean_keyword, english_query in KEYWORD_MAP.items():
-        if korean_keyword in title:
-            return english_query
-
-    # 폴백
-    idx = _stable_hash_index(title, len(FALLBACK_QUERIES))
-    return FALLBACK_QUERIES[idx]
-
-
-def fetch_unsplash_image(query, course_title="", orientation="squarish"):
-    """
-    Unsplash API에서 이미지를 검색하고 다운로드합니다.
-    같은 검색어라도 course_title이 다르면 다른 이미지를 선택합니다.
-    이미 사용된 이미지는 자동으로 건너뜁니다.
-    """
-    import requests
-    from PIL import Image
-
-    access_key = os.environ.get("UNSPLASH_ACCESS_KEY", "")
-    if not access_key:
-        print("  ⚠️  UNSPLASH_ACCESS_KEY가 설정되지 않았습니다. 그라데이션 배경을 사용합니다.")
-        return None, None
-
-    url = "https://api.unsplash.com/search/photos"
-    headers = {"Authorization": f"Client-ID {access_key}"}
-    params = {
-        "query": query,
-        "orientation": orientation,
-        "per_page": 20,  # 선택지를 넓혀서 중복 방지
-        "page": 1,
+    KEYWORD_SCENES = {
+        "드론": "a professional drone flying over a beautiful landscape, aerial photography, cinematic lighting",
+        "3D": "3D modeling workspace with digital holographic display, futuristic technology, blue glow",
+        "모델링": "3D digital modeling with wireframe objects floating in space, tech aesthetic",
+        "바리스타": "elegant coffee shop interior, barista pouring latte art, warm cozy lighting",
+        "커피": "artisan coffee beans and espresso machine, warm cafe atmosphere",
+        "인공지능": "abstract AI neural network visualization, glowing nodes and connections, dark blue background",
+        "AI": "modern AI technology workspace, holographic data displays, futuristic blue tones",
+        "프로그래밍": "clean coding workspace with multiple monitors showing colorful code, dark theme",
+        "코딩": "developer workspace with code on screen, modern minimal desk setup",
+        "빅데이터": "data visualization dashboard with flowing charts and graphs, dark tech aesthetic",
+        "클라우드": "cloud computing concept with server racks and glowing connections",
+        "영상": "professional video production studio with camera equipment and monitors",
+        "편집": "video editing timeline on ultrawide monitor, creative studio setup",
+        "촬영": "professional camera setup with studio lighting, cinematic equipment",
+        "마케팅": "digital marketing analytics dashboard on screen, modern office, business growth charts",
+        "SNS": "social media content creation workspace with multiple screens showing platforms",
+        "콘텐츠": "creative content studio with camera, ring light, and editing setup",
+        "디자인": "modern design studio with large display showing UI mockups, creative workspace",
+        "출판": "elegant bookshelf with open books and manuscript pages, warm library lighting",
+        "데이터": "data science workspace with visualizations and charts on dark screens",
+        "미용": "modern beauty salon interior with elegant mirrors and professional equipment",
+        "건설": "architectural blueprint with modern building under construction, golden hour",
+        "요리": "professional kitchen with chef preparing food, warm dramatic lighting",
+        "농업": "smart agriculture technology, green farm with modern monitoring equipment",
+        "전기": "electrical engineering workspace with circuit boards and testing equipment",
+        "용접": "industrial welding workshop with sparks, dramatic professional lighting",
+        "자동차": "automotive repair workshop with modern diagnostic equipment",
+        "물류": "modern logistics warehouse with organized shelving and automation",
+        "간호": "modern healthcare facility, clean medical workspace with technology",
+        "정비": "professional maintenance workshop with technical equipment and tools",
+        "관광": "beautiful travel destination landscape, scenic tourism photography",
+        "웹": "web development workspace with responsive design on multiple devices",
+        "디지털": "digital transformation concept, modern technology workspace with screens",
     }
 
+    scene = None
+    for keyword, scene_desc in KEYWORD_SCENES.items():
+        if keyword in title:
+            scene = scene_desc
+            break
+
+    if not scene:
+        scene = "modern professional training classroom with laptops and bright natural lighting"
+
+    prompt = (
+        f"A high-quality photorealistic background image for an educational course card. "
+        f"Scene: {scene}. "
+        f"Style: professional, clean, slightly blurred background suitable for text overlay. "
+        f"No text, no words, no letters, no watermarks. "
+        f"Square format 1080x1080. Soft lighting, professional color grading."
+    )
+
+    return prompt
+
+
+def generate_image_with_gemini(course_data):
+    """
+    Gemini API로 과정에 맞는 배경 이미지를 생성합니다.
+
+    Returns:
+        tuple(PIL.Image, dict|None) - (이미지, 크레딧 정보)
+    """
+    from PIL import Image
+
+    api_key = os.environ.get("GEMINI_API_KEY", "")
+    if not api_key:
+        print("  ⚠️  GEMINI_API_KEY가 설정되지 않았습니다. 그라데이션 배경을 사용합니다.")
+        return None, None
+
     try:
-        response = requests.get(url, headers=headers, params=params, timeout=15)
-        response.raise_for_status()
-        data = response.json()
+        from google import genai
+    except ImportError:
+        print("  ⚠️  google-genai 미설치 — pip install google-genai 필요")
+        return None, None
 
-        photos = data.get("results", [])
-        if not photos:
-            print(f"  ⚠️  '{query}' 검색 결과가 없습니다.")
-            return None, None
+    prompt = _build_image_prompt(course_data)
+    title = course_data.get("title", "") if isinstance(course_data, dict) else str(course_data)
+    print(f"  🎨 Gemini 이미지 생성 중... ({title[:30]})")
 
-        # 과정 제목 기반 해시로 시작 인덱스 결정 (같은 검색어라도 과정마다 다름)
-        hash_key = course_title if course_title else query
-        start_idx = _stable_hash_index(hash_key, len(photos))
+    try:
+        client = genai.Client(api_key=api_key)
 
-        # 사용되지 않은 이미지 찾기 (순환 탐색)
-        photo = None
-        for offset in range(len(photos)):
-            candidate_idx = (start_idx + offset) % len(photos)
-            candidate = photos[candidate_idx]
-            candidate_id = candidate.get("id", "")
-            if candidate_id not in _used_photo_ids:
-                photo = candidate
-                _used_photo_ids.add(candidate_id)
-                break
+        response = client.models.generate_content(
+            model="gemini-2.5-flash-preview-04-17",
+            contents=[prompt],
+            config=genai.types.GenerateContentConfig(
+                response_modalities=["IMAGE", "TEXT"],
+            ),
+        )
 
-        # 모든 이미지가 사용됨 → 해시 기반으로 하나 선택
-        if not photo:
-            photo = photos[start_idx % len(photos)]
+        for part in response.candidates[0].content.parts:
+            if part.inline_data is not None:
+                img_data = part.inline_data.data
+                img = Image.open(BytesIO(img_data))
 
-        img_url = photo.get("urls", {}).get("regular", "")
-        if not img_url:
-            return None, None
+                credit = {
+                    "photographer": "AI Generated",
+                    "source": "Google Gemini",
+                }
 
-        img_response = requests.get(img_url, timeout=30)
-        img_response.raise_for_status()
+                print(f"  ✅ 이미지 생성 완료 ({img.size[0]}x{img.size[1]})")
+                return img, credit
 
-        img = Image.open(BytesIO(img_response.content))
-
-        credit = {
-            "photographer": photo.get("user", {}).get("name", "Unknown"),
-            "photographer_url": photo.get("user", {}).get("links", {}).get("html", ""),
-            "unsplash_url": photo.get("links", {}).get("html", ""),
-            "photo_id": photo.get("id", ""),
-        }
-
-        print(f"  📸 이미지 다운로드 완료: {credit['photographer']} (Unsplash)")
-        return img, credit
+        print("  ⚠️  Gemini 응답에 이미지가 없습니다.")
+        return None, None
 
     except Exception as e:
-        print(f"  ⚠️  Unsplash API 오류: {e}")
+        print(f"  ⚠️  Gemini API 오류: {e}")
         return None, None
 
 
@@ -222,32 +157,21 @@ def crop_center(img, target_size):
 
 
 def generate_gradient_background(course_data, size=(1080, 1080)):
-    """과정 주제에 따른 그라데이션 배경 생성 (Unsplash 실패 시 폴백)"""
+    """과정 주제에 따른 그라데이션 배경 생성 (Gemini 실패 시 폴백)"""
     import numpy as np
     from PIL import Image, ImageDraw
 
-    if isinstance(course_data, str):
-        title = course_data
-    else:
-        title = course_data.get("title", "")
-
+    title = course_data.get("title", "") if isinstance(course_data, dict) else str(course_data)
     w, h = size
 
     color_themes = {
-        "IT": [(30, 60, 114), (42, 82, 152)],
         "AI": [(25, 55, 100), (50, 100, 180)],
         "드론": [(44, 62, 80), (52, 152, 219)],
         "관광": [(22, 160, 133), (44, 62, 80)],
         "바리스타": [(62, 39, 35), (141, 110, 99)],
-        "커피": [(62, 39, 35), (141, 110, 99)],
         "디자인": [(142, 68, 173), (44, 62, 80)],
-        "미용": [(232, 67, 147), (200, 80, 120)],
-        "건설": [(44, 62, 80), (127, 140, 141)],
-        "농업": [(39, 174, 96), (46, 64, 83)],
-        "요리": [(211, 84, 0), (243, 156, 18)],
         "영상": [(30, 45, 80), (70, 120, 180)],
         "마케팅": [(40, 70, 120), (80, 140, 200)],
-        "3D": [(50, 50, 90), (90, 130, 180)],
         "정비": [(50, 60, 70), (90, 110, 130)],
     }
 
@@ -271,48 +195,27 @@ def generate_gradient_background(course_data, size=(1080, 1080)):
 
     overlay = Image.new('RGBA', (w, h), (0, 0, 0, 0))
     overlay_draw = ImageDraw.Draw(overlay)
-    circles = [
-        (w * 0.8, h * 0.2, 200, 30),
-        (w * 0.1, h * 0.7, 150, 20),
-        (w * 0.6, h * 0.8, 100, 15),
-    ]
-    for cx, cy, radius, alpha in circles:
-        overlay_draw.ellipse(
-            [cx - radius, cy - radius, cx + radius, cy + radius],
-            fill=(255, 255, 255, alpha)
-        )
+    for cx, cy, radius, alpha in [(w*0.8, h*0.2, 200, 30), (w*0.1, h*0.7, 150, 20), (w*0.6, h*0.8, 100, 15)]:
+        overlay_draw.ellipse([cx-radius, cy-radius, cx+radius, cy+radius], fill=(255, 255, 255, alpha))
 
     img = img.convert('RGBA')
     img = Image.alpha_composite(img, overlay)
-    img = img.convert('RGB')
-
-    return img
+    return img.convert('RGB')
 
 
 def get_course_image(course_data, target_size=(1080, 1080)):
     """
-    과정 데이터에 맞는 배경 이미지를 가져옵니다.
-    Unsplash API 실패 시 그라데이션으로 폴백합니다.
-
-    Args:
-        course_data: dict (과정 데이터) 또는 str (과정 제목, 하위호환)
-        target_size: tuple - (width, height)
-
-    Returns:
-        tuple(PIL.Image, dict|None) - (이미지, 크레딧 정보)
+    과정 데이터에 맞는 배경 이미지를 Gemini로 생성합니다.
+    Gemini 실패 시 그라데이션으로 폴백합니다.
     """
     from PIL import Image
 
-    query = extract_search_query(course_data)
-    title = course_data.get("title", "") if isinstance(course_data, dict) else str(course_data)
-    print(f"  🔍 이미지 검색: '{query}'")
-
-    img, credit = fetch_unsplash_image(query, course_title=title, orientation="squarish")
+    img, credit = generate_image_with_gemini(course_data)
 
     if img:
         img = crop_center(img, target_size)
         return img, credit
 
-    # 폴백: 그라데이션 배경
+    print("  🔄 그라데이션 배경으로 폴백")
     img = generate_gradient_background(course_data, target_size)
     return img, None

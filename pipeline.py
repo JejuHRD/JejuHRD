@@ -495,8 +495,8 @@ def generate_content_for_course(course, output_dir):
         print(f"  📅 ({course['period']})")
     print(f"{'─' * 50}")
 
-    # 카드뉴스 생성 (Unsplash API 키가 있으면 v2, 없으면 v1)
-    use_v2 = HAS_V2 and os.environ.get("UNSPLASH_ACCESS_KEY", "")
+    # 카드뉴스 생성 (Gemini API 키가 있으면 v2, 없으면 v1)
+    use_v2 = HAS_V2 and os.environ.get("GEMINI_API_KEY", "")
     if use_v2:
         cardnews_paths = generate_cardnews_v2(course, output_dir)
     else:
