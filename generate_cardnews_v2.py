@@ -1,6 +1,6 @@
 """
 카드뉴스 v2 - 배경 이미지 지원 버전
-Pexels API 또는 그라데이션 배경 위에 텍스트를 오버레이합니다.
+Unsplash API 또는 그라데이션 배경 위에 텍스트를 오버레이합니다.
 """
 
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -352,10 +352,10 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     draw.text((W - cta_w - 55, cta_y), cta_text,
               font=font_cta, fill=hex_to_rgb(ACCENT_BRIGHT))
 
-    # ── Pexels 크레딧 ──
+    # ── Unsplash 크레딧 ──
     if credit:
         font_credit = get_font(FONT_REGULAR, 17)
-        credit_text = f"Photo: {credit['photographer']} / Pexels"
+        credit_text = f"Photo: {credit['photographer']} / Unsplash"
         draw.text((50, card_y - 25), credit_text,
                   font=font_credit, fill=(200, 200, 200, 180))
 

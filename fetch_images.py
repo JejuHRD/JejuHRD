@@ -1,8 +1,9 @@
 """
-Pexels 무료 스톡 이미지 API 연동 모듈
+Unsplash 무료 스톡 이미지 API 연동 모듈
 
-환경변수: PEXELS_API_KEY (Pexels API Key)
-훈련과정 주제/NCS직종에 맞는 배경 이미지를 자동으로 검색/다운로드합니다.
+환경변수: UNSPLASH_ACCESS_KEY
+발급: https://unsplash.com/developers (무료, 월 50,000건)
+훈련과정 주제에 맞는 배경 이미지를 자동으로 검색/다운로드합니다.
 """
 
 import os
@@ -94,7 +95,7 @@ def _stable_hash_index(text, mod):
 
 def extract_search_query(course_data):
     """
-    과정 데이터에서 Pexels 검색어를 추출합니다.
+    과정 데이터에서 Unsplash 검색어를 추출합니다.
     우선순위: 과정제목 핵심 키워드 1개 → 폴백
     """
     if isinstance(course_data, str):
@@ -112,22 +113,21 @@ def extract_search_query(course_data):
     return FALLBACK_QUERIES[idx]
 
 
-def fetch_pexels_image(query, orientation="square", size="large"):
-    """Pexels API에서 이미지를 검색하고 다운로드합니다."""
+def fetch_unsplash_image(query, orientation="squarish"):
+    """Unsplash API에서 이미지를 검색하고 다운로드합니다."""
     import requests
     from PIL import Image
 
-    api_key = os.environ.get("PEXELS_API_KEY", "")
-    if not api_key:
-        print("  ⚠️  PEXELS_API_KEY가 설정되지 않았습니다. 그라데이션 배경을 사용합니다.")
+    access_key = os.environ.get("UNSPLASH_ACCESS_KEY", "")
+    if not access_key:
+        print("  ⚠️  UNSPLASH_ACCESS_KEY가 설정되지 않았습니다. 그라데이션 배경을 사용합니다.")
         return None, None
 
-    url = "https://api.pexels.com/v1/search"
-    headers = {"Authorization": api_key}
+    url = "https://api.unsplash.com/search/photos"
+    headers = {"Authorization": f"Client-ID {access_key}"}
     params = {
         "query": query,
         "orientation": orientation,
-        "size": size,
         "per_page": 5,
         "page": 1,
     }
@@ -137,7 +137,7 @@ def fetch_pexels_image(query, orientation="square", size="large"):
         response.raise_for_status()
         data = response.json()
 
-        photos = data.get("photos", [])
+        photos = data.get("results", [])
         if not photos:
             print(f"  ⚠️  '{query}' 검색 결과가 없습니다.")
             return None, None
@@ -145,24 +145,27 @@ def fetch_pexels_image(query, orientation="square", size="large"):
         photo_idx = _stable_hash_index(query, len(photos))
         photo = photos[photo_idx]
 
-        img_url = photo["src"].get("large2x", photo["src"].get("large", photo["src"]["original"]))
+        img_url = photo.get("urls", {}).get("regular", "")
+        if not img_url:
+            return None, None
+
         img_response = requests.get(img_url, timeout=30)
         img_response.raise_for_status()
 
         img = Image.open(BytesIO(img_response.content))
 
         credit = {
-            "photographer": photo.get("photographer", "Unknown"),
-            "photographer_url": photo.get("photographer_url", ""),
-            "pexels_url": photo.get("url", ""),
+            "photographer": photo.get("user", {}).get("name", "Unknown"),
+            "photographer_url": photo.get("user", {}).get("links", {}).get("html", ""),
+            "unsplash_url": photo.get("links", {}).get("html", ""),
             "photo_id": photo.get("id", ""),
         }
 
-        print(f"  📸 이미지 다운로드 완료: {photo['photographer']} (Pexels)")
+        print(f"  📸 이미지 다운로드 완료: {credit['photographer']} (Unsplash)")
         return img, credit
 
     except Exception as e:
-        print(f"  ⚠️  Pexels API 오류: {e}")
+        print(f"  ⚠️  Unsplash API 오류: {e}")
         return None, None
 
 
@@ -190,7 +193,7 @@ def crop_center(img, target_size):
 
 
 def generate_gradient_background(course_data, size=(1080, 1080)):
-    """과정 주제에 따른 그라데이션 배경 생성 (Pexels 실패 시 폴백)"""
+    """과정 주제에 따른 그라데이션 배경 생성 (Unsplash 실패 시 폴백)"""
     import numpy as np
     from PIL import Image, ImageDraw
 
@@ -260,7 +263,7 @@ def generate_gradient_background(course_data, size=(1080, 1080)):
 def get_course_image(course_data, target_size=(1080, 1080)):
     """
     과정 데이터에 맞는 배경 이미지를 가져옵니다.
-    Pexels API 실패 시 그라데이션으로 폴백합니다.
+    Unsplash API 실패 시 그라데이션으로 폴백합니다.
 
     Args:
         course_data: dict (과정 데이터) 또는 str (과정 제목, 하위호환)
@@ -274,7 +277,7 @@ def get_course_image(course_data, target_size=(1080, 1080)):
     query = extract_search_query(course_data)
     print(f"  🔍 이미지 검색: '{query}'")
 
-    img, credit = fetch_pexels_image(query, orientation="square")
+    img, credit = fetch_unsplash_image(query, orientation="squarish")
 
     if img:
         img = crop_center(img, target_size)
