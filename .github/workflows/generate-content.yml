@@ -25,8 +25,7 @@ jobs:
           cache: 'pip'
       - name: Install Python dependencies
         run: |
-          pip install -r requirements.txt
-          pip install beautifulsoup4
+          pip install requests Pillow beautifulsoup4 google-genai
       - name: Install Noto Sans CJK fonts
         run: |
           sudo apt-get update
@@ -37,7 +36,7 @@ jobs:
       - name: Run pipeline
         env:
           HRD_API_KEY: ${{ secrets.HRD_API_KEY }}
-          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           mkdir -p output
           if [ -n "${{ github.event.inputs.json_file }}" ]; then
