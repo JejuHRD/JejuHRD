@@ -105,7 +105,7 @@ def generate_image_with_gemini(course_data):
         client = genai.Client(api_key=api_key)
 
         response = client.models.generate_content(
-            model="gemini-2.5-flash-preview-04-17",
+            model="gemini-2.5-flash",
             contents=[prompt],
             config=genai.types.GenerateContentConfig(
                 response_modalities=["IMAGE", "TEXT"],
@@ -157,8 +157,7 @@ def crop_center(img, target_size):
 
 
 def generate_gradient_background(course_data, size=(1080, 1080)):
-    """과정 주제에 따른 그라데이션 배경 생성 (Gemini 실패 시 폴백)"""
-    import numpy as np
+    """과정 주제에 따른 그라데이션 배경 생성 (Gemini 실패 시 폴백, numpy 불필요)"""
     from PIL import Image, ImageDraw
 
     title = course_data.get("title", "") if isinstance(course_data, dict) else str(course_data)
@@ -181,26 +180,19 @@ def generate_gradient_background(course_data, size=(1080, 1080)):
             colors = theme_colors
             break
 
-    c1 = np.array(colors[0], dtype=np.float64)
-    c2 = np.array(colors[1], dtype=np.float64)
+    c1, c2 = colors
 
-    y_ratio = np.linspace(0, 1, h).reshape(h, 1)
-    x_ratio = np.linspace(0, 1, w).reshape(1, w)
-    t = (x_ratio * 0.5 + y_ratio * 0.5)
+    # Pillow로 세로 그라데이션 생성
+    img = Image.new('RGB', (w, h))
+    draw = ImageDraw.Draw(img)
+    for y in range(h):
+        t = y / h
+        r = int(c1[0] + (c2[0] - c1[0]) * t)
+        g = int(c1[1] + (c2[1] - c1[1]) * t)
+        b = int(c1[2] + (c2[2] - c1[2]) * t)
+        draw.line([(0, y), (w, y)], fill=(r, g, b))
 
-    gradient = c1 + (c2 - c1) * t[:, :, np.newaxis]
-    gradient = np.clip(gradient, 0, 255).astype(np.uint8)
-
-    img = Image.fromarray(gradient, mode="RGB")
-
-    overlay = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    overlay_draw = ImageDraw.Draw(overlay)
-    for cx, cy, radius, alpha in [(w*0.8, h*0.2, 200, 30), (w*0.1, h*0.7, 150, 20), (w*0.6, h*0.8, 100, 15)]:
-        overlay_draw.ellipse([cx-radius, cy-radius, cx+radius, cy+radius], fill=(255, 255, 255, alpha))
-
-    img = img.convert('RGBA')
-    img = Image.alpha_composite(img, overlay)
-    return img.convert('RGB')
+    return img
 
 
 def get_course_image(course_data, target_size=(1080, 1080)):
