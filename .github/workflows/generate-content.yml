@@ -30,9 +30,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y fonts-noto-cjk fonts-noto-cjk-extra
-          find /usr/share/fonts -name "NotoSansCJK*" -type f
       - name: 만료 콘텐츠 정리
-        run: python cleanup_expired.py
+        run: |
+          if [ -f cleanup_expired.py ]; then
+            python cleanup_expired.py
+          else
+            echo "cleanup_expired.py 없음 — 스킵"
+          fi
       - name: Run pipeline
         env:
           HRD_API_KEY: ${{ secrets.HRD_API_KEY }}
