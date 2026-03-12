@@ -24,7 +24,9 @@ def _build_image_prompt(course_data):
     prompt = (
         f"A high-quality photorealistic background image representing: {clean_title}. "
         f"Style: professional, clean, slightly blurred background suitable for text overlay. "
-        f"No text, no words, no letters, no watermarks. "
+        f"STRICTLY NO TEXT anywhere in the image. No words, no letters, no numbers, no signs, "
+        f"no labels, no captions, no logos, no watermarks, no writing of any kind. "
+        f"The image must contain only visual elements with zero readable characters. "
         f"Soft lighting, professional color grading."
     )
 
