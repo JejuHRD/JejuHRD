@@ -12,60 +12,17 @@ from io import BytesIO
 
 
 def _build_image_prompt(course_data):
-    """과정 데이터에서 이미지 생성 프롬프트를 만듭니다."""
+    """과정명을 그대로 활용하여 이미지 생성 프롬프트를 만듭니다."""
     if isinstance(course_data, str):
         title = course_data
     else:
         title = course_data.get("title", "")
 
-    KEYWORD_SCENES = {
-        "드론": "a professional drone flying over a beautiful landscape, aerial photography, cinematic lighting",
-        "3D": "3D modeling workspace with digital holographic display, futuristic technology, blue glow",
-        "모델링": "3D digital modeling with wireframe objects floating in space, tech aesthetic",
-        "바리스타": "elegant coffee shop interior, barista pouring latte art, warm cozy lighting",
-        "커피": "artisan coffee beans and espresso machine, warm cafe atmosphere",
-        "인공지능": "abstract AI neural network visualization, glowing nodes and connections, dark blue background",
-        "AI": "modern AI technology workspace, holographic data displays, futuristic blue tones",
-        "프로그래밍": "clean coding workspace with multiple monitors showing colorful code, dark theme",
-        "코딩": "developer workspace with code on screen, modern minimal desk setup",
-        "빅데이터": "data visualization dashboard with flowing charts and graphs, dark tech aesthetic",
-        "클라우드": "cloud computing concept with server racks and glowing connections",
-        "영상": "professional video production studio with camera equipment and monitors",
-        "편집": "video editing timeline on ultrawide monitor, creative studio setup",
-        "촬영": "professional camera setup with studio lighting, cinematic equipment",
-        "마케팅": "digital marketing analytics dashboard on screen, modern office, business growth charts",
-        "SNS": "social media content creation workspace with multiple screens showing platforms",
-        "콘텐츠": "creative content studio with camera, ring light, and editing setup",
-        "디자인": "modern design studio with large display showing UI mockups, creative workspace",
-        "출판": "elegant bookshelf with open books and manuscript pages, warm library lighting",
-        "데이터": "data science workspace with visualizations and charts on dark screens",
-        "미용": "modern beauty salon interior with elegant mirrors and professional equipment",
-        "건설": "architectural blueprint with modern building under construction, golden hour",
-        "요리": "professional kitchen with chef preparing food, warm dramatic lighting",
-        "농업": "smart agriculture technology, green farm with modern monitoring equipment",
-        "전기": "electrical engineering workspace with circuit boards and testing equipment",
-        "용접": "industrial welding workshop with sparks, dramatic professional lighting",
-        "자동차": "automotive repair workshop with modern diagnostic equipment",
-        "물류": "modern logistics warehouse with organized shelving and automation",
-        "간호": "modern healthcare facility, clean medical workspace with technology",
-        "정비": "professional maintenance workshop with technical equipment and tools",
-        "관광": "beautiful travel destination landscape, scenic tourism photography",
-        "웹": "web development workspace with responsive design on multiple devices",
-        "디지털": "digital transformation concept, modern technology workspace with screens",
-    }
-
-    scene = None
-    for keyword, scene_desc in KEYWORD_SCENES.items():
-        if keyword in title:
-            scene = scene_desc
-            break
-
-    if not scene:
-        scene = "modern professional training classroom with laptops and bright natural lighting"
+    # (산대특) 접두사 제거
+    clean_title = title.replace("(산대특)", "").replace("산대특", "").strip()
 
     prompt = (
-        f"A high-quality photorealistic background image. "
-        f"Scene: {scene}. "
+        f"A high-quality photorealistic background image representing: {clean_title}. "
         f"Style: professional, clean, slightly blurred background suitable for text overlay. "
         f"No text, no words, no letters, no watermarks. "
         f"Soft lighting, professional color grading."
