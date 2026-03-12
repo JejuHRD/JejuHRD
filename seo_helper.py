@@ -934,7 +934,7 @@ def generate_reels_package(course_data):
 
 {seg['scene_en']}
 
-The person says in Korean: "{narr_text}"
+The person speaks clearly in Korean with natural lip-sync: "{narr_text}"
 Mood: {seg['mood_en']}
 All people must be Korean."""
         else:
@@ -942,7 +942,7 @@ All people must be Korean."""
 
 {seg['scene_en']}
 
-The person says in Korean: "{narr_text}"
+The person speaks clearly in Korean with natural lip-sync: "{narr_text}"
 Mood: {seg['mood_en']}
 Keep the speaking voice volume loud and clear, same as the beginning.
 NO TEXT, NO SUBTITLES."""
