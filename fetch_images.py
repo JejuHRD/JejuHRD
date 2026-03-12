@@ -2,7 +2,7 @@
 Gemini API 이미지 생성 모듈
 
 환경변수: GEMINI_API_KEY
-모델: gemini-2.5-flash (무료 티어, 하루 500장)
+모델: gemini-2.5-flash-image (무료 티어, 하루 500장)
 훈련과정명을 기반으로 배경 이미지를 AI 생성합니다.
 """
 
@@ -105,7 +105,7 @@ def generate_image_with_gemini(course_data):
         client = genai.Client(api_key=api_key)
 
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-2.5-flash-image",
             contents=[prompt],
             config=genai.types.GenerateContentConfig(
                 response_modalities=["IMAGE", "TEXT"],
