@@ -527,26 +527,32 @@ def run_pipeline(courses):
     메인 파이프라인 실행
     - 같은 과정이라도 회차/훈련기간이 다르면 새로 생성
     - 이미 동일 키로 처리한 과정은 건너뜀
+    - 새 과정이 0건이면 콘텐츠 생성 없이 종료 (API 비용 절감)
     """
     processed = load_processed_ids()
-    new_count = 0
+
+    # ── 먼저 새 과정이 있는지 확인 ──
+    new_courses = []
     skip_count = 0
-
-    # 이미지 중복 방지 초기화
-    try:
-        from fetch_images import reset_used_images
-        reset_used_images()
-    except ImportError:
-        pass
-
     for course in courses:
         course_key = make_course_key(course)
-
         if course_key in processed:
             print(f"  ⏭️  이미 처리됨: {course['title'][:40]} ({course.get('period', '')})")
             skip_count += 1
-            continue
+        else:
+            new_courses.append((course, course_key))
 
+    if not new_courses:
+        print(f"\n  ✅ 새로운 과정 없음 (전체 {len(courses)}건 중 {skip_count}건 중복)")
+        print(f"  💰 카드뉴스·이미지 생성 건너뜀 (API 비용 절감)")
+        return
+
+    print(f"\n  📊 전체 {len(courses)}건 중 신규 {len(new_courses)}건, 중복 {skip_count}건")
+    print(f"  🎨 신규 {len(new_courses)}건에 대해 콘텐츠 생성 시작\n")
+
+    # ── 신규 과정만 콘텐츠 생성 ──
+    new_count = 0
+    for course, course_key in new_courses:
         result = generate_content_for_course(course, OUTPUT_DIR)
 
         processed[course_key] = {
