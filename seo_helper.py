@@ -656,141 +656,216 @@ def _clean_title(title):
     return title.replace("(산대특)", "").replace("산대특", "").strip()
 
 
-def _goal_to_actions(training_goal):
+def _goal_to_actions_kr(training_goal):
     """
-    훈련목표 텍스트에서 핵심 실습 동작 2~3개를 추출합니다.
-    Grok 프롬프트에서 세그먼트 2의 구체적 행동 묘사에 사용됩니다.
+    훈련목표에서 한국어 핵심 동작 2개를 추출합니다.
+    나레이션/action_kr 표시용 (장면 묘사에는 사용하지 않음)
     """
     if not training_goal:
-        return ""
+        return "", ""
 
-    # 번호 제거 + 문장 분리
     import re
     text = re.sub(r'\d+\.\s*', '', training_goal)
     sentences = [s.strip() for s in text.replace('\n', '.').split('.')
                  if s.strip() and len(s.strip()) > 5]
 
-    # 첫 2~3문장의 핵심 동작만 추출
-    actions = sentences[:3]
-    return ". ".join(actions)
+    if len(sentences) >= 2:
+        return sentences[0], sentences[1]
+    elif len(sentences) == 1:
+        return sentences[0], ""
+    else:
+        return "", ""
+
+
+# 과정 키워드 → 영문 행동 묘사 (seg2, seg3)
+FIELD_ACTIONS_EN = {
+    "드론정비": (
+        "inspects and repairs drone components, checking propellers and rotors with tools",
+        "tests the repaired drone, reviewing maintenance checklist on a tablet",
+    ),
+    "드론촬영": (
+        "operates a drone controller, launching the drone for aerial photography",
+        "reviews captured aerial footage on a monitor and adjusts flight path",
+    ),
+    "3D모델링": (
+        "works on 3D modeling software, rotating digital objects on a large monitor",
+        "reviews a rendered 3D terrain model and adjusts textures on screen",
+    ),
+    "드론": (
+        "operates drone control equipment in an open field, monitoring flight on a tablet",
+        "inspects drone hardware and reviews aerial data on screen",
+    ),
+    "3D": (
+        "creates 3D digital content on a large screen with modeling software",
+        "reviews and refines a 3D rendered model on monitor",
+    ),
+    "마케팅": (
+        "creates brand marketing content on a laptop using AI-powered tools",
+        "analyzes campaign performance metrics and charts on screen",
+    ),
+    "AI": (
+        "works with an AI dashboard on screen, adjusting parameters and reviewing outputs",
+        "tests AI-generated content results and fine-tunes the model on laptop",
+    ),
+    "영상편집": (
+        "edits video footage on a timeline with professional editing software",
+        "color-grades and reviews the final cut on a large monitor",
+    ),
+    "영상": (
+        "operates a professional video camera, adjusting angles and lighting",
+        "edits video clips on editing software with multiple monitors",
+    ),
+    "콘텐츠": (
+        "creates digital content with a camera setup and ring light",
+        "reviews content analytics and engagement metrics on a laptop",
+    ),
+    "디자인": (
+        "designs UI mockups on a large monitor with a pen tablet",
+        "reviews design iterations and adjusts layout details on screen",
+    ),
+    "출판": (
+        "works on book layout design with publishing software on screen",
+        "reviews printed manuscript pages and adjusts typography on laptop",
+    ),
+    "바리스타": (
+        "operates an espresso machine and prepares coffee with precise technique",
+        "pours latte art into a cup with careful hand movements",
+    ),
+    "데이터": (
+        "analyzes data visualizations and charts on multiple dark-themed screens",
+        "builds a dashboard with pivot tables and filtered data views",
+    ),
+    "코딩": (
+        "writes code on dual monitors with syntax-highlighted editor",
+        "runs and tests the program, reviewing output in terminal",
+    ),
+    "관광": (
+        "photographs scenic spots with professional camera equipment",
+        "reviews tourism content on a laptop in an outdoor setting",
+    ),
+    "정비": (
+        "inspects mechanical components with diagnostic tools and equipment",
+        "repairs and reassembles parts, then tests the system operation",
+    ),
+    "default": (
+        "works on practical training exercises with professional equipment",
+        "reviews completed work results on screen and takes notes",
+    ),
+}
+
+
+def _get_actions_en(title):
+    """과정명에서 구체적 키워드를 먼저 매칭하여 영문 행동 2개를 반환."""
+    for keyword in FIELD_ACTIONS_EN:
+        if keyword == "default":
+            continue
+        if keyword in title:
+            return FIELD_ACTIONS_EN[keyword]
+    return FIELD_ACTIONS_EN["default"]
 
 
 def _build_segments(course_data, ctype):
     """
-    과정명과 훈련목표를 기반으로 3세그먼트 장면을 생성합니다.
-
-    핵심 원칙 (Grok 최적화):
-    - 과정명 → 공간/분위기/소품 결정
-    - 훈련목표 → 세그먼트 2의 구체적 실습 동작 결정
-    - 세그먼트당 하나의 시각적 아이디어에 집중
-    - Subject + Motion + Camera + Lighting 구조
+    3세그먼트 장면을 생성합니다.
+    scene_en은 순수 영문만 사용 (Grok 한국어 나레이션 방지).
+    한국어는 action_kr에만 보관.
     """
     title = course_data.get("title", "")
     clean = _clean_title(title)
     training_goal = (course_data.get("trainingGoal", "")
                      or course_data.get("traingGoal", "")
                      or course_data.get("training_goal", ""))
-    goal_actions = _goal_to_actions(training_goal)
+    kr1, kr2 = _goal_to_actions_kr(training_goal)
+    en1, en2 = _get_actions_en(clean)
 
-    # Grok에 전달할 영문 장면 구성
-    # 과정명을 직접 포함하여 Grok이 맥락에 맞는 장면을 생성하도록 함
     if ctype == "long":
         return [
             {
                 "scene_en": (
-                    f"A Korean professional related to '{clean}' enters their realistic workspace. "
-                    f"They sit down, look directly at the camera, and begin speaking with a thoughtful expression. "
-                    f"The workspace has authentic props and equipment related to this field. "
-                    f"Medium shot, gentle camera push-in. Warm natural lighting gradually brightening."
+                    "A Korean professional enters a realistic workspace. "
+                    "They sit down, look at the camera, and begin speaking. "
+                    "Medium shot, gentle camera push-in. Warm lighting gradually brightening."
                 ),
                 "mood_en": "contemplative, gradually warming, hopeful",
-                "action_kr": f"'{clean}' 관련 작업 현장에 입장 → 카메라 보며 고민을 이야기",
+                "action_kr": "작업 현장 입장 → 카메라 보며 이야기",
             },
             {
                 "scene_en": (
-                    f"The same Korean person is now actively demonstrating hands-on skills: {goal_actions if goal_actions else clean}. "
-                    f"They work with real equipment and tools specific to this training. "
-                    f"Close-up shots of their hands working, then medium shot of them explaining to camera. "
-                    f"Bright, focused lighting. Steady camera with occasional close-ups."
+                    f"The same person {en1}. "
+                    "Close-up of their hands working. "
+                    "Bright, focused lighting. Steady camera."
                 ),
                 "mood_en": "focused, professional, energetic",
-                "action_kr": f"훈련 내용 실습 시연: {goal_actions[:40] if goal_actions else '실무 작업'}",
+                "action_kr": f"실습: {kr1[:45] if kr1 else en1[:45]}",
             },
             {
                 "scene_en": (
-                    f"The same Korean person in the same workspace, now showing completed work results on screen or in hand. "
-                    f"They speak to the camera confidently with active hand gestures, leaning forward with enthusiasm. "
-                    f"The workspace looks productive and accomplished. "
-                    f"Medium shot. Bright, golden-hour warm lighting."
+                    f"The same person {en2}. "
+                    "They turn to the camera and speak confidently. "
+                    "Medium shot. Bright, golden-hour warm lighting."
                 ),
                 "mood_en": "confident, accomplished, warm golden tones",
-                "action_kr": "결과물 보여주며 자신있게 마무리 → 밝은 미소",
+                "action_kr": f"실습: {kr2[:45] if kr2 else en2[:45]} → 마무리",
             },
         ]
     elif ctype == "short":
         return [
             {
                 "scene_en": (
-                    f"A Korean professional walks energetically into a workspace related to '{clean}'. "
-                    f"They sit down with confident energy, look at the camera, and start speaking immediately. "
-                    f"Quick, dynamic movement. The workspace has authentic equipment for this field. "
-                    f"Slightly handheld camera feel. Bright, energetic lighting."
+                    "A Korean professional walks energetically into a workspace. "
+                    "They sit down, look at the camera, and start speaking immediately. "
+                    "Slightly handheld camera. Bright, energetic lighting."
                 ),
                 "mood_en": "energetic, bright, dynamic",
-                "action_kr": f"'{clean}' 현장에 활기차게 입장 → 바로 카메라에 말하기",
+                "action_kr": "활기차게 입장 → 카메라에 말하기",
             },
             {
                 "scene_en": (
-                    f"The same Korean person demonstrates practical skills: {goal_actions if goal_actions else clean}. "
-                    f"They alternate between hands-on work and speaking to camera with enthusiasm. "
-                    f"Close-up of tools and equipment in action. Fast-paced, engaging energy. "
-                    f"Dynamic camera angles. Bright, professional lighting."
+                    f"The same person {en1}. "
+                    "Close-up of tools and equipment in action. "
+                    "Dynamic camera angles. Bright lighting."
                 ),
                 "mood_en": "intense focus, active energy, fast pace",
-                "action_kr": f"실습 시연: {goal_actions[:40] if goal_actions else '핵심 기술 시연'}",
+                "action_kr": f"실습: {kr1[:45] if kr1 else en1[:45]}",
             },
             {
                 "scene_en": (
-                    f"The same Korean person actively speaking to the camera with energetic hand movements. "
-                    f"They give a thumbs up while continuing to talk. "
-                    f"The workspace background shows equipment related to '{clean}'. "
-                    f"Medium shot. Bright, upbeat lighting."
+                    f"The same person {en2}. "
+                    "They speak to the camera with a thumbs up. "
+                    "Medium shot. Bright, upbeat lighting."
                 ),
                 "mood_en": "confident, warm, upbeat energy",
-                "action_kr": "엄지척하며 마무리 멘트 → 밝은 엔딩",
+                "action_kr": f"실습: {kr2[:45] if kr2 else en2[:45]} → 마무리",
             },
         ]
     else:  # general
         return [
             {
                 "scene_en": (
-                    f"A Korean professional enters a realistic workspace for '{clean}'. "
-                    f"They sit down at their station with a friendly smile, look at the camera, and begin speaking. "
-                    f"The workspace is equipped with authentic tools and equipment for this specific field. "
-                    f"Medium shot, smooth camera movement. Bright, natural lighting."
+                    "A Korean professional enters a realistic workspace. "
+                    "They sit down with a friendly smile, look at the camera, and begin speaking. "
+                    "Medium shot, smooth camera movement. Bright, natural lighting."
                 ),
                 "mood_en": "calm, inviting, professional",
-                "action_kr": f"'{clean}' 작업 공간에 입장 → 카메라 보며 인사",
+                "action_kr": "작업 공간 입장 → 카메라 보며 인사",
             },
             {
                 "scene_en": (
-                    f"The same Korean person performs hands-on work: {goal_actions if goal_actions else clean}. "
-                    f"They work with professional equipment, then turn to the camera to explain what they're doing. "
-                    f"Close-up of their hands operating tools, then medium shot speaking to camera. "
-                    f"Warm, focused lighting. Steady camera."
+                    f"The same person {en1}. "
+                    "Close-up of their hands, then medium shot speaking to camera. "
+                    "Warm, focused lighting. Steady camera."
                 ),
                 "mood_en": "focused, warm, engaged",
-                "action_kr": f"실습 시연: {goal_actions[:40] if goal_actions else '실무 작업 시연'}",
+                "action_kr": f"실습: {kr1[:45] if kr1 else en1[:45]}",
             },
             {
                 "scene_en": (
-                    f"The same Korean person in the same workspace, actively speaking to the camera. "
-                    f"They lean forward with enthusiasm and gesture confidently. "
-                    f"Equipment and completed work visible in the background. "
-                    f"Medium shot. Bright and warm lighting."
+                    f"The same person {en2}. "
+                    "They lean forward and gesture confidently to the camera. "
+                    "Medium shot. Bright and warm lighting."
                 ),
                 "mood_en": "confident, warm golden light, engaging",
-                "action_kr": "카메라 보며 따뜻하게 마무리 → 밝은 미소",
+                "action_kr": f"실습: {kr2[:45] if kr2 else en2[:45]} → 마무리",
             },
         ]
 
@@ -930,22 +1005,15 @@ def generate_reels_package(course_data):
     # 세그먼트별 Grok 프롬프트
     def _grok_prompt(seg_num, seg, narr_text):
         if seg_num == 1:
-            return f"""A cinematic video. NO TEXT, NO SUBTITLES.
+            return f"""The person speaks clearly in Korean with natural lip-sync: "{narr_text}"
 
-{seg['scene_en']}
-
-The person speaks clearly in Korean with natural lip-sync: "{narr_text}"
-Mood: {seg['mood_en']}
-All people must be Korean."""
+A cinematic video. {seg['scene_en']}
+Mood: {seg['mood_en']}"""
         else:
-            return f"""Continue extending the video for 10 more seconds.
+            return f"""The person speaks clearly in Korean with natural lip-sync: "{narr_text}"
 
 {seg['scene_en']}
-
-The person speaks clearly in Korean with natural lip-sync: "{narr_text}"
-Mood: {seg['mood_en']}
-Keep the speaking voice volume loud and clear, same as the beginning.
-NO TEXT, NO SUBTITLES."""
+Mood: {seg['mood_en']}"""
 
     seg1_prompt = _grok_prompt(1, segments[0], seg_narrations[1])
     seg2_prompt = _grok_prompt(2, segments[1], seg_narrations[2])
