@@ -496,9 +496,6 @@ def generate_seo_title(course_data):
     ctype = get_course_type(course_data)
     benefit_tag = "자부담 10% + 훈련장려금" if ctype in ("general", "long") else "자부담 10%"
     seo_title = f"[제주 국비지원] {title} | {benefit_tag}"
-    if len(seo_title) > 60:
-        short_title = title[:25] + "..." if len(title) > 25 else title
-        seo_title = f"[제주 국비지원] {short_title} | {benefit_tag}"
     return seo_title
 
 
@@ -631,12 +628,14 @@ def generate_instagram_caption(course_data):
     # 훈련목표 요약 (있을 때만)
     training_goal = course_data.get("trainingGoal", "")
     if training_goal:
-        goal_sentences = [s.strip() for s in training_goal.replace("\n", ".").split(".")
-                          if s.strip()]
-        goal_short = ". ".join(goal_sentences[:2])
-        if len(goal_short) > 80:
-            goal_short = goal_short[:77] + "..."
-        caption += f"\n\n📋 이 과정을 배우면?\n→ {goal_short}"
+        import re
+        text = re.sub(r'\d+\.\s*', '', training_goal)
+        goal_sentences = [s.strip() for s in text.replace("\n", ".").split(".")
+                          if s.strip() and len(s.strip()) > 15]
+        if goal_sentences:
+            caption += "\n\n📋 이 과정을 배우면?"
+            for s in goal_sentences[:2]:
+                caption += f"\n→ {s}"
     hashtags = generate_instagram_hashtags(course_data)
     caption += hashtags
     return caption
@@ -675,6 +674,93 @@ def _goal_to_actions_kr(training_goal):
         return sentences[0], ""
     else:
         return "", ""
+
+
+# 과정 키워드 → (배경, 복장) 매핑 (seg1 전용)
+FIELD_SETTING = {
+    "드론정비": (
+        "an outdoor drone test field with workbenches, spare parts, and a landed drone on the ground",
+        "wearing a hard hat, work coveralls, and holding a toolkit",
+    ),
+    "드론촬영": (
+        "an open outdoor landscape with a drone landing pad and portable monitors on a folding table",
+        "wearing an outdoor vest with pockets, cap, and holding a drone controller",
+    ),
+    "3D모델링": (
+        "a high-tech studio with a large curved monitor displaying 3D wireframe models and a graphics tablet on the desk",
+        "wearing a collared shirt and glasses, with a stylus pen in hand",
+    ),
+    "드론": (
+        "an open airfield with a drone on the ground, flight controller, and a tablet showing aerial maps",
+        "wearing a reflective safety vest and cap, holding a drone controller",
+    ),
+    "3D": (
+        "a digital design studio with dual large monitors showing 3D rendered objects and modeling software",
+        "wearing a collared shirt, with a stylus pen in hand",
+    ),
+    "마케팅": (
+        "a bright co-working cafe space with a laptop showing SNS analytics dashboards and a smartphone on the table",
+        "wearing smart casual business attire",
+    ),
+    "AI": (
+        "a modern tech office with dual monitors showing AI dashboards, code, and neural network visualizations",
+        "wearing a neat business casual shirt",
+    ),
+    "영상편집": (
+        "a video editing studio with an ultrawide monitor showing a timeline, color grading panels, and studio monitors",
+        "wearing a casual creative outfit with headphones around the neck",
+    ),
+    "영상": (
+        "a video production studio with a professional camera on a tripod, lighting rigs, and a director's monitor",
+        "wearing a casual creative outfit with a lanyard badge",
+    ),
+    "콘텐츠": (
+        "a content creation studio with a ring light, camera on tripod, and a laptop showing social media feeds",
+        "wearing a casual outfit with a small microphone clipped on",
+    ),
+    "디자인": (
+        "a bright design studio with a large display showing UI mockups, a pen tablet, and color swatches on the wall",
+        "wearing a turtleneck and neat trousers",
+    ),
+    "출판": (
+        "a cozy publishing workspace with bookshelves, manuscript pages spread on the desk, and a laptop showing page layouts",
+        "wearing smart glasses and a cardigan",
+    ),
+    "바리스타": (
+        "a stylish cafe behind the counter with an espresso machine, coffee grinder, and cups lined up",
+        "wearing a barista apron over a neat shirt",
+    ),
+    "데이터": (
+        "an analytics office with multiple monitors showing data charts, graphs, and dark-themed dashboards",
+        "wearing business casual with rolled-up sleeves",
+    ),
+    "코딩": (
+        "a developer workspace with dual monitors showing syntax-highlighted code, a mechanical keyboard, and a plant on the desk",
+        "wearing a hoodie and glasses",
+    ),
+    "관광": (
+        "an outdoor scenic Jeju landscape with a laptop on a portable table and camera equipment nearby",
+        "wearing outdoor casual clothes with a camera bag",
+    ),
+    "정비": (
+        "a professional maintenance workshop with diagnostic tools, parts shelves, and equipment on the workbench",
+        "wearing work coveralls and safety gloves",
+    ),
+    "default": (
+        "a bright modern classroom with laptops on desks, a whiteboard, and large windows with natural light",
+        "wearing smart casual attire",
+    ),
+}
+
+
+def _get_setting(title):
+    """과정명에서 키워드 매칭하여 (배경, 복장) 반환."""
+    for keyword in FIELD_SETTING:
+        if keyword == "default":
+            continue
+        if keyword in title:
+            return FIELD_SETTING[keyword]
+    return FIELD_SETTING["default"]
 
 
 # 과정 키워드 → 영문 행동 묘사 (seg2, seg3)
@@ -767,111 +853,68 @@ def _get_actions_en(title):
 def _build_segments(course_data, ctype):
     """
     3세그먼트 장면을 생성합니다.
-    scene_en은 순수 영문만 사용 (Grok 한국어 나레이션 방지).
-    한국어는 action_kr에만 보관.
+    seg1: 배경+복장 상세 설정 + 나레이션 (훅+과정명)
+    seg2: 훈련목표 실습 장면 1개, 나레이션 없음
+    seg3: 마무리 (카메라 보며 CTA) + 나레이션
     """
     title = course_data.get("title", "")
     clean = _clean_title(title)
     training_goal = (course_data.get("trainingGoal", "")
                      or course_data.get("traingGoal", "")
                      or course_data.get("training_goal", ""))
-    kr1, kr2 = _goal_to_actions_kr(training_goal)
-    en1, en2 = _get_actions_en(clean)
+    kr1, _ = _goal_to_actions_kr(training_goal)
+    en1, _ = _get_actions_en(clean)
+    bg, outfit = _get_setting(clean)
 
     if ctype == "long":
         return [
             {
-                "scene_en": (
-                    "A Korean professional enters a realistic workspace. "
-                    "They sit down, look at the camera, and begin speaking. "
-                    "Medium shot, gentle camera push-in. Warm lighting gradually brightening."
-                ),
-                "mood_en": "contemplative, gradually warming, hopeful",
-                "action_kr": "작업 현장 입장 → 카메라 보며 이야기",
+                "scene_en": f"A Korean professional {outfit}, in {bg}. They look at the camera and begin speaking. Medium shot, warm lighting.",
+                "action_kr": "작업 현장 → 카메라 보며 이야기",
             },
             {
-                "scene_en": (
-                    f"The same person {en1}. "
-                    "Close-up of their hands working. "
-                    "Bright, focused lighting. Steady camera."
-                ),
-                "mood_en": "focused, professional, energetic",
+                "scene_en": f"The same person {en1}.",
                 "action_kr": f"실습: {kr1[:45] if kr1 else en1[:45]}",
             },
             {
-                "scene_en": (
-                    f"The same person {en2}. "
-                    "They turn to the camera and speak confidently. "
-                    "Medium shot. Bright, golden-hour warm lighting."
-                ),
-                "mood_en": "confident, accomplished, warm golden tones",
-                "action_kr": f"실습: {kr2[:45] if kr2 else en2[:45]} → 마무리",
+                "scene_en": "The same person looks at the camera and speaks confidently with a warm smile.",
+                "action_kr": "카메라 보며 자신있게 마무리",
             },
         ]
     elif ctype == "short":
         return [
             {
-                "scene_en": (
-                    "A Korean professional walks energetically into a workspace. "
-                    "They sit down, look at the camera, and start speaking immediately. "
-                    "Slightly handheld camera. Bright, energetic lighting."
-                ),
-                "mood_en": "energetic, bright, dynamic",
+                "scene_en": f"A Korean professional {outfit}, walks into {bg} and speaks to the camera with energy. Bright lighting, handheld camera.",
                 "action_kr": "활기차게 입장 → 카메라에 말하기",
             },
             {
-                "scene_en": (
-                    f"The same person {en1}. "
-                    "Close-up of tools and equipment in action. "
-                    "Dynamic camera angles. Bright lighting."
-                ),
-                "mood_en": "intense focus, active energy, fast pace",
+                "scene_en": f"The same person {en1}.",
                 "action_kr": f"실습: {kr1[:45] if kr1 else en1[:45]}",
             },
             {
-                "scene_en": (
-                    f"The same person {en2}. "
-                    "They speak to the camera with a thumbs up. "
-                    "Medium shot. Bright, upbeat lighting."
-                ),
-                "mood_en": "confident, warm, upbeat energy",
-                "action_kr": f"실습: {kr2[:45] if kr2 else en2[:45]} → 마무리",
+                "scene_en": "The same person gives a thumbs up and speaks to the camera with energy.",
+                "action_kr": "엄지척하며 밝게 마무리",
             },
         ]
     else:  # general
         return [
             {
-                "scene_en": (
-                    "A Korean professional enters a realistic workspace. "
-                    "They sit down with a friendly smile, look at the camera, and begin speaking. "
-                    "Medium shot, smooth camera movement. Bright, natural lighting."
-                ),
-                "mood_en": "calm, inviting, professional",
-                "action_kr": "작업 공간 입장 → 카메라 보며 인사",
+                "scene_en": f"A Korean professional {outfit}, in {bg}. They smile at the camera and begin speaking. Medium shot, bright natural lighting.",
+                "action_kr": "작업 공간 → 카메라 보며 인사",
             },
             {
-                "scene_en": (
-                    f"The same person {en1}. "
-                    "Close-up of their hands, then medium shot speaking to camera. "
-                    "Warm, focused lighting. Steady camera."
-                ),
-                "mood_en": "focused, warm, engaged",
+                "scene_en": f"The same person {en1}.",
                 "action_kr": f"실습: {kr1[:45] if kr1 else en1[:45]}",
             },
             {
-                "scene_en": (
-                    f"The same person {en2}. "
-                    "They lean forward and gesture confidently to the camera. "
-                    "Medium shot. Bright and warm lighting."
-                ),
-                "mood_en": "confident, warm golden light, engaging",
-                "action_kr": f"실습: {kr2[:45] if kr2 else en2[:45]} → 마무리",
+                "scene_en": "The same person smiles at the camera and speaks warmly.",
+                "action_kr": "카메라 보며 따뜻하게 마무리",
             },
         ]
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# [통합] 릴스 2종 패키지 생성 (Grok 영상 가이드 + Vrew 자막/TTS)
+# [통합] 릴스 패키지 생성 (Grok 영상 가이드)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def generate_reels_package(course_data):
@@ -880,7 +923,7 @@ def generate_reels_package(course_data):
 
     Returns:
         dict | str:
-            성공 시 {"grok": str, "vrew": str}
+            성공 시 {"grok": str}
             만료 과정이면 "[SKIP] ..." 문자열
     """
     from benefits_helper import get_course_type, get_total_hours
@@ -981,25 +1024,8 @@ def generate_reels_package(course_data):
         3: f"지금 바로 신청하세요, {period_narr_full}." if period_narr_full else f"지금 바로 신청하세요.",
     }
 
-    # Vrew 자막용 전체 나레이션 (상세 내용 보충)
-    if period_narr_full:
-        seg3_full = f"국민내일배움카드 있으면 누구나 신청 가능합니다. {period_narr_full}."
-    else:
-        seg3_full = f"국민내일배움카드 있으면 누구나 신청 가능합니다. {cta_short}."
-
-    vrew_narrations = {
-        1: f"{hook}. {title_short}.",
-        2: f"{goal_narr}을 배울 수 있습니다. {benefit_short}.",
-        3: seg3_full,
-    }
-
-    # 기관명+기간 보조 자막
-    sub_info = institution
-    if period:
-        sub_info += f" | {period}"
-
     # ═══════════════════════════════════════════════════
-    # 1. Grok 영상 가이드 (영상 + 나레이션)
+    # Grok 영상 가이드 (영상 + 나레이션)
     # ═══════════════════════════════════════════════════
 
     # 세그먼트별 Grok 프롬프트
@@ -1008,12 +1034,14 @@ def generate_reels_package(course_data):
             return f"""The person speaks clearly in Korean with natural lip-sync: "{narr_text}"
 
 A cinematic video. {seg['scene_en']}
-Mood: {seg['mood_en']}"""
+No background music, no BGM."""
+        elif seg_num == 2:
+            # 나레이션 없이 장면만
+            return f"""{seg['scene_en']}"""
         else:
             return f"""The person speaks clearly in Korean with natural lip-sync: "{narr_text}"
 
-{seg['scene_en']}
-Mood: {seg['mood_en']}"""
+{seg['scene_en']}"""
 
     seg1_prompt = _grok_prompt(1, segments[0], seg_narrations[1])
     seg2_prompt = _grok_prompt(2, segments[1], seg_narrations[2])
@@ -1027,7 +1055,7 @@ Mood: {seg['mood_en']}"""
     }
 
     grok = f"""[Grok 영상 가이드] {title}
-영상 + 나레이션 생성 — Vrew에서 자막 교정
+영상 + 나레이션 생성
 구조: {structure_label} | 30초 (10초×3) | 9:16 세로형
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1036,18 +1064,8 @@ Mood: {seg['mood_en']}"""
   1) Grok에서 세그먼트 1 (0~10초) 영상 생성
   2) 세그먼트 1 영상을 기반으로 +10초 연장 → 세그먼트 2 (10~20초)
   3) 세그먼트 2 영상을 기반으로 +10초 연장 → 세그먼트 3 (20~30초)
-  4) 완성된 30초 영상을 Vrew에 불러오기
-  5) Vrew 음성인식으로 자막 자동 생성
-  6) *_reels_vrew.txt 나레이션 원고와 대조하여 자막 교정
-  7) 자막 스타일 적용 + 내보내기
-  8) 인스타그램 릴스 업로드 (캡션: *_instagram_caption.txt)
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎨 비주얼 무드 (분야: {field})
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  팔레트: {mood['palette']}
-  분위기: {mood['mood']}
-  조명:   {mood['lighting']}
+  4) 완성된 30초 영상 편집 (자막은 Vrew 자동 생성 활용)
+  5) 인스타그램 릴스 업로드 (캡션: *_instagram_caption.txt)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚙️ 핵심 원칙
@@ -1055,14 +1073,12 @@ Mood: {seg['mood_en']}"""
   • 세그먼트당 장면 1개 (장면 전환 없음)
   • 동일 인물 · 동일 공간 · 동일 조명 유지
   • 나레이션은 쉼표(,)로 호흡 단위 구분
-  • 긴 텍스트(과정명, 혜택 상세)는 Vrew 자막으로만 표시
   • 연장 프롬프트는 이전 장면을 구체적으로 언급
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🎬 세그먼트 1 — 처음 생성 (0~10초)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   장면: {segments[0]['action_kr']}
-  분위기: {segments[0]['mood_en']}
   나레이션: {seg_narrations[1]}
 
 🤖 Grok 프롬프트 (복사용)
@@ -1073,7 +1089,6 @@ Mood: {seg['mood_en']}"""
 🎬 세그먼트 2 — +10초 연장 (10~20초)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   장면: {segments[1]['action_kr']}
-  분위기: {segments[1]['mood_en']}
   나레이션: {seg_narrations[2]}
 
 🤖 Grok 프롬프트 (복사용)
@@ -1084,7 +1099,6 @@ Mood: {seg['mood_en']}"""
 🎬 세그먼트 3 — +10초 연장 (20~30초)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   장면: {segments[2]['action_kr']}
-  분위기: {segments[2]['mood_en']}
   나레이션: {seg_narrations[3]}
 
 🤖 Grok 프롬프트 (복사용)
@@ -1099,74 +1113,8 @@ Mood: {seg['mood_en']}"""
   게시 우선순위:  {urgency_label.get(urgency, '보통 🟢')}
 """
 
-    # ═══════════════════════════════════════════════════
-    # 2. Vrew 자막 가이드 (음성인식 → 자막 교정)
-    # ═══════════════════════════════════════════════════
-
-    vrew_text = f"""[Vrew 자막 가이드] {title}
-Grok 영상의 나레이션을 Vrew 음성인식으로 자동 자막 생성 후 교정합니다.
-※ Grok 나레이션은 짧은 핵심 문장만 포함되어 있으므로, 자막에 상세 내용을 보충합니다.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 작업 순서
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  1) Grok에서 생성된 30초 영상을 Vrew에 불러오기
-  2) Vrew '음성 인식' 기능으로 자동 자막 생성 (언어: 한국어)
-  3) 아래 원고와 대조하여 자막 교정 + 상세 내용 보충
-  4) 자막 스타일(폰트/크기/색상/위치) 적용
-  5) 보조 자막 수동 추가 (기관명, 훈련기간)
-  6) 내보내기 (MP4, 1080x1920)
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎤 Grok 나레이션 원고 (음성인식 교정용)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[세그먼트 1: 0~10초]  "{seg_narrations[1]}"
-[세그먼트 2: 10~20초]  "{seg_narrations[2]}"
-[세그먼트 3: 20~30초]  "{seg_narrations[3]}"
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📝 자막 보충 원고 (나레이션에 없는 상세 내용)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  아래 텍스트를 해당 구간에 자막으로 추가하세요:
-
-[세그먼트 1: 0~10초]
-  {vrew_narrations[1]}
-
-[세그먼트 2: 10~20초]
-  {vrew_narrations[2]}
-
-[세그먼트 3: 20~30초]
-  {vrew_narrations[3]}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📌 보조 자막 (수동 추가)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[00:04.0 → 00:10.0]  {sub_info}
-[00:26.0 → 00:30.0]  {cta_sub}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎨 자막 스타일 가이드
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  메인 자막 (나레이션 음성인식 기반):
-    폰트: Pretendard Bold (또는 노토산스 Bold)
-    크기: 화면 너비의 70~80%
-    색상: 흰색 (#FFFFFF), 검은 그림자 또는 반투명 배경 박스
-    위치: 화면 중앙~상단 1/3
-    애니메이션: 페이드인 (0.2초)
-
-  보조 자막 (수동 추가):
-    폰트: Pretendard Regular
-    크기: 메인의 50~60%
-    색상: 연한 흰색 (#E0E0E0)
-    위치: 화면 하단
-
-  혜택 구간 (세그먼트 2):
-    숫자/금액 부분만 강조색 적용 (노란색 #FFD93D)
-"""
-
     return {
         "grok": grok,
-        "vrew": vrew_text,
     }
 
 
