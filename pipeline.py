@@ -509,7 +509,6 @@ def generate_content_for_course(course, output_dir):
     safe_name = course["title"][:30].replace(" ", "_").replace("/", "_")
     caption_path = os.path.join(output_dir, f"{safe_name}_instagram_caption.txt")
     grok_path = os.path.join(output_dir, f"{safe_name}_reels_grok.txt")
-    vrew_path = os.path.join(output_dir, f"{safe_name}_reels_vrew.txt")
     guide_path = os.path.join(output_dir, f"{safe_name}_posting_guide.txt")
 
     return {
@@ -517,7 +516,6 @@ def generate_content_for_course(course, output_dir):
         "blog_txt": blog_txt,
         "instagram_caption": caption_path if os.path.exists(caption_path) else None,
         "reels_grok": grok_path if os.path.exists(grok_path) else None,
-        "reels_vrew": vrew_path if os.path.exists(vrew_path) else None,
         "posting_guide": guide_path if os.path.exists(guide_path) else None,
     }
 
@@ -579,7 +577,6 @@ def run_pipeline(courses):
         print(f"    - *_3_howto.png       : 카드뉴스 신청방법 이미지")
         print(f"    - *_instagram_caption.txt : 인스타그램 캡션 + 해시태그")
         print(f"    - *_reels_grok.txt    : Grok 영상 가이드 (30초, 세그먼트별 프롬프트)")
-        print(f"    - *_reels_vrew.txt    : Vrew 자막 원고 (나레이션 교정용)")
         print(f"    - *_posting_guide.txt : 게시 타이밍/시리즈 전략 가이드")
 
     return new_count
