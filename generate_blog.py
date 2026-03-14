@@ -83,23 +83,6 @@ def generate_blog_post(course_data, output_dir="output"):
     # 해시태그에서 마크다운 볼드(**) 제거
     hashtags = hashtags_raw.replace("**", "")
 
-    # ── 커리큘럼 텍스트 (우선순위: trainingGoal → curriculum → 빈 값) ──
-    training_goal = course_data.get("trainingGoal", "")
-    curriculum_text = ""
-    if training_goal:
-        curriculum_text = "\n[소제목] 이런 걸 배워요\n\n"
-        curriculum_text += f"📋 훈련목표\n\n{training_goal}\n\n"
-    elif curriculum:
-        curriculum_text = "\n[소제목] 이런 걸 배워요\n\n"
-        for i, item in enumerate(curriculum, 1):
-            if isinstance(item, dict):
-                curriculum_text += f"{i}. {item.get('title', '')}\n"
-                if item.get("desc"):
-                    curriculum_text += f"   → {item['desc']}\n"
-            else:
-                curriculum_text += f"{i}. {item}\n"
-            curriculum_text += "\n"
-
     # ── 훈련장려금 관련 문구 (140시간 이상일 때만) ──
     if ctype in ("general", "long"):
         allowance_step3 = "열심히 다니면 (출석 80% 이상) 매달 훈련장려금이 들어와요."
@@ -149,8 +132,6 @@ def generate_blog_post(course_data, output_dir="output"):
 
 {seo_section}
 
-[구분선]
-{curriculum_text}
 [구분선]
 
 {recommend_section}
@@ -226,7 +207,7 @@ STEP 3. 배우면서 혜택도 받기
 
     print(f"  📸 인스타그램 캡션 생성: {caption_filepath}")
 
-    # ── 릴스 2종 패키지 생성 (Grok 영상 가이드 + Vrew 자막) ──
+    # ── 릴스 Grok 영상 가이드 생성 ──
     reels_result = generate_reels_package(course_data)
 
     if isinstance(reels_result, str):
@@ -236,17 +217,10 @@ STEP 3. 배우면서 혜택도 받기
             f.write(reels_result)
         print(f"  ⏭️  릴스 스킵: {reels_result[:60]}")
     else:
-        # 1) Grok 영상 가이드
         grok_path = os.path.join(output_dir, f"{safe_name}_reels_grok.txt")
         with open(grok_path, "w", encoding="utf-8") as f:
             f.write(reels_result["grok"])
         print(f"  🎬 Grok 영상 가이드 생성: {grok_path}")
-
-        # 2) Vrew 자막 원고
-        vrew_path = os.path.join(output_dir, f"{safe_name}_reels_vrew.txt")
-        with open(vrew_path, "w", encoding="utf-8") as f:
-            f.write(reels_result["vrew"])
-        print(f"  🎬 Vrew 자막 원고 생성: {vrew_path}")
 
     # ── 게시 가이드 생성 ──
     guide_filepath = os.path.join(output_dir, f"{safe_name}_posting_guide.txt")
