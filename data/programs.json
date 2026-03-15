@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-16 06:52",
+  "updated": "2026-03-16 07:25",
   "count": 3,
   "data": [
     {
@@ -12,19 +12,19 @@
     },
     {
       "address": "제주 제주시",
-      "subTitle": "주식회사 제원직업전문학교",
-      "title": "(산대특) 제주 소상공인을 위한 AI활용 실전 브랜드 마케팅",
-      "traStartDate": "2026-03-30",
-      "traEndDate": "2026-04-30",
-      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20253001086269&tracseTme=6&crseTracseSe=C0061&trainstCstmrId=500020051252"
-    },
-    {
-      "address": "제주 제주시",
       "subTitle": "드론버스",
       "title": "(산대특) 드론과 3D 모델링 기술을 활용한 제주 관광자원 디지털화 향상과정",
       "traStartDate": "2026-03-30",
       "traEndDate": "2026-04-05",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20253001110873&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500043618700"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "주식회사 제원직업전문학교",
+      "title": "(산대특) 제주 소상공인을 위한 AI활용 실전 브랜드 마케팅",
+      "traStartDate": "2026-03-30",
+      "traEndDate": "2026-04-30",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20253001086269&tracseTme=6&crseTracseSe=C0061&trainstCstmrId=500020051252"
     }
   ]
 }
