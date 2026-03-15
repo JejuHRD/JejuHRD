@@ -422,12 +422,15 @@ def summarize_training_goal(training_goal, max_keywords=3):
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 KEYWORD_MAP = {
-    "AI": ["AI교육", "인공지능교육", "AI활용", "ChatGPT교육"],
-    "영상": ["영상편집교육", "영상제작", "유튜브교육", "프리미어프로"],
-    "디자인": ["디자인교육", "UI교육", "UX교육", "피그마교육", "웹디자인"],
+    "AI": ["AI교육", "인공지능교육", "AI활용", "ChatGPT교육",
+           "생성형AI활용", "AI챗봇교육", "AI영상제작"],
+    "영상": ["영상편집교육", "영상제작", "유튜브교육", "프리미어프로",
+            "숏폼콘텐츠제작", "드론촬영교육", "릴스편집"],
+    "디자인": ["디자인교육", "UI교육", "UX교육", "피그마교육", "웹디자인",
+              "브랜딩디자인교육", "패키지디자인"],
     "출판": ["출판교육", "인디자인교육", "전자책제작", "편집디자인"],
     "멀티미디어": ["멀티미디어교육", "디지털콘텐츠"],
-    "콘텐츠": ["콘텐츠제작", "크리에이터교육", "SNS콘텐츠"],
+    "콘텐츠": ["콘텐츠제작", "크리에이터교육", "SNS콘텐츠", "숏폼제작"],
     "마케팅": ["디지털마케팅", "SNS마케팅교육", "마케팅교육"],
     "데이터": ["데이터분석교육", "빅데이터", "파이썬교육"],
     "코딩": ["코딩교육", "프로그래밍교육", "개발자교육"],
@@ -436,6 +439,7 @@ KEYWORD_MAP = {
 COMMON_SEARCH_KEYWORDS = [
     "제주무료교육", "제주국비지원", "내일배움카드",
     "제주취업", "제주직업훈련", "제주특화훈련",
+    "제주디지털전환", "제주AI교육",
 ]
 
 
@@ -448,25 +452,37 @@ EMPATHY_INTROS = {
         "\"나도 AI를 배워야 하나?\" 고민만 하다가 시간이 흘러가고 있다면, 지금이 딱 시작할 타이밍이에요.",
         "ChatGPT, 미드저니, AI 영상 생성... 세상은 빠르게 바뀌고 있는데, 어디서부터 배워야 할지 막막하셨죠? 제주에서 체계적으로 배울 수 있는 기회가 열렸어요.",
         "\"AI가 내 일자리를 대체한다\"는 뉴스, 불안하기만 하셨나요? AI를 활용하는 쪽에 서면 오히려 기회가 됩니다.",
+        "AI 시대에 뒤처질까 불안하다면? 지금 배우는 사람과 안 배우는 사람의 격차는 1년 뒤 엄청나게 벌어집니다.",
+        "AI 개발자 부족률이 57.6%이고, 기업 69%가 채용할 때 AI 역량을 본다는 사실 아셨나요? 지금 AI를 배우면 취업 시장에서 확실한 경쟁력이 됩니다.",
+        "제주도가 AI·디지털 대전환에 918억 원을 투자하고, ETRI·네이버클라우드와 제주 특화 AI를 개발하고 있어요. 제주에서 AI 인력 수요가 폭발적으로 늘어나는 중입니다.",
     ],
     "영상": [
         "유튜브, 릴스, 숏폼... 영상이 대세인 건 알겠는데, 혼자 독학하기엔 너무 막막하셨죠? 촬영부터 편집, AI 활용까지 한번에 배울 수 있는 과정이 있어요.",
         "\"나도 영상 하나 만들어볼까?\" 한번쯤 생각해보셨을 거예요. 스마트폰 하나로 시작해서 프로 수준까지, 제주에서 제대로 배워보세요.",
         "영상 편집 배우고 싶었는데 비용이 걱정이었다면, 좋은 소식이에요. 자부담 10%로 전문 영상 제작 기술을 배울 수 있는 과정이 제주에서 열려요.",
+        "영상 편집 독학하다 포기한 경험, 있지 않으세요? 체계적으로 배우면 완전히 다릅니다.",
+        "숏폼 이용률 70.7%, 크리에이터 산업 5.5조 원 시대인데, 제주 크리에이터 비율은 겨우 1.7%예요. 지금 제주에서 영상을 배우면 기회가 열립니다.",
+        "제주는 전국 최대 드론특별자유화구역(1,283km²)에, 콘텐츠진흥원 121억 원 투자까지. 영상 제작을 배우기에 제주만큼 좋은 환경이 없어요.",
     ],
     "디자인": [
         "피그마, 포토샵, UI/UX... 디자인 도구는 많은데 뭘 어떻게 배워야 할지 막막하셨나요? 현업에서 바로 쓸 수 있는 스킬을 체계적으로 알려드려요.",
         "이직을 준비하면서 \"디자인 스킬이 있으면 좋겠다\" 생각해보신 적 있나요? 비전공자도 부담 없이 시작할 수 있는 과정이 제주에서 열립니다.",
         "디지털 시대에 디자인 감각은 모든 직군에서 필요해지고 있어요. 제주에서 체계적으로 디자인 역량을 키워보세요.",
+        "포트폴리오 하나 없이 디자인 직군에 지원하고 계시진 않나요? 이 과정이면 수료와 동시에 실무 포트폴리오가 완성됩니다.",
+        "글로벌 UI/UX 시장이 매년 32%씩 성장하고, Fortune 500 기업 95%가 피그마를 쓰는 시대예요. 지금 디자인을 배우면 일감이 넘칩니다.",
+        "제주 카페·숙박·특산품 브랜딩 수요는 폭발적인데, 현지 디자인 업체는 대부분 5인 미만이에요. 디자인을 배우면 제주에서 바로 일할 수 있습니다.",
     ],
     "출판": [
         "\"내 책을 한 번 만들어보고 싶다\"는 꿈, 생각보다 가까이 있어요. AI와 전문 편집 도구를 활용하면 누구나 출판제작자가 될 수 있습니다.",
         "전자책, 오디오북, 독립출판... 출판의 세계가 달라지고 있어요. 기획부터 제작, 유통까지 한번에 배울 수 있는 기회를 놓치지 마세요.",
+        "1인 출판 시대, 기획부터 편집까지 혼자 할 수 있다면? 생각보다 문턱이 낮아졌어요.",
     ],
     "default": [
         "새로운 기술을 배우고 싶은데, 어디서 시작해야 할지 막막하셨나요? 내일배움카드만 있으면 자부담 10%로 바로 시작할 수 있는 과정이 열렸어요.",
         "이직을 고민하거나, 새로운 분야에 도전하고 싶은 마음... 누구나 한번쯤 있죠. 제주에서 부담 없이 새로운 기술을 배울 수 있는 기회를 소개합니다.",
         "경력을 쌓고 싶은데 교육비가 부담이셨나요? 내일배움카드로 자부담 10%만 내고 전문 기술을 배울 수 있어요.",
+        "국비지원 교육, 잘못 선택하면 같은 과정은 다시 들을 수 없다는 사실 아셨나요? 그래서 첫 선택이 중요합니다.",
+        "\"배우고 싶은 건 많은데 시간도 돈도 없다\"는 말, 더 이상 핑계가 안 돼요. 국비지원이면 가능하거든요.",
     ],
 }
 
@@ -490,21 +506,122 @@ def extract_seo_keywords(course_data):
 
 
 def generate_seo_title(course_data):
-    """네이버 블로그 SEO에 최적화된 제목을 생성합니다."""
+    """
+    네이버 블로그 SEO에 최적화된 제목을 생성합니다.
+
+    전략:
+    - 롱테일 키워드를 제목 앞쪽에 배치
+    - 25자 이내 목표 (검색 결과에서 잘리지 않도록)
+    - 연도 포함으로 최신성 확보
+    - 예: "제주 AI영상편집 국비교육 2026"
+    """
     from benefits_helper import get_course_type
     title = course_data.get("title", "")
     ctype = get_course_type(course_data)
-    benefit_tag = "자부담 10% + 훈련장려금" if ctype in ("general", "long") else "자부담 10%"
-    seo_title = f"[제주 국비지원] {title} | {benefit_tag}"
+    year = datetime.now().year
+    field = detect_course_field(title, course_data.get("ncsCd"))
+
+    # 과정명에서 핵심 키워드 추출 (괄호, 접두사 제거)
+    core = _extract_title_core(title)
+
+    # 과정명에서 구체적 도구/스킬 키워드 추출
+    TOOL_KEYWORDS = [
+        "프리미어프로", "프리미어 프로", "에프터이펙트", "에프터 이펙트",
+        "다빈치리졸브", "피그마", "인디자인", "포토샵", "일러스트레이터",
+        "파이썬", "블렌더", "ChatGPT", "챗GPT", "미드저니",
+        "드론", "바리스타", "3D모델링", "AI",
+    ]
+    found_tool = ""
+    for tool in TOOL_KEYWORDS:
+        if tool.upper() in core.upper().replace(" ", ""):
+            found_tool = tool.replace(" ", "")
+            break
+
+    # 분야 축약명
+    field_short = {
+        "AI": "AI", "영상": "영상편집", "디자인": "디자인",
+        "출판": "출판편집", "콘텐츠": "콘텐츠제작", "마케팅": "디지털마케팅",
+        "데이터": "데이터분석", "코딩": "코딩", "멀티미디어": "멀티미디어",
+    }
+    short = field_short.get(field, "직업훈련")
+
+    # 핵심 키워드 조합
+    # - 도구명이 분야와 관련 있으면 조합 (AI + 영상편집 → AI영상편집)
+    # - 도구명이 분야와 무관하면 도구명만 사용 (드론 ≠ 영상편집)
+    TOOL_FIELD_COMPAT = {
+        "AI": ["영상편집", "디자인", "디지털마케팅", "콘텐츠제작", "데이터분석", "코딩"],
+        "ChatGPT": ["디지털마케팅", "콘텐츠제작", "코딩"],
+        "챗GPT": ["디지털마케팅", "콘텐츠제작", "코딩"],
+        "미드저니": ["디자인", "콘텐츠제작"],
+    }
+    if found_tool and found_tool != short:
+        compat_fields = TOOL_FIELD_COMPAT.get(found_tool, [])
+        if short in found_tool or found_tool in short:
+            # 도구와 분야가 겹치면 도구만 사용
+            core_keyword = found_tool
+        elif short in compat_fields:
+            # AI + 영상편집처럼 의미상 호환되면 조합
+            core_keyword = f"{found_tool}{short}"
+        else:
+            # 드론 + 영상편집처럼 호환 안 되면 도구만 사용
+            core_keyword = found_tool
+    elif len(core) <= 12:
+        core_keyword = core
+    else:
+        core_keyword = short
+
+    # 혜택 태그 (짧게)
+    if ctype == "long":
+        benefit_tag = "장려금+수당"
+    elif ctype == "general":
+        benefit_tag = "장려금지원"
+    else:
+        benefit_tag = "국비지원"
+
+    # 제목 조합: "제주 {핵심} {benefit_tag} {연도}" (25자 이내 목표)
+    seo_title = f"제주 {core_keyword} {benefit_tag} {year}"
+
+    # 25자 초과 시 순차 축약
+    if len(seo_title) > 25:
+        seo_title = f"제주 {core_keyword} 국비 {year}"
+    if len(seo_title) > 25:
+        seo_title = f"제주 {core_keyword[:8]} 국비 {year}"
+    if len(seo_title) > 25:
+        seo_title = f"제주 {short} 국비 {year}"
+
     return seo_title
 
 
 def generate_empathy_intro(course_data):
-    """과정별로 차별화된 공감형 도입부를 생성합니다."""
+    """
+    과정별로 차별화된 공감형 도입부를 생성합니다.
+    과정 데이터(시간, 비용 등)를 동적으로 활용하여 후킹합니다.
+    """
+    from benefits_helper import get_course_type, get_total_hours
     title = course_data.get("title", "")
     field = detect_course_field(title, course_data.get("ncsCd"))
+    ctype = get_course_type(course_data)
+    hours = get_total_hours(course_data)
+    self_cost = course_data.get("selfCost", "")
+
+    # 기본 공감형 도입부 선택
     intros = EMPATHY_INTROS.get(field, EMPATHY_INTROS["default"])
-    return random.choice(intros)
+    intro = random.choice(intros)
+
+    # 과정 데이터 기반 추가 후킹 문장 (2번째 문단)
+    data_hook = ""
+    if self_cost and self_cost != "0":
+        data_hook = f"자부담 {self_cost}이면 시작할 수 있어요."
+    elif ctype == "long" and hours > 0:
+        months = max(1, round(hours / 160))
+        data_hook = f"{months}개월 과정인데, 매달 최대 40만원까지 받으면서 배울 수 있어요."
+    elif ctype == "general" and hours > 0:
+        data_hook = f"총 {hours}시간 과정이고, 매달 최대 20만원 훈련장려금도 받을 수 있어요."
+
+    if data_hook:
+        intro += f"\n\n{data_hook}"
+
+    return intro
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -522,15 +639,15 @@ def generate_blog_hashtags(course_data):
         "#국비지원교육추천", "#내일배움카드추천",
     ]
     field_tags = {
-        "AI": ["#AI교육", "#인공지능교육", "#ChatGPT교육", "#생성형AI"],
-        "영상": ["#영상편집교육", "#영상제작", "#프리미어프로", "#유튜브교육"],
-        "디자인": ["#디자인교육", "#UIUX교육", "#피그마", "#웹디자인교육"],
+        "AI": ["#AI교육", "#인공지능교육", "#ChatGPT교육", "#생성형AI", "#AI활용교육", "#제주AI교육"],
+        "영상": ["#영상편집교육", "#영상제작", "#프리미어프로", "#숏폼콘텐츠", "#드론촬영", "#제주영상제작"],
+        "디자인": ["#디자인교육", "#UIUX교육", "#피그마", "#브랜딩디자인", "#제주브랜딩", "#웹디자인교육"],
         "출판": ["#출판교육", "#인디자인", "#전자책제작", "#편집디자인"],
-        "콘텐츠": ["#콘텐츠제작교육", "#크리에이터교육", "#SNS콘텐츠"],
+        "콘텐츠": ["#콘텐츠제작교육", "#크리에이터교육", "#SNS콘텐츠", "#숏폼제작"],
         "마케팅": ["#디지털마케팅교육", "#SNS마케팅", "#마케팅교육"],
         "데이터": ["#데이터분석교육", "#빅데이터", "#파이썬교육"],
         "코딩": ["#코딩교육", "#프로그래밍교육", "#개발자교육"],
-        "default": ["#직업훈련", "#스킬업", "#자기계발", "#커리어전환"],
+        "default": ["#직업훈련", "#스킬업", "#자기계발", "#커리어전환", "#제주디지털전환"],
     }
     specific = field_tags.get(field, field_tags["default"])
     all_tags = common + specific
@@ -544,43 +661,63 @@ def generate_blog_hashtags(course_data):
 
 
 def generate_instagram_hashtags(course_data):
-    """인스타그램 해시태그 20개를 대형+중소형+지역+분야별로 믹스합니다."""
+    """
+    인스타그램 해시태그 5~8개를 선별합니다.
+
+    2025년 해시태그 팔로우 폐지 이후, 소수 정예 해시태그가 더 효과적.
+    대형 1~2개 + 중소형(지역+분야) 4~5개 = 총 5~8개
+    """
     title = course_data.get("title", "")
     field = detect_course_field(title, course_data.get("ncsCd"))
-    big_tags = ["#국비지원", "#국비지원교육", "#내일배움카드", "#직업훈련", "#자기계발"]
-    mid_tags = ["#제주교육", "#제주취업", "#제주취업준비", "#제주직업훈련", "#내일배움카드신청"]
-    local_tags = ["#제주", "#제주시", "#제주도생활", "#제주이직", "#제주살이"]
+    year = datetime.now().year
+
+    # 대형 태그 (1~2개)
+    big_tags = [f"#{year}국비지원", "#내일배움카드"]
+
+    # 지역 태그 (1~2개)
+    local_tags = ["#제주국비지원", "#제주직업훈련"]
+
+    # 분야별 태그 (2~3개)
     field_tags = {
-        "AI": ["#AI교육", "#인공지능", "#ChatGPT", "#AI활용", "#생성형AI"],
-        "영상": ["#영상편집", "#영상제작", "#프리미어프로", "#유튜브교육", "#숏폼"],
-        "디자인": ["#디자인교육", "#UIUX", "#피그마", "#웹디자인", "#디지털디자인"],
-        "출판": ["#출판교육", "#인디자인", "#전자책", "#편집디자인", "#독립출판"],
-        "콘텐츠": ["#콘텐츠제작", "#크리에이터", "#SNS마케팅", "#디지털콘텐츠"],
-        "마케팅": ["#디지털마케팅", "#SNS마케팅", "#마케팅교육", "#퍼포먼스마케팅"],
-        "데이터": ["#데이터분석", "#빅데이터", "#파이썬", "#데이터사이언스"],
-        "코딩": ["#코딩교육", "#프로그래밍", "#개발자", "#파이썬"],
-        "default": ["#스킬업", "#커리어전환", "#신기술교육", "#역량강화"],
+        "AI": ["#AI교육", "#인공지능교육", "#ChatGPT"],
+        "영상": ["#영상편집교육", "#영상제작", "#프리미어프로"],
+        "디자인": ["#디자인교육", "#UIUX", "#피그마"],
+        "출판": ["#출판교육", "#인디자인", "#편집디자인"],
+        "콘텐츠": ["#콘텐츠제작", "#크리에이터교육"],
+        "마케팅": ["#디지털마케팅", "#SNS마케팅"],
+        "데이터": ["#데이터분석", "#파이썬"],
+        "코딩": ["#코딩교육", "#프로그래밍"],
+        "default": ["#스킬업", "#자기계발"],
     }
     specific = field_tags.get(field, field_tags["default"])
+
+    # 조합: 대형 1~2 + 지역 1~2 + 분야 2~3 = 5~7개
     all_tags = []
-    all_tags.extend(random.sample(big_tags, min(3, len(big_tags))))
-    all_tags.extend(random.sample(mid_tags, min(4, len(mid_tags))))
-    all_tags.extend(random.sample(local_tags, min(4, len(local_tags))))
-    all_tags.extend(random.sample(specific, min(4, len(specific))))
-    year = datetime.now().year
-    all_tags.append(f"#{year}국비지원")
+    all_tags.extend(random.sample(big_tags, min(1, len(big_tags))))
+    all_tags.extend(random.sample(local_tags, min(2, len(local_tags))))
+    all_tags.extend(random.sample(specific, min(3, len(specific))))
     all_tags.append("#제주특화훈련")
+
+    # 중복 제거
     seen = set()
     unique_tags = []
     for tag in all_tags:
         if tag not in seen:
             unique_tags.append(tag)
             seen.add(tag)
-    return "\n\n.\n.\n.\n" + " ".join(unique_tags[:20])
+
+    return "\n\n.\n.\n.\n" + " ".join(unique_tags[:8])
 
 
 def generate_instagram_caption(course_data):
-    """인스타그램 캡션을 생성합니다."""
+    """
+    인스타그램 캡션을 생성합니다.
+
+    개선사항:
+    - 첫 문단에 자연어 키워드 삽입 (해시태그 팔로우 폐지 대응)
+    - 저장·공유 유도 CTA 추가 (알고리즘 최우선 신호)
+    - 캡션 키워드: 제주 + 분야 + 국비지원 + 연도
+    """
     from benefits_helper import get_course_type, get_benefits_text
     title = course_data.get("title", "")
     institution = course_data.get("institution", "")
@@ -589,6 +726,7 @@ def generate_instagram_caption(course_data):
     ctype = get_course_type(course_data)
     benefits = get_benefits_text(course_data)
     field = detect_course_field(title, course_data.get("ncsCd"))
+    year = datetime.now().year
     field_emoji = {
         "AI": "🤖", "영상": "🎬", "디자인": "🎨", "출판": "📚",
         "멀티미디어": "🖥️", "콘텐츠": "📱", "마케팅": "📊",
@@ -597,7 +735,23 @@ def generate_instagram_caption(course_data):
     emoji = field_emoji.get(field, "📌")
     hook = _generate_dynamic_hook(title, field)
 
+    # 자연어 키워드 문장 (검색·추천 알고리즘용, 분야별 트렌드 반영)
+    field_keyword_sentence = {
+        "AI": f"{year}년 제주도가 AI·디지털 대전환에 918억 원을 투자하는 지금, 제주에서 국비지원으로 AI 활용 교육을 배울 수 있는 과정을 소개합니다.",
+        "영상": f"숏폼 이용률 70.7% 시대, 제주 크리에이터 비율은 겨우 1.7%. {year}년 제주에서 국비지원으로 영상편집을 배울 수 있는 과정을 소개합니다.",
+        "디자인": f"제주 카페·숙박 브랜딩 수요는 폭발적인데 디자인 인력은 부족. {year}년 제주에서 국비지원으로 디자인을 배울 수 있는 과정을 소개합니다.",
+        "출판": f"{year}년 제주에서 국비지원으로 출판편집 교육을 배울 수 있는 과정을 소개합니다.",
+        "콘텐츠": f"{year}년 제주에서 국비지원으로 콘텐츠 제작을 배울 수 있는 과정을 소개합니다.",
+        "마케팅": f"{year}년 제주에서 국비지원으로 디지털마케팅을 배울 수 있는 과정을 소개합니다.",
+        "데이터": f"{year}년 제주에서 국비지원으로 데이터분석을 배울 수 있는 과정을 소개합니다.",
+        "코딩": f"{year}년 제주에서 국비지원으로 코딩을 배울 수 있는 과정을 소개합니다.",
+    }
+    keyword_sentence = field_keyword_sentence.get(field,
+        f"{year}년 제주에서 국비지원으로 배울 수 있는 직업훈련 과정을 소개합니다.")
+
     caption = f"""{emoji} {hook}
+
+{keyword_sentence}
 
 📍 {title}
 🏫 {institution}"""
@@ -621,9 +775,7 @@ def generate_instagram_caption(course_data):
 
     caption += """
 👉 신청 방법이 궁금하다면?
-프로필 링크에서 바로 확인하세요!
-
-💬 궁금한 점은 DM 또는 댓글로 물어봐 주세요"""
+프로필 링크에서 바로 확인하세요!"""
 
     # 훈련목표 요약 (있을 때만)
     training_goal = course_data.get("trainingGoal", "")
@@ -636,6 +788,11 @@ def generate_instagram_caption(course_data):
             caption += "\n\n📋 이 과정을 배우면?"
             for s in goal_sentences[:2]:
                 caption += f"\n→ {s}"
+
+    # 저장·공유 유도 CTA (알고리즘 최우선 신호)
+    caption += "\n\n💾 나중에 신청하려면 이 게시물을 저장해두세요!"
+    caption += "\n📩 제주에서 교육 찾는 친구에게 공유해주세요"
+
     hashtags = generate_instagram_hashtags(course_data)
     caption += hashtags
     return caption
@@ -1169,21 +1326,39 @@ def generate_posting_guide(course_data):
     guide += """
 ⏰ 권장 게시 시간
   - 네이버 블로그: 오전 8~9시 또는 오후 1시
-  - 인스타그램 피드: 오후 12~1시 또는 오후 6~9시
-  - 인스타그램 릴스: 오후 7~9시
-  - 인스타그램 스토리: 오전 8시, 오후 12시, 오후 8시 (3회)
-  - 최적 요일: 월~수
+  - 인스타그램 피드/캐러셀: 오후 9시~10시 (한국 시장 최적)
+  - 인스타그램 릴스: 오후 9시~10시
+  - 인스타그램 스토리: 오전 8시, 오후 12시, 오후 9시 (3회)
+  - 최적 요일: 목요일 > 화·수요일
 
 📊 게시 후 체크리스트
-  □ 블로그: 발행 후 네이버 검색에서 제목 검색 → 노출 여부 확인 (보통 수 시간 내 자동 색인)
+  □ 블로그: 발행 후 1~2시간 뒤 네이버에서 제목 검색 → 색인 여부 확인
+    - 확인 방법: whereispost.com 또는 네이버에서 site:blog.naver.com/[블로그ID]
+    - ※ 네이버 서치어드바이저는 블로그 소유권 인증이 불가하므로,
+      수동으로 검색하여 색인 여부를 확인하세요
+  □ 블로그: 글 발행 직후 카테고리 내 기존 글에 내부링크 추가 (상호 연결)
   □ 인스타: 게시 후 1시간 내 댓글에 직접 답글 달기 (알고리즘 부스트)
   □ 인스타: 스토리에 게시물 공유 + "자세히 보기" 유도
   □ 릴스: 첫 3초 이탈 방지를 위해 훅 문장 확인
   □ 관련 커뮤니티/카페에 링크 공유 (제주 지역 커뮤니티 우선)
+    - 추천 카페: 제주 지역 카페, 취업/이직 카페, 내일배움카드 카페
 
 🔑 인스타그램 프로필 설정
+  - 프로필 이름: "제주HRD위원회 | 직업훈련·취업지원" (검색 키워드 포함)
   - 프로필 링크: 고용24 과정 신청 페이지 또는 링크트리
-  - 프로필 소개: "제주 무료교육·국비지원 과정 안내 | 내일배움카드"
+  - 프로필 소개 (4줄 공식):
+    ①제주지역인적자원개발위원회 공식 계정
+    ②제주 국비지원 직업훈련 과정 안내
+    ③내일배움카드로 자부담 10% · 장려금 지원
+    ④아래 링크에서 과정 확인 👇
   - 하이라이트: "신청방법", "모집중", "수강후기" 카테고리 생성
+
+📈 콘텐츠 믹스 참고 (채널 성장을 위한 다양한 콘텐츠)
+  - 정보성 콘텐츠 40%: 훈련과정 안내, 자격증 정보, 취업 팁
+  - 참여·소통형 20%: 퀴즈 이벤트, 수료생 후기 공유, Q&A
+  - 트렌드·감성형 20%: 제주 취업시장 동향, 밈/트렌드 활용
+  - 기관 소식 15%: 협약식, 신규 프로그램 론칭
+  - 시즌 콘텐츠 5%: 채용 시즌, 자격증 시험 일정
+  ※ 과정 안내 외에도 위 비율을 참고하여 다양한 콘텐츠를 직접 기획해주세요
 """
     return guide
