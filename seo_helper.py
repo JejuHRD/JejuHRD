@@ -24,12 +24,15 @@ NCS_FIELD_MAP = {
     "08": "디자인",       # 문화/예술/디자인/방송
     "20": "코딩",         # 정보통신
     "02": "마케팅",       # 경영/회계/사무
-    "10": "마케팅",       # 영업판매
+    "10": "이커머스",     # 영업판매 → 이커머스로 변경
     "0802": "디자인",     # 디자인
     "0803": "영상",       # 방송
     "0801": "콘텐츠",     # 문화콘텐츠
     "2001": "코딩",       # 정보기술
     "2002": "데이터",     # 통신기술
+    "24": "산업안전",     # 안전관리
+    "1001": "이커머스",   # 유통/판매
+    "0201": "마케팅",     # 경영기획 (마케팅 유지)
 }
 
 NCS_SUB_KEYWORDS = {
@@ -70,6 +73,8 @@ TITLE_FIELD_KEYWORDS = {
     "영상": ["영상", "비디오", "유튜브", "숏폼", "프리미어", "에프터이펙트", "촬영", "릴스"],
     "디자인": ["디자인", "UI", "UX", "피그마", "FIGMA", "웹디자인", "그래픽"],
     "출판": ["출판", "인디자인", "편집디자인", "전자책", "EPUB", "오디오북"],
+    "이커머스": ["스마트스토어", "이커머스", "쇼핑몰", "온라인판매", "라이브커머스", "셀러", "전자상거래"],
+    "산업안전": ["산업안전", "안전관리", "안전보건", "중대재해", "위험성평가", "건설안전"],
     "멀티미디어": ["멀티미디어"],
     "콘텐츠": ["콘텐츠", "크리에이터"],
     "마케팅": ["마케팅", "퍼포먼스", "광고"],
@@ -223,6 +228,18 @@ VISUAL_MOOD = {
         "lighting": "dark room with multiple monitor glow, RGB keyboard lighting",
         "texture": "code syntax highlighting, terminal text, bracket patterns",
     },
+    "이커머스": {
+        "palette": "warm orange (#FF6B00) and clean white (#FFFFFF) with green (#2DB400) accents",
+        "mood": "entrepreneurial, dynamic, commercial",
+        "lighting": "bright product photography lighting, clean white background",
+        "texture": "product packaging, shopping cart icons, order notification badges",
+    },
+    "산업안전": {
+        "palette": "safety yellow (#FFD100) and industrial gray (#4A4A4A) with alert red (#E53E3E)",
+        "mood": "professional, authoritative, safety-focused",
+        "lighting": "industrial overhead lighting, construction site ambient",
+        "texture": "safety signage, hard hat textures, checklist patterns",
+    },
     "default": {
         "palette": "sky blue (#4A90D9) and warm gray (#F5F5F5) with accent yellow (#FFC107)",
         "mood": "friendly, approachable, professional",
@@ -272,6 +289,8 @@ def _generate_dynamic_hook(title, field, goal_summary=""):
         "마케팅": ["데이터로 성과를 만드는 마케팅", "디지털 마케팅, 실전이 답이에요"],
         "데이터": ["데이터로 말하는 시대, 분석 스킬 UP", "숫자 속에서 인사이트를 찾아내는 법"],
         "코딩": ["코딩, 이제 선택이 아니라 필수예요", "개발자의 첫걸음, 제주에서 시작하세요"],
+        "이커머스": ["내 가게를 온라인에 여는 가장 빠른 길", "스마트스토어, 제대로 배우면 달라요"],
+        "산업안전": ["안전관리, 이제 선택이 아니라 법적 의무예요", "산업안전기사, 국가자격 1위의 이유"],
         "default": ["새로운 기술, 제주에서 배워요", "국비지원으로 부담 없이 스킬업!"],
     }
 
@@ -434,6 +453,10 @@ KEYWORD_MAP = {
     "마케팅": ["디지털마케팅", "SNS마케팅교육", "마케팅교육"],
     "데이터": ["데이터분석교육", "빅데이터", "파이썬교육"],
     "코딩": ["코딩교육", "프로그래밍교육", "개발자교육"],
+    "이커머스": ["스마트스토어교육", "이커머스교육", "온라인쇼핑몰창업",
+                "라이브커머스교육", "상세페이지제작"],
+    "산업안전": ["산업안전교육", "안전관리자교육", "산업안전기사",
+                "중대재해처벌법교육", "위험성평가교육"],
 }
 
 COMMON_SEARCH_KEYWORDS = [
@@ -476,6 +499,20 @@ EMPATHY_INTROS = {
         "\"내 책을 한 번 만들어보고 싶다\"는 꿈, 생각보다 가까이 있어요. AI와 전문 편집 도구를 활용하면 누구나 출판제작자가 될 수 있습니다.",
         "전자책, 오디오북, 독립출판... 출판의 세계가 달라지고 있어요. 기획부터 제작, 유통까지 한번에 배울 수 있는 기회를 놓치지 마세요.",
         "1인 출판 시대, 기획부터 편집까지 혼자 할 수 있다면? 생각보다 문턱이 낮아졌어요.",
+    ],
+    "이커머스": [
+        "\"스마트스토어 해볼까?\" 생각만 하다가 시간이 흘러가고 있다면, 제대로 배우고 시작하는 게 훨씬 빨라요.",
+        "한국 온라인 쇼핑 거래액 242조 원, 농축수산물 온라인 판매만 12.7조 원이에요. 제주 특산품을 온라인에 파는 법, 제대로 배워보세요.",
+        "스마트스토어 셀러 57만 명, 연 매출 1억 이상 셀러 4.5만 명. 혼자 시작하면 막막하지만, 체계적으로 배우면 충분히 가능해요.",
+        "제주 감귤, 한라봉, 해산물... 좋은 상품이 있는데 판로가 고민이라면? 온라인 판매를 배우면 전국이 시장이 됩니다.",
+        "제주도가 전국 최초로 크리에이터 전담부서를 만들고 50억 원 펀드를 조성했어요. 제주에서 온라인 셀러로 시작하기 딱 좋은 타이밍입니다.",
+    ],
+    "산업안전": [
+        "산업안전기사 응시자 연 19.6만 명, 국가기술자격 기사 등급 1위라는 사실 아셨나요? 지금 가장 뜨거운 자격증입니다.",
+        "중대재해처벌법이 5인 이상 전 사업장으로 확대되면서, 안전관리자 수요가 폭발하고 있어요. 자격증만 있으면 취업 기회가 넘칩니다.",
+        "50인 미만 기업의 77%가 아직 법 준수를 못 한 상태예요. 안전관리를 배우면 어디서든 필요한 인재가 됩니다.",
+        "건설업 사망사고의 46.9%가 안전관리 부실에서 시작돼요. 안전관리 전문가는 생명을 살리는 직업입니다.",
+        "제주는 풍력발전 2,345MW 확대, 건설·관광 인프라 투자가 이어지면서 안전관리 전문인력 수요가 급증하고 있어요.",
     ],
     "default": [
         "새로운 기술을 배우고 싶은데, 어디서 시작해야 할지 막막하셨나요? 내일배움카드만 있으면 자부담 10%로 바로 시작할 수 있는 과정이 열렸어요.",
@@ -530,6 +567,7 @@ def generate_seo_title(course_data):
         "다빈치리졸브", "피그마", "인디자인", "포토샵", "일러스트레이터",
         "파이썬", "블렌더", "ChatGPT", "챗GPT", "미드저니",
         "드론", "바리스타", "3D모델링", "AI",
+        "스마트스토어", "산업안전기사", "건설안전기사",
     ]
     found_tool = ""
     for tool in TOOL_KEYWORDS:
@@ -542,6 +580,7 @@ def generate_seo_title(course_data):
         "AI": "AI", "영상": "영상편집", "디자인": "디자인",
         "출판": "출판편집", "콘텐츠": "콘텐츠제작", "마케팅": "디지털마케팅",
         "데이터": "데이터분석", "코딩": "코딩", "멀티미디어": "멀티미디어",
+        "이커머스": "스마트스토어", "산업안전": "산업안전",
     }
     short = field_short.get(field, "직업훈련")
 
@@ -647,6 +686,8 @@ def generate_blog_hashtags(course_data):
         "마케팅": ["#디지털마케팅교육", "#SNS마케팅", "#마케팅교육"],
         "데이터": ["#데이터분석교육", "#빅데이터", "#파이썬교육"],
         "코딩": ["#코딩교육", "#프로그래밍교육", "#개발자교육"],
+        "이커머스": ["#스마트스토어교육", "#온라인쇼핑몰창업", "#이커머스교육", "#라이브커머스", "#제주특산품판매"],
+        "산업안전": ["#산업안전기사", "#안전관리자교육", "#중대재해처벌법", "#산업안전교육", "#위험성평가"],
         "default": ["#직업훈련", "#스킬업", "#자기계발", "#커리어전환", "#제주디지털전환"],
     }
     specific = field_tags.get(field, field_tags["default"])
@@ -687,6 +728,8 @@ def generate_instagram_hashtags(course_data):
         "마케팅": ["#디지털마케팅", "#SNS마케팅"],
         "데이터": ["#데이터분석", "#파이썬"],
         "코딩": ["#코딩교육", "#프로그래밍"],
+        "이커머스": ["#스마트스토어", "#온라인창업", "#제주특산품"],
+        "산업안전": ["#산업안전기사", "#안전관리자", "#중대재해처벌법"],
         "default": ["#스킬업", "#자기계발"],
     }
     specific = field_tags.get(field, field_tags["default"])
@@ -731,6 +774,7 @@ def generate_instagram_caption(course_data):
         "AI": "🤖", "영상": "🎬", "디자인": "🎨", "출판": "📚",
         "멀티미디어": "🖥️", "콘텐츠": "📱", "마케팅": "📊",
         "데이터": "📈", "코딩": "💻",
+        "이커머스": "🛒", "산업안전": "🦺",
     }
     emoji = field_emoji.get(field, "📌")
     hook = _generate_dynamic_hook(title, field)
@@ -745,6 +789,8 @@ def generate_instagram_caption(course_data):
         "마케팅": f"{year}년 제주에서 국비지원으로 디지털마케팅을 배울 수 있는 과정을 소개합니다.",
         "데이터": f"{year}년 제주에서 국비지원으로 데이터분석을 배울 수 있는 과정을 소개합니다.",
         "코딩": f"{year}년 제주에서 국비지원으로 코딩을 배울 수 있는 과정을 소개합니다.",
+        "이커머스": f"온라인 쇼핑 거래액 242조 원, 스마트스토어 셀러 57만 명 시대. {year}년 제주에서 국비지원으로 온라인 판매·창업을 배울 수 있는 과정을 소개합니다.",
+        "산업안전": f"산업안전기사 응시자 연 19.6만 명, 국가자격 1위. {year}년 제주에서 국비지원으로 산업안전 교육을 받을 수 있는 과정을 소개합니다.",
     }
     keyword_sentence = field_keyword_sentence.get(field,
         f"{year}년 제주에서 국비지원으로 배울 수 있는 직업훈련 과정을 소개합니다.")
@@ -903,6 +949,22 @@ FIELD_SETTING = {
         "a professional maintenance workshop with diagnostic tools, parts shelves, and equipment on the workbench",
         "wearing work coveralls and safety gloves",
     ),
+    "스마트스토어": (
+        "a bright home office with a laptop showing an online store dashboard, product packages neatly stacked on a shelf",
+        "wearing a casual smart outfit",
+    ),
+    "이커머스": (
+        "a product photography studio with a laptop showing an e-commerce dashboard, packaged goods and shipping boxes nearby",
+        "wearing a casual smart outfit with an apron",
+    ),
+    "산업안전": (
+        "a safety training room with PPE equipment on display, safety posters on walls, and a monitor showing risk assessment software",
+        "wearing a safety helmet, reflective vest, and holding a clipboard",
+    ),
+    "안전관리": (
+        "a construction site office with safety inspection checklists on desk, a hard hat, and a monitor showing safety dashboards",
+        "wearing a hard hat and reflective safety vest",
+    ),
     "default": (
         "a bright modern classroom with laptops on desks, a whiteboard, and large windows with natural light",
         "wearing smart casual attire",
@@ -989,6 +1051,22 @@ FIELD_ACTIONS_EN = {
     "정비": (
         "inspects mechanical components with diagnostic tools and equipment",
         "repairs and reassembles parts, then tests the system operation",
+    ),
+    "스마트스토어": (
+        "photographs products with a smartphone and edits listing images on laptop",
+        "reviews online store sales dashboard and packs shipping boxes",
+    ),
+    "이커머스": (
+        "creates product detail pages on a laptop with e-commerce platform open",
+        "reviews order management dashboard and prepares packages for shipping",
+    ),
+    "산업안전": (
+        "conducts safety inspection with a checklist, examining equipment and signage",
+        "reviews risk assessment documents on screen and marks safety zones on a map",
+    ),
+    "안전관리": (
+        "inspects a construction site with a clipboard, checking guardrails and signage",
+        "reviews safety training materials and updates risk assessment on laptop",
     ),
     "default": (
         "works on practical training exercises with professional equipment",
@@ -1103,6 +1181,7 @@ def generate_reels_package(course_data):
             "디자인": "UI/UX 디자인 · 실무 포트폴리오", "출판": "편집디자인 · 전자책 제작",
             "콘텐츠": "콘텐츠 기획 · 제작 실무", "마케팅": "디지털 마케팅 · SNS 운영",
             "데이터": "데이터 분석 · 시각화", "코딩": "프로그래밍 · 개발 실무",
+            "이커머스": "스마트스토어 운영 · 온라인 판매", "산업안전": "안전관리 · 위험성평가",
             "default": "전문 기술 · 실무 역량",
         }
         goal_summary = fallback.get(field, fallback["default"])
