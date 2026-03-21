@@ -364,12 +364,14 @@ def _build_seo_section(course_data, field, year):
     SEO 키워드를 자연스럽게 녹인 추가 섹션을 생성합니다.
     
     v4 개선: field_research.json 캐시가 있으면 연구 기반 데이터 우선 사용.
-    캐시가 없는 분야는 기존 하드코딩 데이터로 폴백.
+    title 키워드로 서브필드(예: "드론영상")를 자동 매칭합니다.
     """
+    title = course_data.get("title", "")
+    
     # 1순위: field_research.json 캐시에서 연구 기반 섹션 로드
     try:
         from field_research_helper import get_seo_section
-        cached_section = get_seo_section(field, year)
+        cached_section = get_seo_section(field, year, title=title)
         if cached_section:
             section_title = _get_seo_section_title(field, year)
             return f"\n[소제목] {section_title}\n\n{cached_section}\n"

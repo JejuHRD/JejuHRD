@@ -652,7 +652,7 @@ def generate_empathy_intro(course_data):
     # 1순위: field_research.json 캐시에서 연구 기반 도입부 로드
     try:
         from field_research_helper import get_empathy_hooks
-        cached_hooks = get_empathy_hooks(field)
+        cached_hooks = get_empathy_hooks(field, title=title)
         if cached_hooks:
             intro = random.choice(cached_hooks)
         else:
@@ -805,7 +805,7 @@ def generate_instagram_caption(course_data):
     keyword_sentence = None
     try:
         from field_research_helper import get_instagram_keyword_sentence
-        keyword_sentence = get_instagram_keyword_sentence(field, year)
+        keyword_sentence = get_instagram_keyword_sentence(field, year, title=title)
     except ImportError:
         pass
 
