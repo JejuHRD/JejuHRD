@@ -501,11 +501,12 @@ EMPATHY_INTROS = {
         "1인 출판 시대, 기획부터 편집까지 혼자 할 수 있다면? 생각보다 문턱이 낮아졌어요.",
     ],
     "이커머스": [
-        "\"스마트스토어 해볼까?\" 생각만 하다가 시간이 흘러가고 있다면, 제대로 배우고 시작하는 게 훨씬 빨라요.",
-        "한국 온라인 쇼핑 거래액 242조 원, 농축수산물 온라인 판매만 12.7조 원이에요. 제주 특산품을 온라인에 파는 법, 제대로 배워보세요.",
-        "스마트스토어 셀러 57만 명, 연 매출 1억 이상 셀러 4.5만 명. 혼자 시작하면 막막하지만, 체계적으로 배우면 충분히 가능해요.",
-        "제주 감귤, 한라봉, 해산물... 좋은 상품이 있는데 판로가 고민이라면? 온라인 판매를 배우면 전국이 시장이 됩니다.",
-        "제주도가 전국 최초로 크리에이터 전담부서를 만들고 50억 원 펀드를 조성했어요. 제주에서 온라인 셀러로 시작하기 딱 좋은 타이밍입니다.",
+        "242조 원 이커머스 시장에서 제주 감귤이 날개를 달고 있어요. 온라인 직거래로 유통비를 절반 가까이 줄인 제주 농가, 서귀포 온라인몰은 누적 362억 원을 돌파했거든요.",
+        "스마트스토어 연매출 1억 원 이상 셀러가 4만 5,000명을 넘었다는 사실 아셨나요? 라이브커머스 3.5조 원, AI 커머스까지 합쳐지면서 1인 셀러에게 역대급 기회가 열리고 있어요.",
+        "제주 감귤 농가가 스마트스토어로 유통비를 58%에서 32%로 줄이고, 수취가를 60% 이상 올렸다는 거 알고 계셨나요? 온라인 판매, 이제 선택이 아니라 필수예요.",
+        "소상공인 디지털 활용률이 아직 15.4%라는 건 뒤집어 보면, 지금 시작하는 사람에게 압도적인 선점 효과가 있다는 뜻이에요. 제주에서 스마트스토어를 배울 수 있는 국비지원 과정이 열렸어요.",
+        "네이버가 AI 추천 기반 '발견형 쇼핑'을 도입하면서 구매 전환율이 2배 이상 뛰었어요. 숏폼·라이브·AI가 바꾸는 이커머스 시대, 제주에서 국비지원으로 배울 수 있는 기회를 소개해요.",
+        "제주도가 전국 최초로 크리에이터 전담부서를 만들고 50억 원 규모 펀드를 조성한 이유가 뭘까요? 온라인 판매가 제주 경제의 핵심이 되고 있기 때문이에요.",
     ],
     "산업안전": [
         "산업안전기사 응시자 연 19.6만 명, 국가기술자격 기사 등급 1위라는 사실 아셨나요? 지금 가장 뜨거운 자격증입니다.",
@@ -634,18 +635,32 @@ def generate_seo_title(course_data):
 def generate_empathy_intro(course_data):
     """
     과정별로 차별화된 공감형 도입부를 생성합니다.
-    과정 데이터(시간, 비용 등)를 동적으로 활용하여 후킹합니다.
+
+    SEO v4 개선:
+    - field_research.json 캐시가 있으면 연구 기반 도입부 우선 사용
+    - 첫 200자 안에 핵심 키워드(제주, 국비지원, 분야) 반드시 포함
+    - 대화체(~거든요, ~이에요) 혼용으로 AI 패턴 회피
     """
     from benefits_helper import get_course_type, get_total_hours
+
     title = course_data.get("title", "")
     field = detect_course_field(title, course_data.get("ncsCd"))
     ctype = get_course_type(course_data)
     hours = get_total_hours(course_data)
     self_cost = course_data.get("selfCost", "")
 
-    # 기본 공감형 도입부 선택
-    intros = EMPATHY_INTROS.get(field, EMPATHY_INTROS["default"])
-    intro = random.choice(intros)
+    # 1순위: field_research.json 캐시에서 연구 기반 도입부 로드
+    try:
+        from field_research_helper import get_empathy_hooks
+        cached_hooks = get_empathy_hooks(field)
+        if cached_hooks:
+            intro = random.choice(cached_hooks)
+        else:
+            intros = EMPATHY_INTROS.get(field, EMPATHY_INTROS["default"])
+            intro = random.choice(intros)
+    except ImportError:
+        intros = EMPATHY_INTROS.get(field, EMPATHY_INTROS["default"])
+        intro = random.choice(intros)
 
     # 과정 데이터 기반 추가 후킹 문장 (2번째 문단)
     data_hook = ""
@@ -659,6 +674,11 @@ def generate_empathy_intro(course_data):
 
     if data_hook:
         intro += f"\n\n{data_hook}"
+
+    # SEO: 첫 200자 안에 "제주"와 "국비" 키워드가 없으면 보강
+    first_200 = intro[:200]
+    if "제주" not in first_200:
+        intro += "\n\n제주에서 진행되는 이 과정, 지금 바로 알아보세요."
 
     return intro
 
@@ -698,7 +718,8 @@ def generate_blog_hashtags(course_data):
         if t not in seen:
             unique.append(t)
             seen.add(t)
-    return " ".join(unique[:15])
+    # SEO 연구: 태그 5~10개가 최적, 과도한 태그는 어뷰징 의심
+    return " ".join(unique[:10])
 
 
 def generate_instagram_hashtags(course_data):
@@ -780,20 +801,29 @@ def generate_instagram_caption(course_data):
     hook = _generate_dynamic_hook(title, field)
 
     # 자연어 키워드 문장 (검색·추천 알고리즘용, 분야별 트렌드 반영)
-    field_keyword_sentence = {
-        "AI": f"{year}년 제주도가 AI·디지털 대전환에 918억 원을 투자하는 지금, 제주에서 국비지원으로 AI 활용 교육을 배울 수 있는 과정을 소개합니다.",
-        "영상": f"숏폼 이용률 70.7% 시대, 제주 크리에이터 비율은 겨우 1.7%. {year}년 제주에서 국비지원으로 영상편집을 배울 수 있는 과정을 소개합니다.",
-        "디자인": f"제주 카페·숙박 브랜딩 수요는 폭발적인데 디자인 인력은 부족. {year}년 제주에서 국비지원으로 디자인을 배울 수 있는 과정을 소개합니다.",
-        "출판": f"{year}년 제주에서 국비지원으로 출판편집 교육을 배울 수 있는 과정을 소개합니다.",
-        "콘텐츠": f"{year}년 제주에서 국비지원으로 콘텐츠 제작을 배울 수 있는 과정을 소개합니다.",
-        "마케팅": f"{year}년 제주에서 국비지원으로 디지털마케팅을 배울 수 있는 과정을 소개합니다.",
-        "데이터": f"{year}년 제주에서 국비지원으로 데이터분석을 배울 수 있는 과정을 소개합니다.",
-        "코딩": f"{year}년 제주에서 국비지원으로 코딩을 배울 수 있는 과정을 소개합니다.",
-        "이커머스": f"온라인 쇼핑 거래액 242조 원, 스마트스토어 셀러 57만 명 시대. {year}년 제주에서 국비지원으로 온라인 판매·창업을 배울 수 있는 과정을 소개합니다.",
-        "산업안전": f"산업안전기사 응시자 연 19.6만 명, 국가자격 1위. {year}년 제주에서 국비지원으로 산업안전 교육을 받을 수 있는 과정을 소개합니다.",
-    }
-    keyword_sentence = field_keyword_sentence.get(field,
-        f"{year}년 제주에서 국비지원으로 배울 수 있는 직업훈련 과정을 소개합니다.")
+    # 1순위: field_research.json 캐시, 2순위: 하드코딩
+    keyword_sentence = None
+    try:
+        from field_research_helper import get_instagram_keyword_sentence
+        keyword_sentence = get_instagram_keyword_sentence(field, year)
+    except ImportError:
+        pass
+
+    if not keyword_sentence:
+        field_keyword_sentence = {
+            "AI": f"{year}년 제주도가 AI·디지털 대전환에 918억 원을 투자하는 지금, 제주에서 국비지원으로 AI 활용 교육을 배울 수 있는 과정을 소개합니다.",
+            "영상": f"숏폼 이용률 70.7% 시대, 제주 크리에이터 비율은 겨우 1.7%. {year}년 제주에서 국비지원으로 영상편집을 배울 수 있는 과정을 소개합니다.",
+            "디자인": f"제주 카페·숙박 브랜딩 수요는 폭발적인데 디자인 인력은 부족. {year}년 제주에서 국비지원으로 디자인을 배울 수 있는 과정을 소개합니다.",
+            "출판": f"{year}년 제주에서 국비지원으로 출판편집 교육을 배울 수 있는 과정을 소개합니다.",
+            "콘텐츠": f"{year}년 제주에서 국비지원으로 콘텐츠 제작을 배울 수 있는 과정을 소개합니다.",
+            "마케팅": f"{year}년 제주에서 국비지원으로 디지털마케팅을 배울 수 있는 과정을 소개합니다.",
+            "데이터": f"{year}년 제주에서 국비지원으로 데이터분석을 배울 수 있는 과정을 소개합니다.",
+            "코딩": f"{year}년 제주에서 국비지원으로 코딩을 배울 수 있는 과정을 소개합니다.",
+            "이커머스": f"{year}년 온라인쇼핑 242조 원 시대, 제주 농가는 스마트스토어로 유통비를 절반으로 줄이고 있어요. 제주에서 국비지원으로 스마트스토어·라이브커머스를 배울 수 있는 과정을 소개합니다.",
+            "산업안전": f"산업안전기사 응시자 연 19.6만 명, 국가자격 1위. {year}년 제주에서 국비지원으로 산업안전 교육을 받을 수 있는 과정을 소개합니다.",
+        }
+        keyword_sentence = field_keyword_sentence.get(field,
+            f"{year}년 제주에서 국비지원으로 배울 수 있는 직업훈련 과정을 소개합니다.")
 
     caption = f"""{emoji} {hook}
 
@@ -1403,24 +1433,33 @@ def generate_posting_guide(course_data):
   4차: 마감 3일 전 → 블로그+인스타 "마감 임박" 리마인드
 """
     guide += """
-⏰ 권장 게시 시간
-  - 네이버 블로그: 오전 8~9시 또는 오후 1시
-  - 인스타그램 피드/캐러셀: 오후 9시~10시 (한국 시장 최적)
+⏰ 권장 게시 시간 (반드시 불규칙하게!)
+  ⚠️ 매일 같은 시간 게시 = 자동화(매크로) 의심 → 저품질 위험
+  - 네이버 블로그: 오전 8~10시 또는 오후 12~2시 (±1~3시간 변동)
+  - 인스타그램 피드/캐러셀: 오후 9시~10시
   - 인스타그램 릴스: 오후 9시~10시
-  - 인스타그램 스토리: 오전 8시, 오후 12시, 오후 9시 (3회)
+  - 하루 2개 이상 게시 시: 최소 2~3시간 간격
   - 최적 요일: 목요일 > 화·수요일
 
 📊 게시 후 체크리스트
-  □ 블로그: 발행 후 1~2시간 뒤 네이버에서 제목 검색 → 색인 여부 확인
-    - 확인 방법: whereispost.com 또는 네이버에서 site:blog.naver.com/[블로그ID]
-    - ※ 네이버 서치어드바이저는 블로그 소유권 인증이 불가하므로,
-      수동으로 검색하여 색인 여부를 확인하세요
-  □ 블로그: 글 발행 직후 카테고리 내 기존 글에 내부링크 추가 (상호 연결)
-  □ 인스타: 게시 후 1시간 내 댓글에 직접 답글 달기 (알고리즘 부스트)
+  □ 블로그: 발행 후 1~2시간 뒤 색인 확인
+    - whereispost.com 또는 네이버에서 site:blog.naver.com/[블로그ID]
+    - ※ 네이버 블로그는 서치어드바이저 별도 등록 불필요 (자동 색인)
+  □ 블로그: 기존 관련 글 2~3개와 내부링크 상호 연결 (체류시간 극대화)
+  □ 인스타: 게시 후 1시간 내 댓글에 직접 답글 달기
   □ 인스타: 스토리에 게시물 공유 + "자세히 보기" 유도
-  □ 릴스: 첫 3초 이탈 방지를 위해 훅 문장 확인
-  □ 관련 커뮤니티/카페에 링크 공유 (제주 지역 커뮤니티 우선)
-    - 추천 카페: 제주 지역 카페, 취업/이직 카페, 내일배움카드 카페
+  □ 관련 커뮤니티/카페에 정보성 글로 자연스럽게 공유
+    - 제주 지역 카페, 취업/이직 카페, 내일배움카드 카페
+
+📈 C-Rank 성장 액션 (매주 실행)
+  □ 관련 블로거 서로이웃 신청: 주 10~20명
+    - 국비교육, 자기계발, 제주 생활 분야 블로거 위주
+  □ 관련 블로그 구체적 댓글 작성: 매일 5~10개
+    - ✗ "좋은 글이네요~" 안부 댓글은 역효과
+    - ✅ "저도 이 과정 관심 있었는데, ○○ 부분이 궁금했어요" 식으로 구체적으로
+  □ 네이버 지식iN에서 "국비교육", "직업훈련" 관련 질문 답변: 주 3회
+  □ 블로그 전체 포스팅의 80% 이상을 국비교육/직업훈련 주제로 유지
+    - C-Rank Context(주제 집중도)가 가장 높은 가중치(~40%)
 
 🔑 인스타그램 프로필 설정
   - 프로필 이름: "제주HRD위원회 | 직업훈련·취업지원" (검색 키워드 포함)
@@ -1441,3 +1480,73 @@ def generate_posting_guide(course_data):
   ※ 과정 안내 외에도 위 비율을 참고하여 다양한 콘텐츠를 직접 기획해주세요
 """
     return guide
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 키워드 밀도 제어 (저품질 방지)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+def check_keyword_density(text, keyword, max_count=6):
+    """
+    본문 내 키워드 출현 횟수를 확인합니다.
+    SEO 연구: 핵심 키워드 본문 5~6회가 안전선, 과도 반복은 저품질 유발.
+    """
+    if not keyword or not text:
+        return 0, True
+    count = text.upper().count(keyword.upper())
+    return count, count <= max_count
+
+
+def get_keyword_density_report(text, primary_keyword, field_keywords=None):
+    """키워드 밀도 리포트를 생성합니다."""
+    report = []
+    cnt, safe = check_keyword_density(text, primary_keyword)
+    status = "✅" if safe else "⚠️ 과다"
+    report.append(f"  {status} '{primary_keyword}': {cnt}회 (권장 5~6회)")
+    if field_keywords:
+        for kw in field_keywords[:3]:
+            cnt2, _ = check_keyword_density(text, kw)
+            if cnt2 > 0:
+                report.append(f"  ✅ '{kw}': {cnt2}회")
+    return "\n".join(report)
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 블로그 구조 다양화 (유사문서 필터링 회피)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CLOSING_PATTERNS = [
+    "이 글이 도움이 되셨다면, 주변에 교육을 찾고 있는 분에게 공유해주세요. 더 궁금한 점은 댓글로 남겨주시면 답변드릴게요!",
+    "제주에서 새로운 시작을 준비하고 계신다면, 이 과정 놓치지 마세요. 궁금한 점은 언제든 문의해주세요!",
+    "여기까지 읽어주셨다면 이미 반은 성공이에요. 나머지 반은 신청 버튼을 누르는 것뿐입니다 😊",
+    "국비지원 교육은 한번 수강한 과정은 재수강이 안 되니까, 신중하게 고르되 너무 오래 고민하지는 마세요!",
+    "같은 고민을 하고 있는 친구가 있다면 이 글을 공유해주세요. 함께 배우면 더 재미있잖아요!",
+]
+
+SECTION_TITLE_VARIANTS = {
+    "overview": ["한눈에 보기", "과정 요약 정보", "핵심 정보 한눈에"],
+    "benefits": ["이런 혜택이 있어요", "혜택 총정리", "받을 수 있는 혜택은?"],
+    "recommend": ["이런 분에게 추천해요", "이런 분이라면 꼭 들어보세요", "나한테 맞는 과정일까?"],
+    "curriculum": ["어떤 것들을 배우나요", "커리큘럼 미리보기", "무엇을 배울 수 있나요"],
+    "apply": ["이렇게 신청하세요", "신청 방법 3단계", "신청은 이렇게!"],
+}
+
+
+def get_varied_section_title(section_key, title_hash=0):
+    """과정별로 소제목 스타일을 미세하게 변형합니다."""
+    variants = SECTION_TITLE_VARIANTS.get(section_key, [""])
+    if not variants:
+        return section_key
+    return variants[title_hash % len(variants)]
+
+
+def get_varied_closing(title_hash=0):
+    """과정별로 다른 마무리 문구를 반환합니다."""
+    return CLOSING_PATTERNS[title_hash % len(CLOSING_PATTERNS)]
+
+
+def estimate_char_count(text):
+    """공백 제외 글자 수를 추정합니다."""
+    import re
+    clean = re.sub(r'\[.*?\]', '', text)
+    return len(clean.replace(" ", "").replace("\n", ""))

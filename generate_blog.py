@@ -32,6 +32,10 @@ from seo_helper import (
     generate_posting_guide,
     extract_seo_keywords,
     detect_course_field,
+    get_varied_section_title,
+    get_varied_closing,
+    estimate_char_count,
+    get_keyword_density_report,
 )
 
 
@@ -75,7 +79,7 @@ def generate_blog_post(course_data, output_dir="output"):
     blog_title = generate_seo_title(course_data)
     empathy_intro = generate_empathy_intro(course_data)
     seo_keywords = extract_seo_keywords(course_data)
-    field = detect_course_field(title)
+    field = detect_course_field(title, course_data.get("ncsCd"))
     hashtags_raw = generate_blog_hashtags(course_data)
     year = datetime.now().year
     today = datetime.now().strftime("%Y년 %m월 %d일")
@@ -98,49 +102,48 @@ def generate_blog_post(course_data, output_dir="output"):
     # ── 공감형 도입부에서 마크다운 볼드(**) 제거 ──
     empathy_clean = empathy_intro.replace("**", "")
 
+    # ── 구조 다양화를 위한 해시 (과정별 미세 변형) ──
+    title_hash = abs(hash(title))
+    sec_overview = get_varied_section_title("overview", title_hash)
+    sec_benefits = get_varied_section_title("benefits", title_hash)
+    sec_curriculum = get_varied_section_title("curriculum", title_hash + 2)
+    sec_apply = get_varied_section_title("apply", title_hash + 3)
+    closing = get_varied_closing(title_hash)
+
     # ════════════════════════════════════════
-    #  스마트에디터용 본문 텍스트 생성
+    #  스마트에디터용 본문 텍스트 생성 (SEO v4)
     # ════════════════════════════════════════
 
     post_content = f"""[제목] {blog_title}
 
-[이미지 삽입] 카드뉴스 커버 이미지 (1번)
+[이미지 삽입] 직접 촬영한 대표 이미지 또는 카드뉴스 커버 (1번)
+
+[✍️ 직접 작성] 아래 공감형 도입부를 참고하되, 반드시 본인의 말로 고쳐 쓰세요.
+예시: "제주에서 살면서 늘 느끼는 건데, 수도권에 비해 교육 기회가 정말 적잖아요..."
 
 {empathy_clean}
 
 [구분선]
 
-[소제목] 목차
-
-1. 한눈에 보기
-2. 이런 혜택이 있어요
-3. {_get_seo_section_title(field, year)}
-4. 이런 분에게 추천해요
-5. 어떤 것들을 배우나요
-6. 이렇게 신청하세요
-7. 궁금하신 점은
-
-[구분선]
-
-[소제목] 한눈에 보기
+[소제목] {sec_overview}
 
 📌 과정명: {title}
-🏫 어디서 배우나요: {institution}
-📅 배움 기간: {period}
-⏰ 총 시간: {time_info}
+🏫 교육기관: {institution}
+📅 훈련 기간: {period}
+⏰ 총 훈련시간: {time_info}
 👥 모집 인원: {capacity}
-🎯 누가 들을 수 있나요: {target}
+🎯 수강 자격: {target}
+
+[이미지 삽입] 교육기관 외관/내부 또는 카드뉴스 상세 이미지 (2번)
 
 [구분선]
 
-[소제목] 이런 혜택이 있어요
+[소제목] {sec_benefits}
 
 {benefit_text}
 
 💰 비용이 궁금하시죠?
 {cost_info}
-
-[이미지 삽입] 카드뉴스 상세 이미지 (2번)
 
 {seo_section}
 
@@ -150,61 +153,73 @@ def generate_blog_post(course_data, output_dir="output"):
 
 [구분선]
 
-[소제목] 어떤 것들을 배우나요
+[소제목] {sec_curriculum}
 
-{outcome if outcome else "상세 내용은 고용24에서 확인해주세요."}
+{outcome if outcome else "상세 커리큘럼은 고용24에서 확인해주세요."}
+
+[✍️ 직접 작성] 커리큘럼에 대한 본인의 생각이나 기대를 1~2문장 추가하세요.
+예시: "개인적으로 이 과정에서 가장 기대되는 건 ○○ 파트예요. 실무에서 바로 쓸 수 있거든요."
 
 [구분선]
 
-[소제목] 이렇게 신청하세요
+[소제목] {sec_apply}
 
 STEP 1. 내일배움카드 만들기
 아직 카드가 없다면, 고용24(hrd.go.kr)에서 온라인으로 신청하거나
 가까운 고용센터에 방문하면 돼요. 발급까지 약 1~2주 걸리니 서둘러 신청하세요!
 
-💡 꿀팁: 고용24 앱을 설치하면 스마트폰으로도 간편하게 신청할 수 있어요.
+💡 고용24 앱을 설치하면 스마트폰으로도 간편하게 신청할 수 있어요.
 
 STEP 2. 원하는 과정 찾아서 신청하기
 고용24에서 과정명을 검색하거나, 아래 링크에서 바로 확인하세요.
 
-[링크] 고용24에서 이 과정 찾아보기: {hrd_url}
+[링크] 고용24에서 이 과정 확인하기: {hrd_url}
 
-💡 꿀팁: "{title}" 전체를 검색하기 어려우면, 핵심 키워드 + "제주"로 검색해보세요.
+💡 "{title}" 전체를 검색하기 어려우면, 핵심 키워드 + "제주"로 검색해보세요.
 
 STEP 3. 배우면서 혜택도 받기
 {allowance_step3}
 
-[이미지 삽입] 카드뉴스 신청방법 이미지 (3번)
+[이미지 삽입] 카드뉴스 신청방법 이미지 또는 고용24 화면 캡처 (3번)
 
 [구분선]
 
-[소제목] 궁금하신 점은
-
 {institution + chr(10) if institution and institution not in contact else ''}{contact}
 {('📍 ' + course_data.get('address', '')) if course_data.get('address') else ''}
+
+[✍️ 직접 작성] 교육기관까지 가는 방법, 주변 환경 등 제주 현지 정보를 추가하세요.
+예시: "제주시에서 버스 ○○번 타면 ○○ 정류장에서 도보 5분이에요. 근처에 주차장도 있어요."
 
 편하게 전화 주시면 친절하게 안내해드려요!
 
 [구분선]
 
 [내부링크 영역]
-👉 이 글이 도움이 되셨다면, 다른 훈련 과정 안내도 확인해보세요!
+👉 이 글이 도움이 되셨다면, 다른 훈련 과정도 확인해보세요!
 (여기에 블로그 내 관련 글 2~3개의 제목과 링크를 추가하세요)
+→ 내부링크를 꼭 넣어야 체류시간이 늘어나고 검색 노출에 유리해요!
 
 [구분선]
 
-이 과정은 {year}년 제주지역인적자원개발위원회에서 안내하는 특화훈련입니다.
-제주 지역의 산업 수요에 맞춰 기획된 과정이니, 제주에서 새로운 커리어를 준비하시는 분들에게 특히 추천드려요.
+{closing}
+
+이 과정은 {year}년 제주지역인적자원개발위원회에서 안내하는 특화훈련이에요.
+제주 지역 산업 수요에 맞춰 기획되었으니, 제주에서 새로운 커리어를 준비하시는 분들께 추천드려요.
 
 최종 수정일: {today}
-
-[구분선]
 
 {hashtags}
 """
 
+    # ── 글자 수 측정 및 키워드 밀도 리포트 ──
+    char_count = estimate_char_count(post_content)
+    keyword_report = get_keyword_density_report(
+        post_content, "제주",
+        ["국비지원", "내일배움카드", field if field != "default" else "직업훈련"],
+    )
+
     # ── 작업 가이드 (파일 상단에 추가) ──
-    work_guide = _build_work_guide(blog_title)
+    work_guide = _build_work_guide(blog_title, char_count, keyword_report)
 
     final_content = work_guide + "\n" + post_content
 
@@ -252,41 +267,78 @@ STEP 3. 배우면서 혜택도 받기
     return filepath, None
 
 
-def _build_work_guide(blog_title):
+def _build_work_guide(blog_title, char_count=0, keyword_report=""):
     """
-    파일 상단에 포함할 스마트에디터 작업 가이드를 생성합니다.
-    실제 본문에 포함하지 않고, 작업자가 참고하는 용도입니다.
+    파일 상단에 포함할 스마트에디터 작업 가이드 (SEO v4).
+    인간화 편집 체크리스트, 키워드 밀도 리포트, 저품질 방지 가이드 포함.
     """
     return f"""{'=' * 60}
-📋 네이버 블로그 포스팅 작업 가이드
+📋 네이버 블로그 포스팅 작업 가이드 (SEO v4)
 {'=' * 60}
 
-아래 본문을 네이버 스마트에디터에 붙여넣은 뒤,
-태그 표시를 보고 서식을 적용해주세요.
+⚠️ 중요: AI 생성 콘텐츠를 그대로 게시하지 마세요!
+아래 인간화 편집을 반드시 거쳐야 네이버 저품질을 피할 수 있습니다.
 
-✅ 작업 순서:
-  1. 아래 [===== 여기부터 본문 =====] 이후의 텍스트를 전체 복사
-  2. 네이버 블로그 > 글쓰기 > 스마트에디터에 붙여넣기
-  3. 아래 태그들을 찾아서 서식 적용:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔑 인간화 편집 필수 체크리스트 (가장 중요!)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  [제목]         → 삭제하고, 블로그 제목란에 입력
-  [소제목]       → 해당 텍스트를 드래그 → 에디터 "제목2" 적용
-  [구분선]       → 삭제 후 에디터 구분선(―) 삽입
-  [이미지 삽입]   → 삭제 후 해당 위치에 카드뉴스 이미지 업로드
-  [링크]         → 텍스트에 하이퍼링크 걸기
-  [내부링크 영역] → 이전에 발행한 관련 과정 글 2~3개의 링크를 추가
-  💡, ✔, 📌 등 → 이모지는 그대로 유지 (에디터에서 정상 표시됨)
+  □ [✍️ 직접 작성] 영역을 반드시 본인 경험/관점으로 채우기
+    → "저도 처음엔..." / "실제로 알아봤는데..." 등 개인적 도입
+  □ 직접 촬영한 사진 6~13장 삽입 (교육기관 외관, 주변 환경, 교재 등)
+    → AI 생성 이미지, 다른 블로그에서 가져온 이미지 절대 금지
+    → 파일명에 키워드 포함 (예: jeju-gukbi-smartstore-2026.jpg)
+  □ "~합니다/됩니다" → "~거든요/이에요/잖아요" 대화체로 3~5곳 변환
+  □ 1분 이상 동영상 1개 삽입 (직접 촬영 권장)
+  □ 제주 현지 정보 추가 (교육기관까지 교통편, 주변 식당, 주차 등)
+  □ 개인적 견해/감상 2~3문장 추가
+  □ 이모지 3~5개 자연스럽게 활용
 
-  4. 이미지 최소 3장 삽입 (네이버 검색 노출에 유리)
-  5. 미리보기로 확인 후 발행
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ SEO 체크리스트
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📌 SEO 체크리스트 (검색 상위 노출을 위해 꼭 확인!):
-  □ 제목이 25자 이내인지 확인
-  □ 목차 섹션의 각 항목에 앵커링크(클릭 시 해당 위치로 이동)를 걸면 체류시간 ↑
-  □ [내부링크 영역]에 기존 블로그 글 2~3개 링크 추가 (세션당 페이지뷰 증가)
-  □ 본문이 1,500자 이상인지 확인 (정보성 글은 2,000자 이상 권장)
+  □ 제목 15~25자 (현재: {len(blog_title)}자) → {blog_title}
+  □ 본문 공백 제외 2,000자 이상 (현재: 약 {char_count}자)
+    → 2,000자 미만이면 제주 현지 정보, 경험담을 추가하세요
+  □ 첫 200자 안에 핵심 키워드 포함 확인
+  □ 소제목 3~5개 (현재 구조에 맞게 조정됨)
+  □ [내부링크 영역]에 기존 글 2~3개 링크 반드시 추가 (체류시간 ↑)
   □ 3~4줄마다 줄바꿈으로 가독성 확보
-  □ 발행 후 1~2시간 뒤 whereispost.com에서 색인 여부 확인
+
+📊 키워드 밀도 (본문 5~6회가 안전선):
+{keyword_report if keyword_report else "  (생성 후 자동 측정됩니다)"}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⛔ 저품질 방지 주의사항
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✗ 동일 키워드 7회 이상 반복 금지
+  ✗ 여러 포스팅에 같은 외부 링크 반복 삽입 금지
+  ✗ 같은 이미지를 여러 포스팅에 재사용 금지
+  ✗ 게시 후 제목/핵심 키워드 전면 수정 금지
+  ✗ 매일 정확히 같은 시간에 게시 금지 (1~3시간 변동 필요)
+  ✗ 하루 2개 이상 게시 시 최소 2~3시간 간격 유지
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📝 스마트에디터 작업 순서
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. [===== 여기부터 본문 =====] 이후의 텍스트를 전체 복사
+  2. 네이버 블로그 > 글쓰기 > 스마트에디터에 붙여넣기
+  3. 태그를 찾아서 서식 적용:
+     [제목]          → 삭제하고, 블로그 제목란에 입력
+     [소제목]        → 해당 텍스트 드래그 → 에디터 "제목2" 적용
+     [구분선]        → 삭제 후 에디터 구분선(―) 삽입
+     [이미지 삽입]    → 삭제 후 해당 위치에 직접 촬영한 이미지 업로드
+     [링크]          → 텍스트에 하이퍼링크 걸기
+     [내부링크 영역]  → 기존 블로그 글 2~3개의 제목과 링크 추가
+     [✍️ 직접 작성]  → 반드시 본인의 말로 직접 작성
+     💡, ✔, 📌 등  → 이모지는 그대로 유지
+  4. 직접 촬영 이미지 6~13장 삽입
+  5. 동영상 1개 삽입 (1분 이상)
+  6. 미리보기로 확인 후 발행
+  7. 발행 후 1~2시간 뒤 whereispost.com에서 색인 확인
 
 {'=' * 60}
 ===== 여기부터 본문 =====
@@ -310,8 +362,21 @@ def _get_seo_section_title(field, year):
 def _build_seo_section(course_data, field, year):
     """
     SEO 키워드를 자연스럽게 녹인 추가 섹션을 생성합니다.
-    제주 특화 시장 트렌드 데이터를 활용하여 설득력과 체류시간을 높입니다.
+    
+    v4 개선: field_research.json 캐시가 있으면 연구 기반 데이터 우선 사용.
+    캐시가 없는 분야는 기존 하드코딩 데이터로 폴백.
     """
+    # 1순위: field_research.json 캐시에서 연구 기반 섹션 로드
+    try:
+        from field_research_helper import get_seo_section
+        cached_section = get_seo_section(field, year)
+        if cached_section:
+            section_title = _get_seo_section_title(field, year)
+            return f"\n[소제목] {section_title}\n\n{cached_section}\n"
+    except ImportError:
+        pass
+
+    # 2순위: 하드코딩 데이터
     sections = {
         "AI": f"""
 [소제목] 왜 지금 AI를 배워야 할까요?
