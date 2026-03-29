@@ -70,7 +70,9 @@ def _detect_field_by_ncs(ncs_cd):
 
 TITLE_FIELD_KEYWORDS = {
     "AI": ["AI", "인공지능", "챗GPT", "CHATGPT", "머신러닝", "딥러닝", "생성형"],
+    "드론": ["드론배송", "드론물류", "드론관제", "드론택배", "UTM", "자율비행", "배송드론"],
     "영상": ["영상", "비디오", "유튜브", "숏폼", "프리미어", "에프터이펙트", "촬영", "릴스"],
+    "건축/설계": ["건축", "설계", "CAD", "BIM", "Revit", "AutoCAD", "인테리어", "실내건축", "실내디자인", "SketchUp", "스케치업", "3DS MAX", "리모델링"],
     "디자인": ["디자인", "UI", "UX", "피그마", "FIGMA", "웹디자인", "그래픽"],
     "출판": ["출판", "인디자인", "편집디자인", "전자책", "EPUB", "오디오북"],
     "이커머스": ["스마트스토어", "이커머스", "쇼핑몰", "온라인판매", "라이브커머스", "셀러", "전자상거래"],
@@ -80,15 +82,32 @@ TITLE_FIELD_KEYWORDS = {
     "마케팅": ["마케팅", "퍼포먼스", "광고"],
     "데이터": ["데이터", "빅데이터", "분석", "시각화"],
     "코딩": ["코딩", "프로그래밍", "파이썬", "개발", "자바", "웹개발"],
+    "물류/운송": ["지게차", "물류", "포클리프트", "건설기계조종", "운전기능사", "하역", "창고관리"],
+    "조경": ["조경", "조경기능사", "정원", "수목", "식재", "가드닝", "그린키퍼", "녹지", "식물관리"],
+    "에너지/시설관리": ["에너지관리", "보일러", "냉동공조", "시설관리", "HVAC", "냉난방", "열관리", "배관"],
 }
 
 
 def detect_course_field(title, ncs_cd=None):
-    """과정 분야를 감지합니다. NCS 코드 우선, 없으면 제목 키워드 폴백."""
+    """과정 분야를 감지합니다.
+    
+    1단계: 제목에서 고유 키워드(복합어) 매칭 — 드론배송, 건축설계 등 NCS로 오분류될 수 있는 분야
+    2단계: NCS 코드 매핑
+    3단계: 제목 일반 키워드 폴백
+    """
+    title_upper = title.upper()
+    # 1단계: 고유 복합 키워드 우선 체크 (NCS 오분류 방지)
+    _priority_fields = ["드론", "건축/설계", "물류/운송", "조경", "에너지/시설관리"]
+    for field in _priority_fields:
+        if field in TITLE_FIELD_KEYWORDS:
+            for kw in TITLE_FIELD_KEYWORDS[field]:
+                if kw in title_upper:
+                    return field
+    # 2단계: NCS 코드 매핑
     ncs_field, _ = _detect_field_by_ncs(ncs_cd)
     if ncs_field:
         return ncs_field
-    title_upper = title.upper()
+    # 3단계: 제목 일반 키워드 폴백
     for field, keywords in TITLE_FIELD_KEYWORDS.items():
         for kw in keywords:
             if kw in title_upper:
@@ -148,6 +167,11 @@ FIELD_DEFAULT_SCENES = {
     "마케팅": "a marketing team workspace with analytics dashboards, campaign metrics on screens, collaborative atmosphere",
     "데이터": "a data science workspace with complex visualizations and code on dual monitors, organized desk setup",
     "코딩": "a developer workspace with code on dark-themed screens, mechanical keyboard, minimalist desk with plants",
+    "물류/운송": "a logistics warehouse interior with forklift operating, pallets and shelving units, industrial lighting",
+    "건축/설계": "an architect's studio with CAD drawings on large monitor, architectural model on desk, blueprint prints, warm professional lighting",
+    "드론": "a drone delivery operation center with monitors showing flight paths, a delivery drone on launchpad, coastal island landscape in background",
+    "조경": "a landscaping professional planting trees in a beautiful garden with stone walls, Jeju volcanic rock, and subtropical plants under clear sky",
+    "에너지/시설관리": "a facility management technician inspecting a boiler system in a hotel mechanical room, gauges and pipes visible, professional lighting",
     "default": "a bright modern classroom with laptops, students engaged in learning, natural light through large windows",
 }
 
@@ -522,6 +546,41 @@ EMPATHY_INTROS = {
         "건설업 사망사고의 46.9%가 안전관리 부실에서 시작돼요. 안전관리 전문가는 생명을 살리는 직업입니다.",
         "제주는 풍력발전 2,345MW 확대, 건설·관광 인프라 투자가 이어지면서 안전관리 전문인력 수요가 급증하고 있어요.",
     ],
+    "물류/운송": [
+        "매년 6만 명이 합격하는 기능사 1위 자격증인데, 제주에선 국비지원으로 배울 곳이 한 곳도 없었어요. 이제 제주에서 처음으로 열린 국비지원 과정을 소개합니다.",
+        "제주항 화물의 70%, 감귤 19만 톤 출하, 쿠팡 물류센터 3곳. 제주에서 지게차 수요는 끊이지 않는데 배울 곳이 없었어요. 자부담 20만 원대로 시작할 수 있는 기회예요.",
+        "지게차 자격증 하나면 중위 연봉 4,000만 원, 경력자는 5,000만 원 이상. 학력·나이 제한 없이 누구나 도전할 수 있는 실전 자격이에요.",
+        "제주도가 '도외직업훈련 지원사업'을 운영할 만큼 지역 내 훈련 인프라가 부족했어요. 비행기 타지 않고 제주에서 자격증을 딸 수 있는 첫 번째 국비지원 기회예요.",
+        "50대 이상이 가장 많이 취득하는 자격증이 지게차예요. 경력단절이든 전직이든, 나이 상관없이 현장에서 바로 쓸 수 있는 자격을 제주에서 준비하세요.",
+    ],
+    "건축/설계": [
+        "제주 건설 취업자가 27개월 연속 줄고 있어요. 현장 일감이 반토막 난 지금, AutoCAD와 Revit을 배우면 설계·인테리어·리모델링 분야로 전환할 수 있어요.",
+        "제주 주택의 47.4%가 20년 넘은 노후 건물이에요. 신축은 멈춰도 리모델링 수요는 폭발합니다. 설계·디자인 역량이 이 시장을 이끌어요.",
+        "2030년까지 모든 공공건설에 BIM이 의무화되는데, 건설회사 89.5%가 인력 부족을 호소해요. 지금 배우면 경기 회복 때 가장 먼저 기회를 잡을 수 있어요.",
+        "제주에서 AutoCAD·BIM·인테리어를 배울 곳을 찾다가 포기한 경험, 있으시죠? 제주 최초 국비지원 건축설계·디자인 과정이 열렸습니다.",
+        "건설 불황이 영원하진 않아요. 빈집 예산 30배 증가, 그린리모델링 민간 확대. 설계·디자인 역량을 쌓아두면 다음 사이클의 주인공이 됩니다.",
+    ],
+    "드론": [
+        "드론 조종 자격증만 65만 명이 땄는데, 배송 전문가는 왜 없을까요? 조종만으로는 잡을 수 없는 새로운 일자리가 열리고 있어요.",
+        "2027년 드론 택배 상용화, K-드론배송 전국 166곳 확대. 글로벌 시장 연 37% 성장인데, 배송 특화 훈련은 전국에 1곳뿐이에요.",
+        "제주는 전국 최대 드론특별자유화구역에 비양도·가파도·마라도 실증 배송까지. 이 현장에서 배울 수 있는 유일한 과정이에요.",
+        "드론 SW 개발자 초봉 5,000만 원, 기본 조종사 2,800만 원. 차이는 '시스템을 이해하느냐'입니다.",
+        "전국 드론 배송 훈련과정 1곳, 실증 1위 제주에는 0곳이었습니다. 대한민국 드론 배송의 심장부에서 처음 열리는 국비지원 과정이에요.",
+    ],
+    "조경": [
+        "제주 호텔 정원, 골프장 그린, 식물원 수목… 그 뒤에는 항상 '조경기능사'가 있어요. 제주 관광 인프라를 지탱하는 전문직이에요.",
+        "골프장 29개, 숙박시설 7,786개인 제주에, 조경 국비교육은 0곳이었어요. 처음으로 열리는 국비지원 과정이에요.",
+        "유네스코 3관왕, 오름 368개, 곶자왈 95㎢ — 이 자연경관을 매일 가꾸는 사람이 조경 전문가예요.",
+        "2026년 제주 정원도시 전환 본격화. 지금 조경을 배우면 가장 먼저 기회를 잡아요.",
+        "실기 합격률 87%, 응시자격 제한 없음. 내일배움카드로 자부담 최소화하고 제주에서 준비하세요.",
+    ],
+    "에너지/시설관리": [
+        "제주 숙박시설 7,786곳의 보일러·냉동공조를 관리할 전문인력, 제주에 단기 국비 과정이 0곳이었던 이 분야에 처음 문이 열려요.",
+        "도시가스 보급률 19.8%, 기름보일러 36% — 제주의 난방은 전국과 다릅니다. 이 에너지 구조를 관리할 전문가가 필요해요.",
+        "호텔 채용공고에 '에너지관리기능사 우대'가 빠지지 않는 이유, 보일러 사업장의 법적 필수 자격이기 때문이에요.",
+        "전기 훈련은 있는데 보일러·배관·냉동공조는 제주에 0곳이었어요. 시설관리 직무의 절반이 빠져 있던 교육 공백을 채워요.",
+        "대기업 수요 1위, 취업률 53.8%의 검증된 자격. 응시자격 제한 없이 누구나 도전할 수 있어요.",
+    ],
     "default": [
         "새로운 기술을 배우고 싶은데, 어디서 시작해야 할지 막막하셨나요? 내일배움카드만 있으면 자부담 10%로 바로 시작할 수 있는 과정이 열렸어요.",
         "이직을 고민하거나, 새로운 분야에 도전하고 싶은 마음... 누구나 한번쯤 있죠. 제주에서 부담 없이 새로운 기술을 배울 수 있는 기회를 소개합니다.",
@@ -715,6 +774,11 @@ def generate_blog_hashtags(course_data):
         "코딩": ["#코딩교육", "#프로그래밍교육", "#개발자교육"],
         "이커머스": ["#스마트스토어교육", "#온라인쇼핑몰창업", "#이커머스교육", "#라이브커머스", "#제주특산품판매"],
         "산업안전": ["#산업안전기사", "#안전관리자교육", "#중대재해처벌법", "#산업안전교육", "#위험성평가"],
+        "물류/운송": ["#지게차자격증", "#지게차운전기능사", "#건설기계조종사면허", "#물류취업", "#제주지게차"],
+        "건축/설계": ["#건축설계교육", "#AutoCAD교육", "#BIM교육", "#인테리어교육", "#Revit", "#제주건축"],
+        "드론": ["#드론배송", "#드론물류교육", "#UTM관제", "#자율비행", "#K드론배송", "#제주드론"],
+        "조경": ["#조경기능사", "#조경교육", "#정원도시제주", "#그린키퍼", "#골프장취업", "#제주조경"],
+        "에너지/시설관리": ["#에너지관리기능사", "#보일러자격증", "#시설관리취업", "#호텔시설관리", "#냉동공조", "#제주시설관리"],
         "default": ["#직업훈련", "#스킬업", "#자기계발", "#커리어전환", "#제주디지털전환"],
     }
     specific = field_tags.get(field, field_tags["default"])
@@ -758,6 +822,11 @@ def generate_instagram_hashtags(course_data):
         "코딩": ["#코딩교육", "#프로그래밍"],
         "이커머스": ["#스마트스토어", "#온라인창업", "#제주특산품"],
         "산업안전": ["#산업안전기사", "#안전관리자", "#중대재해처벌법"],
+        "물류/운송": ["#지게차자격증", "#물류취업", "#건설기계면허"],
+        "건축/설계": ["#건축설계", "#AutoCAD", "#인테리어디자인"],
+        "드론": ["#드론배송", "#드론물류", "#자율비행"],
+        "조경": ["#조경기능사", "#정원도시", "#제주조경"],
+        "에너지/시설관리": ["#에너지관리기능사", "#시설관리", "#보일러"],
         "default": ["#스킬업", "#자기계발"],
     }
     specific = field_tags.get(field, field_tags["default"])
