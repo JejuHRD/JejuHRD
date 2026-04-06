@@ -1,15 +1,7 @@
 {
-  "updated": "2026-04-07 06:36",
-  "count": 4,
+  "updated": "2026-04-07 07:34",
+  "count": 3,
   "data": [
-    {
-      "address": "제주 서귀포시",
-      "subTitle": "중앙컴퓨터직업전문학원",
-      "title": "(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정",
-      "traStartDate": "2026-05-06",
-      "traEndDate": "2026-06-18",
-      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20253001129433&tracseTme=4&crseTracseSe=C0061&trainstCstmrId=500020018203"
-    },
     {
       "address": "제주 서귀포시",
       "subTitle": "중앙컴퓨터직업전문학원",
@@ -20,11 +12,11 @@
     },
     {
       "address": "제주 서귀포시",
-      "subTitle": "드론항공평생교육원",
-      "title": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정",
-      "traStartDate": "2026-05-18",
-      "traEndDate": "2026-06-17",
-      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001247924&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500035584309"
+      "subTitle": "중앙컴퓨터직업전문학원",
+      "title": "(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정",
+      "traStartDate": "2026-05-06",
+      "traEndDate": "2026-06-18",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20253001129433&tracseTme=4&crseTracseSe=C0061&trainstCstmrId=500020018203"
     },
     {
       "address": "제주 서귀포시",
@@ -32,7 +24,7 @@
       "title": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정",
       "traStartDate": "2026-05-18",
       "traEndDate": "2026-06-17",
-      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001247924&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500035584309"
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001247924&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500035584309"
     }
   ]
 }
