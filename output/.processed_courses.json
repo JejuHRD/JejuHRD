@@ -126,5 +126,21 @@
       "reels_grok": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__reels_grok.txt",
       "posting_guide": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__posting_guide.txt"
     }
+  },
+  "AIG20263001247924_2_2026-06-22_2026-07-22": {
+    "title": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정",
+    "period": "2026.06.22 ~ 2026.07.22",
+    "generated_at": "2026-04-11T01:59:51.675769",
+    "files": {
+      "cardnews": [
+        "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_v2_1_cover.png",
+        "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_v2_2_detail.png",
+        "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_v2_3_howto.png"
+      ],
+      "blog_txt": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_blog_naver.txt",
+      "instagram_caption": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_instagram_caption.txt",
+      "reels_grok": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_reels_grok.txt",
+      "posting_guide": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_posting_guide.txt"
+    }
   }
 }

@@ -23,11 +23,11 @@
 🎬 세그먼트 1 — 처음 생성 (0~10초)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   장면: 작업 공간 → 카메라 보며 인사
-  나레이션: 영상 편집 마스터하는 가장 빠른 길, 드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정.
+  나레이션: 촬영부터 편집까지, 내 손으로 만드는 영상, 드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정.
 
 🤖 Grok 프롬프트 (복사용)
 ────────────────────────────────────────────
-The person speaks clearly in Korean with natural lip-sync: "영상 편집 마스터하는 가장 빠른 길, 드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정."
+The person speaks clearly in Korean with natural lip-sync: "촬영부터 편집까지, 내 손으로 만드는 영상, 드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정."
 
 A cinematic video. A Korean professional wearing a reflective safety vest and cap, holding a drone controller, in an open airfield with a drone on the ground, flight controller, and a tablet showing aerial maps. They smile at the camera and begin speaking. Medium shot, bright natural lighting.
 No background music, no BGM.
