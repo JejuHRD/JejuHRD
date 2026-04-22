@@ -1,6 +1,6 @@
 {
-  "updated": "2026-04-22 18:05",
-  "count": 5,
+  "updated": "2026-04-22 19:46",
+  "count": 6,
   "data": [
     {
       "address": "제주 서귀포시",
@@ -33,6 +33,14 @@
       "traStartDate": "2026-05-18",
       "traEndDate": "2026-09-03",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001294040&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500036189345"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "주식회사 제원직업전문학교",
+      "title": "(산대특) AI 유튜브 크리에이터 향상과정 : 분석·제작·성장 올인원 패키지",
+      "traStartDate": "2026-06-01",
+      "traEndDate": "2026-07-27",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001294061&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500020051252"
     },
     {
       "address": "제주 서귀포시",
