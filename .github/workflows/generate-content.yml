@@ -28,7 +28,8 @@ jobs:
           pip install requests Pillow beautifulsoup4
       - name: Install Noto Sans CJK fonts
         run: |
-          # Azure mirror 장애 우회: archive.ubuntu.com으로 직접 교체
+          # Azure mirror 장애 우회: 모든 apt 설정에서 azure mirror를 archive.ubuntu.com으로 교체
+          sudo sed -i 's|http://azure.archive.ubuntu.com|https://archive.ubuntu.com|g' /etc/apt/apt-mirrors.txt 2>/dev/null || true
           sudo sed -i 's|http://azure.archive.ubuntu.com|https://archive.ubuntu.com|g' /etc/apt/sources.list.d/*.sources 2>/dev/null || true
           sudo sed -i 's|http://azure.archive.ubuntu.com|https://archive.ubuntu.com|g' /etc/apt/sources.list 2>/dev/null || true
           sudo apt-get update -o Acquire::Retries=3 -o Acquire::http::Timeout=30
