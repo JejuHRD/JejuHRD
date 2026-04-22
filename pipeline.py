@@ -567,7 +567,7 @@ def generate_content_for_course(course, output_dir):
     blog_txt, _ = generate_blog_post(course, output_dir)
 
     # 생성된 부가 파일 경로 조합
-    safe_name = course["title"][:30].replace(" ", "_").replace("/", "_")
+    safe_name = course["title"][:30].translate(str.maketrans(" /", "__", ':"<>|*?\r\n'))
     caption_path = os.path.join(output_dir, f"{safe_name}_instagram_caption.txt")
     grok_path = os.path.join(output_dir, f"{safe_name}_reels_grok.txt")
     guide_path = os.path.join(output_dir, f"{safe_name}_posting_guide.txt")

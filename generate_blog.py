@@ -224,7 +224,7 @@ STEP 3. 배우면서 혜택도 받기
     final_content = work_guide + "\n" + post_content
 
     # ── 파일 저장 ──
-    safe_name = title[:30].replace(" ", "_").replace("/", "_")
+    safe_name = title[:30].translate(str.maketrans(" /", "__", ':"<>|*?\r\n'))
     filepath = os.path.join(output_dir, f"{safe_name}_blog_naver.txt")
 
     with open(filepath, "w", encoding="utf-8") as f:
@@ -355,12 +355,6 @@ def _get_seo_section_title(field, year):
         "출판": f"왜 지금 출판 제작을 배워야 할까요?",
         "이커머스": f"왜 지금 온라인 판매를 배워야 할까요?",
         "산업안전": f"왜 지금 산업안전을 배워야 할까요?",
-        "마케팅": f"왜 지금 마케팅전략기획을 배워야 할까요?",
-        "물류/운송": f"왜 지금 지게차 자격증을 따야 할까요?",
-        "건축/설계": f"왜 지금 건축설계·디자인을 배워야 할까요?",
-        "드론": f"왜 지금 드론 배송을 배워야 할까요?",
-        "조경": f"왜 지금 조경기능사를 따야 할까요?",
-        "에너지/시설관리": f"왜 지금 에너지관리기능사를 따야 할까요?",
     }
     return titles.get(field, "왜 이 과정을 추천할까요?")
 
