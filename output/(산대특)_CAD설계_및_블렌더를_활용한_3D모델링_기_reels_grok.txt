@@ -1,4 +1,4 @@
-[Grok 영상 가이드] 드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정
+[Grok 영상 가이드] (산대특) CAD설계 및 블렌더를 활용한 3D모델링 기초 양성
 영상 + 나레이션 생성
 구조: 밸런스형 (실무 중심) | 30초 (10초×3) | 9:16 세로형
 
@@ -23,24 +23,24 @@
 🎬 세그먼트 1 — 처음 생성 (0~10초)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   장면: 작업 공간 → 카메라 보며 인사
-  나레이션: 영상 편집부터 실무까지 한 번에, 드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정.
+  나레이션: 전문 기술부터 실무까지 한 번에, CAD설계 및 블렌더를 활용한 3D모델링 기초 양성.
 
 🤖 Grok 프롬프트 (복사용)
 ────────────────────────────────────────────
-The person speaks clearly in Korean with natural lip-sync: "영상 편집부터 실무까지 한 번에, 드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정."
+The person speaks clearly in Korean with natural lip-sync: "전문 기술부터 실무까지 한 번에, CAD설계 및 블렌더를 활용한 3D모델링 기초 양성."
 
-A cinematic video. A Korean professional wearing a reflective safety vest and cap, holding a drone controller, in an open airfield with a drone on the ground, flight controller, and a tablet showing aerial maps. They smile at the camera and begin speaking. Medium shot, bright natural lighting.
+A cinematic video. A Korean professional wearing a collared shirt and glasses, with a stylus pen in hand, in a high-tech studio with a large curved monitor displaying 3D wireframe models and a graphics tablet on the desk. They smile at the camera and begin speaking. Medium shot, bright natural lighting.
 No background music, no BGM.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🎬 세그먼트 2 — +10초 연장 (10~20초)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  장면: 실습: 드론을 활용한 영상물이나 사진콘텐츠를 종합적으로 분석하여 효율적인 전달을 위한 편
-  나레이션: 영상 편집과 콘텐츠 제작을, 배울 수 있어요.
+  장면: 실습: works on 3D modeling software, rotating digit
+  나레이션: 전문 기술과 실무 역량을, 배울 수 있어요.
 
 🤖 Grok 프롬프트 (복사용)
 ────────────────────────────────────────────
-The same person operates drone control equipment in an open field, monitoring flight on a tablet.
+The same person works on 3D modeling software, rotating digital objects on a large monitor.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🎬 세그먼트 3 — +10초 연장 (20~30초)
