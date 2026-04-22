@@ -104,7 +104,10 @@ def apply_gradient_overlay(img, direction="bottom"):
 
 def generate_cover_v2(course_data, bg_image, credit, output_path):
     """커버 이미지 v2: 배경 이미지 + 텍스트 오버레이"""
-    W, H = 1080, 1080
+    # 다회차 과정이면 캔버스 높이 확장 (회차당 40px)
+    period = course_data.get("period", "")
+    extra_h = period.count(" | ") * 40
+    W, H = 1080, 1080 + extra_h
 
     bg = bg_image.copy().resize((W, H), Image.LANCZOS)
     bg = bg.filter(ImageFilter.GaussianBlur(radius=2))
@@ -323,13 +326,19 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     visible_lines = benefit_lines[:3]
 
     line_h = 30
-    footnote_h = 28  # footnote 텍스트 높이
-    footnote_gap = 6  # 배너-주석 사이 간격
+    footnote_h = 28
+    footnote_gap = 6
     ideal_box_h = max(52, len(visible_lines) * line_h + 20)
 
-    # 가용 공간이 부족하면 배너 높이를 줄여서 주석과 함께 수용
-    benefit_box_h = min(ideal_box_h, available_h - footnote_h - footnote_gap)
-    benefit_box_h = max(44, benefit_box_h)  # 최소 높이 보장
+    # 공간 충분 → 혜택 배너 + 주석 모두 표시
+    # 공간 부족 → 혜택 배너만 표시 (주석은 블로그 포스트에서 확인)
+    if available_h >= ideal_box_h + footnote_h + footnote_gap:
+        benefit_box_h = ideal_box_h
+        show_footnote = True
+    else:
+        benefit_box_h = min(ideal_box_h, available_h)
+        benefit_box_h = max(52, benefit_box_h)
+        show_footnote = False
 
     draw_rounded_rect(draw,
                        (50, benefit_y, W - 50, benefit_y + benefit_box_h),
@@ -347,13 +356,13 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
         draw.text((100, text_start_y + bi * line_h), bline,
                   font=font_benefit, fill=(60, 60, 60))
 
-    # ── 하단 ※ 주석 (혜택 배너 아래, footer 위 보장) ──
-    font_footnote = get_font(FONT_REGULAR, 22)
-    footnote = get_benefits_footnote(course_data)
-    footnote_y = benefit_y + benefit_box_h + footnote_gap
-    footnote_y = min(footnote_y, footer_y - footnote_h - 4)
-    draw.text((50, footnote_y), footnote,
-              font=font_footnote, fill=(44, 62, 80))
+    # ── 하단 ※ 주석 (공간 충분할 때만 표시) ──
+    if show_footnote:
+        font_footnote = get_font(FONT_REGULAR, 22)
+        footnote = get_benefits_footnote(course_data)
+        footnote_y = benefit_y + benefit_box_h + footnote_gap
+        draw.text((50, footnote_y), footnote,
+                  font=font_footnote, fill=(44, 62, 80))
 
     # ── 하단 바 ──
     footer_bar_bottom = H - 30
