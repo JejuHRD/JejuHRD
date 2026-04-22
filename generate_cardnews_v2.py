@@ -1,6 +1,6 @@
 """
 카드뉴스 v2 - 배경 이미지 지원 버전
-Grok API 또는 그라데이션 배경 위에 텍스트를 오버레이합니다.
+Gemini API 또는 그라데이션 배경 위에 텍스트를 오버레이합니다.
 """
 
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -220,10 +220,24 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
         total_gap = info_gap * (n_items - 1)
         usable_w = W - 120 - total_gap
         total_weight = sum(item[2] for item in info_items)
-        info_card_h = 90
 
         font_info_label = get_font(FONT_BOLD, 24)
         font_info_value = get_font(FONT_BOLD, 24)
+
+        # ── 다회차 기간 줄바꿈 처리: 카드 높이 계산 ──
+        value_lines = {}
+        max_lines = 1
+        for i, (label, value, weight) in enumerate(info_items):
+            if " | " in value:
+                lines = value.split(" | ")
+                value_lines[i] = lines
+                max_lines = max(max_lines, len(lines))
+            else:
+                value_lines[i] = [value]
+
+        val_line_h = 30  # 줄 간격
+        base_card_h = 90
+        info_card_h = base_card_h + (max_lines - 1) * val_line_h
 
         cx = 60
         for i, (label, value, weight) in enumerate(info_items):
@@ -231,7 +245,7 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
             draw_rounded_rect(draw,
                               (cx, item_y, cx + info_card_w, item_y + info_card_h),
                               radius=10, fill=(240, 245, 250))
-            # 원형 도트 마커
+            # 원형 도트 마커 (세로 중앙)
             dot_r = 6
             dot_cx = cx + 20
             dot_cy = item_y + info_card_h // 2
@@ -240,8 +254,11 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
                               radius=dot_r, fill=hex_to_rgb(PRIMARY))
             draw.text((cx + 38, item_y + 14), label, font=font_info_label,
                       fill=hex_to_rgb(PRIMARY))
-            draw.text((cx + 38, item_y + 48), value, font=font_info_value,
-                      fill=(44, 62, 80))
+            # 값 (다회차면 줄별 렌더링)
+            lines = value_lines[i]
+            for li, line_text in enumerate(lines):
+                draw.text((cx + 38, item_y + 48 + li * val_line_h), line_text,
+                          font=font_info_value, fill=(44, 62, 80))
             cx += info_card_w + info_gap
 
         item_y += info_card_h + 6

@@ -187,10 +187,25 @@ def generate_slide_cover(course_data, output_path):
         total_gap = gap * (n_items - 1)
         usable_w = W - card_margin * 2 - total_gap
         total_weight = sum(item[2] for item in info_items)
-        card_h = 105
 
         font_info_label = get_font(FONT_BOLD, 25)
         font_info_value = get_font(FONT_BOLD, 27)
+
+        # ── 다회차 기간 줄바꿈 처리: 카드 높이 계산 ──
+        # " | " 로 구분된 다회차 기간을 줄바꿈으로 변환
+        value_lines = {}  # {index: [line1, line2, ...]}
+        max_lines = 1
+        for i, (label, value, weight) in enumerate(info_items):
+            if " | " in value:
+                lines = value.split(" | ")
+                value_lines[i] = lines
+                max_lines = max(max_lines, len(lines))
+            else:
+                value_lines[i] = [value]
+
+        line_h = 34  # 줄 간격
+        base_card_h = 105
+        card_h = base_card_h + (max_lines - 1) * line_h
 
         cx = card_margin
         for i, (label, value, weight) in enumerate(info_items):
@@ -199,7 +214,7 @@ def generate_slide_cover(course_data, output_path):
             draw_rounded_rect(draw,
                               (cx, card_top, cx + card_w, card_top + card_h),
                               radius=12, fill=hex_to_rgb(COLORS["bg_light"]))
-            # 원형 도트 마커
+            # 원형 도트 마커 (세로 중앙)
             dot_r = 7
             dot_cx = cx + 22
             dot_cy = card_top + card_h // 2
@@ -209,9 +224,11 @@ def generate_slide_cover(course_data, output_path):
             # 라벨
             draw.text((cx + 42, card_top + 16), label, font=font_info_label,
                       fill=hex_to_rgb(COLORS["primary"]))
-            # 값
-            draw.text((cx + 42, card_top + 52), value, font=font_info_value,
-                      fill=hex_to_rgb(COLORS["text_dark"]))
+            # 값 (다회차면 줄별 렌더링)
+            lines = value_lines[i]
+            for li, line_text in enumerate(lines):
+                draw.text((cx + 42, card_top + 52 + li * line_h), line_text,
+                          font=font_info_value, fill=hex_to_rgb(COLORS["text_dark"]))
             cx += card_w + gap
 
         next_y = card_top + card_h + 12
@@ -348,9 +365,7 @@ def generate_slide_detail(course_data, output_path):
     draw.rectangle((0, 0, W, 8), fill=hex_to_rgb(COLORS["accent"]))
     draw.rectangle((0, 8, W, 12), fill=hex_to_rgb(COLORS["primary"]))
 
-    training_goal = (course_data.get("trainingGoal", "")
-                     or course_data.get("traingGoal", "")
-                     or course_data.get("training_goal", ""))
+    training_goal = course_data.get("trainingGoal", "")
     curriculum = course_data.get("curriculum", [])
 
     if training_goal:
