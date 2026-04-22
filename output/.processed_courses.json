@@ -1,0 +1,66 @@
+{
+  "AIG20253001129433_merged_4_5": {
+    "title": "(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정",
+    "period": "1회: 2026.05.06 ~ 2026.06.18 | 2회: 2026.05.11 ~ 2026.07.07",
+    "generated_at": "2026-04-22T14:59:27.642925",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_1_cover.png",
+        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_2_detail.png",
+        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__blog_naver.txt",
+      "instagram_caption": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__instagram_caption.txt",
+      "reels_grok": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__reels_grok.txt",
+      "posting_guide": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__posting_guide.txt"
+    }
+  },
+  "AIG20263001247924_merged_1_2": {
+    "title": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정",
+    "period": "1회: 2026.05.18 ~ 2026.06.17 | 2회: 2026.06.22 ~ 2026.07.22",
+    "generated_at": "2026-04-22T14:59:31.829829",
+    "files": {
+      "cardnews": [
+        "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_v2_1_cover.png",
+        "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_v2_2_detail.png",
+        "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_v2_3_howto.png"
+      ],
+      "blog_txt": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_blog_naver.txt",
+      "instagram_caption": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_instagram_caption.txt",
+      "reels_grok": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_reels_grok.txt",
+      "posting_guide": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_posting_guide.txt"
+    }
+  },
+  "AIG20263001294040_1_2026-05-18_2026-09-03": {
+    "title": "(산대특) CAD설계 및 블렌더를 활용한 3D모델링 기초 양성",
+    "period": "2026.05.18 ~ 2026.09.03",
+    "generated_at": "2026-04-22T14:59:36.445345",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_v2_1_cover.png",
+        "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_v2_2_detail.png",
+        "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_blog_naver.txt",
+      "instagram_caption": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_instagram_caption.txt",
+      "reels_grok": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_reels_grok.txt",
+      "posting_guide": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_posting_guide.txt"
+    }
+  },
+  "AIG20263001294061_1_2026-06-01_2026-07-27": {
+    "title": "(산대특) AI 유튜브 크리에이터 향상과정 : 분석·제작·성장 올인원 패키지",
+    "period": "2026.06.01 ~ 2026.07.27",
+    "generated_at": "2026-04-22T14:59:40.527561",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_AI_유튜브_크리에이터_향상과정__분석·제_v2_1_cover.png",
+        "output/(산대특)_AI_유튜브_크리에이터_향상과정__분석·제_v2_2_detail.png",
+        "output/(산대특)_AI_유튜브_크리에이터_향상과정__분석·제_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_AI_유튜브_크리에이터_향상과정__분석·제_blog_naver.txt",
+      "instagram_caption": "output/(산대특)_AI_유튜브_크리에이터_향상과정__분석·제_instagram_caption.txt",
+      "reels_grok": "output/(산대특)_AI_유튜브_크리에이터_향상과정__분석·제_reels_grok.txt",
+      "posting_guide": "output/(산대특)_AI_유튜브_크리에이터_향상과정__분석·제_posting_guide.txt"
+    }
+  }
+}
