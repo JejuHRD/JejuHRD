@@ -205,7 +205,9 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     # ── 정보 카드 (가로 배치, 배움기간 넓게) ──
     info_items = []
     if course_data.get("period"):
-        info_items.append(("배움 기간", course_data["period"], 1.4))
+        # 다회차 통합 period: "1회: ... | 2회: ..." → 줄바꿈으로 변환
+        period_val = course_data["period"].replace(" | ", "\n")
+        info_items.append(("배움 기간", period_val, 1.4))
     hours = get_total_hours(course_data)
     if hours > 0:
         info_items.append(("배움 시간", f"{hours}시간", 0.8))
@@ -220,7 +222,13 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
         total_gap = info_gap * (n_items - 1)
         usable_w = W - 120 - total_gap
         total_weight = sum(item[2] for item in info_items)
+
+        # 다회차 period 줄 수에 따라 카드 높이 동적 계산
         info_card_h = 90
+        for _, value, _ in info_items:
+            extra_lines = value.count("\n")
+            if extra_lines > 0:
+                info_card_h = max(info_card_h, 90 + extra_lines * 30)
 
         font_info_label = get_font(FONT_BOLD, 24)
         font_info_value = get_font(FONT_BOLD, 24)
@@ -240,8 +248,15 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
                               radius=dot_r, fill=hex_to_rgb(PRIMARY))
             draw.text((cx + 38, item_y + 14), label, font=font_info_label,
                       fill=hex_to_rgb(PRIMARY))
-            draw.text((cx + 38, item_y + 48), value, font=font_info_value,
-                      fill=(44, 62, 80))
+            # 값 (다회차면 multiline)
+            if "\n" in value:
+                draw.multiline_text((cx + 38, item_y + 46), value,
+                                    font=font_info_value,
+                                    fill=(44, 62, 80),
+                                    spacing=5)
+            else:
+                draw.text((cx + 38, item_y + 48), value, font=font_info_value,
+                          fill=(44, 62, 80))
             cx += info_card_w + info_gap
 
         item_y += info_card_h + 6
