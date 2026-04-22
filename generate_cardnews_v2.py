@@ -313,13 +313,24 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
                       font=font_cost_big, fill=hex_to_rgb(ACCENT))
         item_y = cost_y + cost_box_h + 8
 
-    # ── 혜택 배너 (세로 중앙 정렬) ──
+    # ── 혜택 배너 + 주석 (가용 공간에 맞춰 동적 배치) ──
+    footer_y = H - 75
     benefit_y = item_y + 4
+    available_h = footer_y - benefit_y - 8  # footer 위 8px 여백 확보
+
     benefits = course_data.get("benefits", "") or get_benefits_text(course_data)
     benefit_lines = [l.strip() for l in benefits.split('\n') if l.strip()]
     visible_lines = benefit_lines[:3]
+
     line_h = 30
-    benefit_box_h = max(52, len(visible_lines) * line_h + 20)
+    footnote_h = 28  # footnote 텍스트 높이
+    footnote_gap = 6  # 배너-주석 사이 간격
+    ideal_box_h = max(52, len(visible_lines) * line_h + 20)
+
+    # 가용 공간이 부족하면 배너 높이를 줄여서 주석과 함께 수용
+    benefit_box_h = min(ideal_box_h, available_h - footnote_h - footnote_gap)
+    benefit_box_h = max(44, benefit_box_h)  # 최소 높이 보장
+
     draw_rounded_rect(draw,
                        (50, benefit_y, W - 50, benefit_y + benefit_box_h),
                        radius=12, fill=(255, 248, 230))
@@ -336,15 +347,15 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
         draw.text((100, text_start_y + bi * line_h), bline,
                   font=font_benefit, fill=(60, 60, 60))
 
-    # ── 하단 ※ 주석 (footer bar 위 충분한 여백) ──
+    # ── 하단 ※ 주석 (혜택 배너 아래, footer 위 보장) ──
     font_footnote = get_font(FONT_REGULAR, 22)
     footnote = get_benefits_footnote(course_data)
-    footnote_y = H - 75 - 35  # footer bar 시작(H-75) 위 35px
+    footnote_y = benefit_y + benefit_box_h + footnote_gap
+    footnote_y = min(footnote_y, footer_y - footnote_h - 4)
     draw.text((50, footnote_y), footnote,
               font=font_footnote, fill=(44, 62, 80))
 
     # ── 하단 바 ──
-    footer_y = H - 75
     footer_bar_bottom = H - 30
     footer_bar_h = footer_bar_bottom - footer_y
     draw.rectangle((30, footer_y, W - 30, footer_bar_bottom), fill=hex_to_rgb(PRIMARY))
