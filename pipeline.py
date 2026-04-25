@@ -28,6 +28,13 @@ try:
 except ImportError:
     HAS_V2 = False
 
+# v2 릴스 (Grok 네이티브 음성 + 컷 전환) 사용 가능 여부 확인
+try:
+    from reels_v2_helper import generate_reels_v2_package, load_v2_profile
+    HAS_REELS_V2 = True
+except ImportError:
+    HAS_REELS_V2 = False
+
 # ── 설정 ──
 OUTPUT_DIR = "output"
 PROCESSED_FILE = "output/.processed_courses.json"
@@ -52,8 +59,11 @@ def make_course_key(course):
     """
     과정의 고유 키를 생성합니다.
 
-    통합된 과정(_merged_degrs 필드 존재): {과정ID}_merged_{회차목록}
-    단일 과정: {과정ID}_{회차}_{훈련시작일}_{훈련종료일}
+    같은 과정(trprId)이라도 회차(trprDegr)나 훈련기간이 다르면
+    별도의 콘텐츠로 취급합니다.
+
+    키 구성: {과정ID}_{회차}_{훈련시작일}_{훈련종료일}
+    예시: "AIG20250001_1_20260315_20260614"
     """
     parts = []
 
@@ -62,26 +72,23 @@ def make_course_key(course):
     if course_id:
         parts.append(str(course_id))
 
-    # 통합된 과정인 경우
-    if course.get("_merged_degrs"):
-        parts.append(f"merged_{course['_merged_degrs']}")
-    else:
-        # 단일 회차
-        degr = course.get("trprDegr", "")
-        if degr:
-            parts.append(str(degr))
+    # 회차
+    degr = course.get("trprDegr", "")
+    if degr:
+        parts.append(str(degr))
 
-        start = course.get("traStartDate", "")
-        end = course.get("traEndDate", "")
-        if start:
-            parts.append(start)
-        if end:
-            parts.append(end)
+    # 훈련기간 (시작일~종료일)
+    start = course.get("traStartDate", "")
+    end = course.get("traEndDate", "")
+    if start:
+        parts.append(start)
+    if end:
+        parts.append(end)
 
-        # period 필드에서 날짜 추출 (위 필드가 없을 경우 폴백)
-        if not start and not end and course.get("period"):
-            period_clean = course["period"].replace(".", "").replace(" ", "")
-            parts.append(period_clean[:20])
+    # period 필드에서 날짜 추출 (위 필드가 없을 경우 폴백)
+    if not start and not end and course.get("period"):
+        period_clean = course["period"].replace(".", "").replace(" ", "")
+        parts.append(period_clean[:20])
 
     # 아무 정보도 없으면 과정명 + 기관명으로 대체
     if not parts:
@@ -89,67 +96,6 @@ def make_course_key(course):
         parts.append(course.get("institution", ""))
 
     return "_".join(parts)
-
-
-def merge_multi_degr(courses):
-    """
-    같은 과정(trprId)의 다회차를 1건으로 통합합니다.
-
-    예: 스마트스토어 1회(5/6~6/18) + 2회(5/11~7/7)
-      → 1건으로 통합, period = "1회: 2026.05.06 ~ 2026.06.18 | 2회: 2026.05.11 ~ 2026.07.07"
-
-    단일 회차 과정은 그대로 통과합니다.
-    """
-    from collections import OrderedDict
-
-    groups = OrderedDict()
-    for course in courses:
-        trpr_id = course.get("trprId", "")
-        if not trpr_id:
-            # trprId가 없으면 통합 불가 → 그대로 사용
-            groups[id(course)] = [course]
-            continue
-        if trpr_id not in groups:
-            groups[trpr_id] = []
-        groups[trpr_id].append(course)
-
-    merged = []
-    for key, group in groups.items():
-        if len(group) == 1:
-            # 단일 회차 → 그대로
-            merged.append(group[0])
-            continue
-
-        # ── 다회차 → 시작일 기준 정렬 후 통합 ──
-        group.sort(key=lambda c: c.get("traStartDate", ""))
-
-        # 대표 과정 = 가장 빠른 회차 기반 복사
-        rep = group[0].copy()
-
-        # 회차별 기간 표시 구성
-        period_parts = []
-        degr_keys = []
-        hrd_urls = []
-        for i, c in enumerate(group):
-            label = f"{i+1}회"
-            period_parts.append(f"{label}: {c.get('period', '')}")
-            degr_keys.append(str(c.get("trprDegr", i + 1)))
-            hrd_urls.append(c.get("hrd_url", ""))
-
-        rep["period"] = " | ".join(period_parts)
-        rep["hrd_url"] = hrd_urls[0]
-        rep["_merged_degrs"] = "_".join(sorted(degr_keys))
-
-        print(f"  🔗 다회차 통합: {rep['title'][:40]} ({len(group)}회차 → 1건)")
-        for p in period_parts:
-            print(f"     └ {p}")
-
-        merged.append(rep)
-
-    if len(merged) < len(courses):
-        print(f"\n  📊 다회차 통합: API {len(courses)}건 → {len(merged)}건")
-
-    return merged
 
 
 def _get_field(item, *keys):
@@ -566,8 +512,22 @@ def generate_content_for_course(course, output_dir):
     # 블로그 포스트 생성 (인스타 캡션, 릴스 대본, 게시 가이드도 함께 생성됨)
     blog_txt, _ = generate_blog_post(course, output_dir)
 
+    # v2 릴스 패키지 생성 (Grok 네이티브 음성 + 컷 전환)
+    # video_profiles_v2.json에 정의된 분야만 자동 생성됨. 미정의 분야는 v1 릴스 대본만 출력.
+    reels_v2_paths = None
+    reels_v2_field = course.get("video_field_v2")  # 명시적 지정 우선
+    if HAS_REELS_V2 and reels_v2_field:
+        try:
+            reels_v2_paths = generate_reels_v2_package(course, reels_v2_field, output_dir)
+            if reels_v2_paths.get("validation_issues"):
+                print(f"  ⚠️  v2 릴스 검증 이슈 {len(reels_v2_paths['validation_issues'])}건")
+            else:
+                print(f"  ✅ v2 릴스 패키지 생성 완료 (분야: {reels_v2_field})")
+        except (FileNotFoundError, KeyError) as e:
+            print(f"  ⚠️  v2 릴스 생성 건너뜀: {e}")
+
     # 생성된 부가 파일 경로 조합
-    safe_name = course["title"][:30].translate(str.maketrans(" /", "__", ':"<>|*?\r\n'))
+    safe_name = course["title"][:30].replace(" ", "_").replace("/", "_")
     caption_path = os.path.join(output_dir, f"{safe_name}_instagram_caption.txt")
     grok_path = os.path.join(output_dir, f"{safe_name}_reels_grok.txt")
     guide_path = os.path.join(output_dir, f"{safe_name}_posting_guide.txt")
@@ -578,19 +538,17 @@ def generate_content_for_course(course, output_dir):
         "instagram_caption": caption_path if os.path.exists(caption_path) else None,
         "reels_grok": grok_path if os.path.exists(grok_path) else None,
         "posting_guide": guide_path if os.path.exists(guide_path) else None,
+        "reels_v2": reels_v2_paths,
     }
 
 
 def run_pipeline(courses):
     """
     메인 파이프라인 실행
-    1. 같은 과정(trprId)의 다회차를 1건으로 통합
-    2. 이미 동일 키로 처리한 과정은 건너뜀
-    3. 새 과정이 0건이면 콘텐츠 생성 없이 종료 (API 비용 절감)
+    - 같은 과정이라도 회차/훈련기간이 다르면 새로 생성
+    - 이미 동일 키로 처리한 과정은 건너뜀
+    - 새 과정이 0건이면 콘텐츠 생성 없이 종료 (API 비용 절감)
     """
-    # ── 다회차 통합 ──
-    courses = merge_multi_degr(courses)
-
     processed = load_processed_ids()
 
     # ── 먼저 새 과정이 있는지 확인 ──
