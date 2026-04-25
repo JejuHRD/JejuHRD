@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-26 07:00",
+  "updated": "2026-04-26 08:04",
   "count": 7,
   "data": [
     {
@@ -19,20 +19,20 @@
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20253001129433&tracseTme=5&crseTracseSe=C0061&trainstCstmrId=500020018203"
     },
     {
-      "address": "제주 제주시",
-      "subTitle": "(주)제주직업전문학교",
-      "title": "(산대특) CAD설계 및 블렌더를 활용한 3D모델링 기초 양성",
-      "traStartDate": "2026-05-18",
-      "traEndDate": "2026-09-03",
-      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001294040&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500036189345"
-    },
-    {
       "address": "제주 서귀포시",
       "subTitle": "드론항공평생교육원",
       "title": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정",
       "traStartDate": "2026-05-18",
       "traEndDate": "2026-06-17",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001247924&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500035584309"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "(주)제주직업전문학교",
+      "title": "(산대특) CAD설계 및 블렌더를 활용한 3D모델링 기초 양성",
+      "traStartDate": "2026-05-18",
+      "traEndDate": "2026-09-03",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001294040&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500036189345"
     },
     {
       "address": "제주 제주시",
