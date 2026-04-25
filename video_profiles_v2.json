@@ -128,6 +128,350 @@
           }
         }
       }
+    },
+    "이커머스": {
+      "parent_field": "이커머스",
+      "title_keywords": [
+        "스마트스토어",
+        "이커머스",
+        "온라인쇼핑",
+        "쇼핑몰",
+        "라이브커머스",
+        "온라인 판매",
+        "셀러",
+        "온라인 셀러"
+      ],
+      "training_context_label": "제주 농수산물·관광상품 온라인 판매와 라이브커머스 실무",
+      "narrator_persona_en": "bright, cheerful, energetic young female Korean voiceover in news-anchor style with clear enunciation",
+      "cta_speaker_persona_en": "young Korean online seller (early-20s to early-30s), neat casual clothing with a 제주 lanyard, energetic entrepreneurial demeanor",
+      "cta_dialogue_template_kr": "{course_title}, {start_date} 개강! 내일배움카드로 지금 신청하세요!",
+      "segments": {
+        "1_hook": {
+          "image_reference_en": "(Optional) Reference image: smartphone screen showing live commerce broadcasting interface OR online shopping mall sales dashboard with rapid order notifications.",
+          "scene_location_en": "Modern, bright Jeju seller workspace. On the desk: a smartphone propped on a small ring-light tripod displaying a live commerce broadcasting screen, a laptop open to a Korean e-commerce admin dashboard with a rising sales graph, and a stack of cardboard shipping boxes labeled with 제주 감귤 (Jeju citrus) at the right edge of frame. Through a bright window, a soft view of Jeju citrus orchard or coastal greenery is visible. Clean, energetic, contemporary atmosphere.",
+          "camera_framing_en": "Fixed wide medium shot at desk-level, slightly angled to capture the smartphone screen, laptop dashboard, and shipping boxes together. Tripod-stable. No zoom, no pan, no tilt. Vertical composition uses upper third for window/light, middle for tools, lower for desk surface.",
+          "subjects_wardrobe_en": "No human subjects in frame. The workspace itself is the subject. Hands may briefly enter frame to interact with phone or laptop but no full body visible.",
+          "action_movement_en": "On the laptop dashboard, sales notifications and order counts visibly tick upward in a rapid steady rhythm. Smartphone screen shows live commerce viewers count rising. Subtle ambient activity, no dramatic camera movement. The energy comes from the rising numbers, not from camera motion.",
+          "lighting_mood_en": "Bright natural daylight from the window plus soft LED ring light from the smartphone setup. Warm, optimistic, growth-oriented mood.",
+          "audio_narration_directive_en": "Bright, cheerful, energetic young female Korean voiceover in news-anchor style with clear enunciation. Subtle keyboard typing and notification sound ambience, no music. No on-screen text, no captions.",
+          "narration_kr": "온라인쇼핑 242조 원, 모바일 비중 76 퍼센트 시대! 제주 농가의 유통비를 절반으로 줄이는 스마트스토어, 1인 셀러로 매출을 만드는 시대가 왔습니다.",
+          "cut_rules_en": "Single continuous take. No cuts, no angle changes, no scene transitions. Camera locked throughout.",
+          "explicit_negations": [
+            "NO offline retail store, NO supermarket scenes",
+            "NO printed flyers or physical advertising",
+            "NO crowds of shoppers — focus is the digital workspace",
+            "no on-screen text, no captions",
+            "no music"
+          ],
+          "image_reference_filename_hint": null
+        },
+        "2_demo": {
+          "image_reference_en": "(Optional) Reference image: e-commerce or live commerce training studio with multiple monitors showing Korean shopping mall admin pages and live broadcasting setup.",
+          "transition_note_en": "New scene, completely different location from previous segment. Indoor training studio.",
+          "scene_location_en": "Bright modern e-commerce training studio in Jeju. The room has a dedicated live commerce filming corner on the right (ring light, smartphone tripod, branded backdrop with 제주 product samples on a small table) and a learning area on the left with two trainees seated at desks with laptops showing Korean smart store admin dashboards. A Korean instructor stands between them gesturing toward a large wall-mounted screen displaying an e-commerce analytics dashboard with conversion funnel charts.",
+          "camera_framing_en": "Fixed wide observer shot, eye-level, tripod-locked. Captures the entire training space: live commerce setup on right, instructor and trainees in center, wall screen on left or back. No camera movement.",
+          "subjects_wardrobe_en": "One Korean instructor (30s-40s, smart casual blazer, holding a wireless presenter clicker) and two Korean trainees (20s-30s, neat casual, attentive expressions, both with 제주 identifiers).",
+          "action_movement_en": "Instructor gestures toward the analytics dashboard while explaining. One trainee types on laptop adjusting product listing fields, the other watches the wall screen and takes notes on tablet. Natural, focused, professional learning atmosphere. No one walks out of frame.",
+          "lighting_mood_en": "Bright warm interior lighting, soft daylight through large windows. Energetic, focused, learning-forward atmosphere.",
+          "audio_narration_directive_en": "Same bright female Korean voiceover from segment 1 continues, warm encouraging tone. Low ambient classroom sound (subtle keyboard, soft instructor voice). No character dialogue. No on-screen text, no captions.",
+          "narration_kr": "스마트스토어 운영부터 라이브커머스 실습, AI 상품 기획까지! 제주에서 온라인 셀러 전문가로 성장합니다.",
+          "cut_rules_en": "Single continuous take. No cuts, no angle changes, no zoom, no pan. Camera locked throughout.",
+          "explicit_negations": [
+            "NO single person at home setup — this is a professional training facility",
+            "NO outdoor scenes",
+            "no on-screen text, no captions",
+            "no character dialogue"
+          ],
+          "image_reference_filename_hint": null
+        },
+        "3_cta": {
+          "image_reference_en": "(Optional) Reference image: young Korean online seller in neat casual clothing, energetic friendly demeanor.",
+          "transition_note_en": "New scene, completely different from previous segment. Different background — indoor entrance or hallway of a Jeju training center, NOT the studio.",
+          "scene_location_en": "A cheerful young Korean online seller stands in front of a clean modern Jeju training facility entrance with light-colored walls and softly blurred greenery background. NO studio equipment, NO monitors, NO product samples in this scene.",
+          "camera_framing_en": "Medium shot (chest to head). Eye-level. Subject facing camera directly, centered in frame. Shallow depth of field so background is soft. Fixed single frame.",
+          "subjects_wardrobe_en": "One Korean adult (early-20s to early-30s), neat casual clothing with a 제주 lanyard. Energetic, friendly, entrepreneurial demeanor.",
+          "action_movement_en": "Subject begins speaking IMMEDIATELY at the start of the segment with no initial silent pause. Faces camera directly throughout, bright confident smile, warm eye contact. Hands remain comfortably clasped in front at waist level in a stable presenter pose, no raised palms, no prolonged hand gestures, no waving. A single brief head nod on the final word for emphasis. No other body movement.",
+          "lighting_mood_en": "Soft natural daylight, warm, even across the face. Inviting, confident mood.",
+          "audio_narration_directive_en": "Character speaks in bright, quick-paced, energetic Korean with a broadcast-announcer tempo. Begin speaking immediately as the segment starts, no initial silence. Deliver the ENTIRE dialogue continuously within 7 seconds, leaving only the final 2-3 seconds for the closing smile and brief head nod. NO long pauses, NO mid-sentence breaks. Clear, accurate lip sync. No music. No on-screen text, no captions. Clean room tone.",
+          "dialogue_kr_template": "{course_title}, {start_date} 개강! 내일배움카드로 지금 신청하세요!",
+          "cut_rules_en": "Single continuous take. No camera movement, no cuts within segment.",
+          "explicit_negations": [
+            "NO studio equipment behind subject",
+            "NO product boxes or shopping props",
+            "NO raised palms, NO prolonged hand gestures",
+            "no initial silent pause",
+            "NO long pauses between sentences",
+            "no on-screen text, no captions",
+            "no music"
+          ],
+          "speech_constraints": {
+            "begin_immediately": true,
+            "max_dialogue_duration_s": 7,
+            "max_inter_sentence_pause_s": 0.3,
+            "closing_buffer_s": 2.5
+          }
+        }
+      }
+    },
+    "드론영상": {
+      "parent_field": "드론",
+      "title_keywords": [
+        "드론영상",
+        "드론촬영",
+        "드론 촬영",
+        "관광영상콘텐츠",
+        "관광영상",
+        "FPV",
+        "항공촬영",
+        "항공영상",
+        "드론 콘텐츠"
+      ],
+      "training_context_label": "제주 풍경(오름·해안·UNESCO 세계자연유산) 시네마틱 항공 촬영 및 영상 편집",
+      "narrator_persona_en": "bright, cheerful, energetic young female Korean voiceover in news-anchor style with clear enunciation",
+      "cta_speaker_persona_en": "young Korean drone content creator (early-20s to early-30s), neat casual clothing with a 제주 lanyard, professional creative demeanor",
+      "cta_dialogue_template_kr": "{course_title}, {start_date} 개강! 내일배움카드로 지금 신청하세요!",
+      "segments": {
+        "1_hook": {
+          "image_reference_en": "(Optional) Reference image: cinematic camera drone (DJI Inspire or Mavic class with gimbal-mounted camera) flying over Jeju coastal landscape.",
+          "scene_location_en": "Wide aerial view of a stunning Jeju coastal landscape — emerald turquoise sea meeting black volcanic cliffs, with a dramatic oreum (volcanic hill) in the distance. A sleek consumer-cinema drone with a clearly visible gimbal-mounted camera (NOT a heavy-lift cargo drone, NOT an agricultural sprayer) flies smoothly across the frame at mid-altitude, capturing the scenery.",
+          "camera_framing_en": "Fixed wide aerial establishing shot, positioned at altitude similar to the drone subject. Tripod-stable framing. No zoom, no pan, no tilt.",
+          "subjects_wardrobe_en": "No human subjects. Single cinematic camera drone with visible gimbal-mounted camera as primary subject. The Jeju coastal landscape serves as the secondary subject.",
+          "action_movement_en": "Drone glides steadily across frame from left to right at constant altitude. The gimbal subtly tilts to track the landscape. Cinematic, smooth motion.",
+          "lighting_mood_en": "Golden hour lighting — warm sunlight on water, long soft shadows, vivid blue sky. Cinematic, inspiring, awe-inducing mood.",
+          "audio_narration_directive_en": "Bright, cheerful, energetic young female Korean voiceover in news-anchor style with clear enunciation. Subtle ocean breeze and faint drone hum ambience, no music. No on-screen text, no captions.",
+          "narration_kr": "한국 드론 산업 1조 원, 자격 보유자 64만 명! 제주는 전국 최대 1,283 제곱킬로미터 드론 특별자유화구역, 시네마틱 항공 촬영의 최고 무대입니다.",
+          "cut_rules_en": "Single continuous take. No cuts, no angle changes, no scene transitions. Camera locked throughout.",
+          "explicit_negations": [
+            "NOT a heavy-lift cargo drone, NOT an octocopter",
+            "NOT an agricultural sprayer drone",
+            "NO visible cargo or rope underneath the drone",
+            "no on-screen text, no captions",
+            "no music"
+          ],
+          "image_reference_filename_hint": null
+        },
+        "2_demo": {
+          "image_reference_en": "(Optional) Reference image: outdoor drone training site with trainees holding controllers, OR indoor video editing suite with drone footage on monitor.",
+          "transition_note_en": "New scene, completely different from previous segment. Indoor training environment.",
+          "scene_location_en": "Modern Jeju drone video training studio. The room has a dual setup: on the left, a video editing workstation with a large widescreen monitor showing 4K Jeju aerial footage in Adobe Premiere Pro or DaVinci Resolve timeline; on the right, a small indoor flight practice corner with a cinematic drone (gimbal camera) on a launch pad and a Korean instructor demonstrating controller technique to two trainees. Bright clean modern interior with a large window showing distant oreum landscape.",
+          "camera_framing_en": "Fixed wide observer shot, eye-level, tripod-locked. Captures the editing station on left third, instructor and trainees with drone in center-right, window with oreum in upper background. No camera movement.",
+          "subjects_wardrobe_en": "One Korean instructor (30s-40s, smart casual outdoor jacket, holding a drone controller). Two Korean trainees (20s-30s, neat casual, both with 제주 identifiers, attentive expressions).",
+          "action_movement_en": "Instructor gestures toward the drone explaining its gimbal camera, one trainee holds a controller in a learning grip, the other watches the editing monitor where Jeju aerial footage plays. Natural, focused, unhurried atmosphere. No one walks out of frame, drone stays on its launch pad (NOT actually flying indoors).",
+          "lighting_mood_en": "Bright warm interior lighting, soft natural daylight from window. Professional, creative, learning-focused atmosphere.",
+          "audio_narration_directive_en": "Same bright female Korean voiceover from segment 1 continues, warm encouraging tone. Low ambient sound (subtle drone propeller test hum, soft instructor voice). No character dialogue. No on-screen text, no captions.",
+          "narration_kr": "드론 비행 기본기부터 시네마틱 촬영, AI 영상 편집까지! 제주의 자연을 담는 항공 콘텐츠 전문가로 성장합니다.",
+          "cut_rules_en": "Single continuous take. No cuts, no angle changes, no zoom, no pan. Camera locked throughout.",
+          "explicit_negations": [
+            "NO drone actually flying indoors (only on launch pad for safety realism)",
+            "NOT a cargo drone or agricultural sprayer",
+            "NO toy or hobby drones — professional cinematic drone only",
+            "no on-screen text, no captions",
+            "no character dialogue"
+          ],
+          "image_reference_filename_hint": null
+        },
+        "3_cta": {
+          "image_reference_en": "(Optional) Reference image: young Korean drone content creator in neat casual clothing, professional creative demeanor.",
+          "transition_note_en": "New scene, completely different from previous segment. NO drone visible, NO editing monitor, NO indoor training equipment.",
+          "scene_location_en": "A cheerful young Korean drone content creator stands in front of a clean modern Jeju training facility entrance, with softly blurred Jeju natural landscape (greenery, distant low oreum) in the background.",
+          "camera_framing_en": "Medium shot (chest to head). Eye-level. Subject facing camera directly, centered in frame. Shallow depth of field so background is soft. Fixed single frame.",
+          "subjects_wardrobe_en": "One Korean adult (early-20s to early-30s), neat casual clothing (could include light outdoor-style jacket reflecting outdoor shooting context) with a 제주 lanyard. Warm, bright, professionally creative demeanor.",
+          "action_movement_en": "Subject begins speaking IMMEDIATELY at the start of the segment with no initial silent pause. Faces camera directly throughout, bright confident smile, warm eye contact. Hands remain comfortably clasped in front at waist level in a stable presenter pose, no raised palms, no prolonged hand gestures, no waving. A single brief head nod on the final word for emphasis.",
+          "lighting_mood_en": "Soft natural daylight, warm, even across the face. Inviting, confident mood.",
+          "audio_narration_directive_en": "Character speaks in bright, quick-paced, energetic Korean with a broadcast-announcer tempo. Begin speaking immediately as the segment starts, no initial silence. Deliver the ENTIRE dialogue continuously within 7 seconds, leaving only the final 2-3 seconds for the closing smile and brief head nod. NO long pauses, NO mid-sentence breaks. Clear, accurate lip sync. No music. No on-screen text, no captions. Clean room tone.",
+          "dialogue_kr_template": "{course_title}, {start_date} 개강! 내일배움카드로 지금 신청하세요!",
+          "cut_rules_en": "Single continuous take. No camera movement, no cuts within segment.",
+          "explicit_negations": [
+            "NO drone visible in the scene",
+            "NO editing monitor or studio equipment",
+            "NO raised palms, NO prolonged hand gestures",
+            "no initial silent pause",
+            "NO long pauses between sentences",
+            "no on-screen text, no captions",
+            "no music"
+          ],
+          "speech_constraints": {
+            "begin_immediately": true,
+            "max_dialogue_duration_s": 7,
+            "max_inter_sentence_pause_s": 0.3,
+            "closing_buffer_s": 2.5
+          }
+        }
+      }
+    },
+    "마케팅": {
+      "parent_field": "마케팅",
+      "title_keywords": [
+        "AI 마케팅",
+        "마케팅 자동화",
+        "디지털 마케팅",
+        "퍼포먼스 마케팅",
+        "유튜브 크리에이터",
+        "AI 유튜브",
+        "마케팅 전략",
+        "ChatGPT",
+        "Gemini",
+        "AI 콘텐츠"
+      ],
+      "training_context_label": "제주 관광·서비스업 대상 AI 도구 활용 디지털 마케팅 및 유튜브/숏폼 콘텐츠 제작",
+      "narrator_persona_en": "bright, cheerful, energetic young female Korean voiceover in news-anchor style with clear enunciation",
+      "cta_speaker_persona_en": "young Korean digital marketer or content creator (early-20s to early-30s), neat smart-casual clothing with a 제주 lanyard, trendy energetic demeanor",
+      "cta_dialogue_template_kr": "{course_title}, {start_date} 개강! 내일배움카드로 지금 신청하세요!",
+      "segments": {
+        "1_hook": {
+          "image_reference_en": "(Optional) Reference image: dual-monitor desk setup with ChatGPT/Gemini chat interface on left and Korean ad analytics dashboard (Naver Search Ad / Meta Ads / Google Ads) on right.",
+          "scene_location_en": "Modern bright marketing workspace. A clean desk with two large monitors: the left monitor shows a Korean ChatGPT or Gemini chat interface with AI generating marketing copy in real time, the right monitor shows a colorful ad performance dashboard with rising conversion charts and ROAS metrics. A smartphone on a small stand displays a Korean social media feed (Instagram/YouTube interface). Clean modern aesthetic with subtle accent lighting.",
+          "camera_framing_en": "Fixed wide medium shot at desk-level, slightly angled to capture both monitors and the smartphone together. Tripod-stable. No zoom, no pan, no tilt.",
+          "subjects_wardrobe_en": "No human subjects in frame. The dual-monitor AI marketing workspace is the subject. Hands may briefly enter frame to type but no full body visible.",
+          "action_movement_en": "AI chat interface generates Korean marketing text in a steady typing rhythm. Ad dashboard charts visibly rise. Smartphone notifications softly pulse. Subtle ambient activity, no dramatic camera movement. The energy comes from the screens, not the camera.",
+          "lighting_mood_en": "Bright cool-toned modern lighting with subtle blue accent. Tech-forward, optimistic, future-focused mood.",
+          "audio_narration_directive_en": "Bright, cheerful, energetic young female Korean voiceover in news-anchor style with clear enunciation. Subtle keyboard typing and notification sound ambience, no music. No on-screen text, no captions.",
+          "narration_kr": "한국 디지털 광고 10조 원 시대, AI가 마케팅을 다시 쓰고 있습니다! ChatGPT부터 Gemini까지, AI 도구로 마케팅과 콘텐츠를 자동화하는 새로운 직무를 제주에서 시작하세요.",
+          "cut_rules_en": "Single continuous take. No cuts, no angle changes, no scene transitions. Camera locked throughout.",
+          "explicit_negations": [
+            "NO printed advertising or flyers",
+            "NO traditional offline media (TV cameras, newspaper, radio booths)",
+            "NO crowded office — focus is the AI-driven workspace",
+            "no on-screen text, no captions",
+            "no music"
+          ],
+          "image_reference_filename_hint": null
+        },
+        "2_demo": {
+          "image_reference_en": "(Optional) Reference image: marketing training classroom with instructor presenting AI tool screens to trainees with laptops.",
+          "transition_note_en": "New scene, completely different location from previous segment. Indoor training classroom.",
+          "scene_location_en": "Bright modern marketing training classroom in Jeju. A Korean instructor stands in front of a large wall-mounted screen displaying split content: ChatGPT/Gemini chat on one side, a YouTube channel analytics dashboard or ad campaign builder on the other. Two trainees sit at desks with laptops open to the same tools, taking notes. Clean modern interior, large window showing soft Jeju greenery in the background.",
+          "camera_framing_en": "Fixed wide observer shot, eye-level, tripod-locked. Captures the wall screen on left, instructor in center, trainees with laptops on right. No camera movement.",
+          "subjects_wardrobe_en": "One Korean instructor (30s-40s, smart casual blazer or trendy modern outfit, holding a wireless presenter clicker). Two Korean trainees (20s-30s, neat smart-casual, both with 제주 identifiers, attentive engaged expressions).",
+          "action_movement_en": "Instructor gestures toward the wall screen explaining the AI prompt strategy. One trainee types on laptop testing a prompt, the other watches the analytics dashboard and scrolls through it. Natural, focused, energetic learning atmosphere. No one walks out of frame.",
+          "lighting_mood_en": "Bright warm interior lighting, soft daylight through large windows. Energetic, modern, learning-forward atmosphere.",
+          "audio_narration_directive_en": "Same bright female Korean voiceover from segment 1 continues, warm encouraging tone. Low ambient classroom sound (subtle keyboard, soft instructor voice). No character dialogue. No on-screen text, no captions.",
+          "narration_kr": "AI 마케팅 자동화부터 유튜브 채널 분석, 숏폼 콘텐츠 제작까지! 제주에서 AI 시대 디지털 마케터로 성장합니다.",
+          "cut_rules_en": "Single continuous take. No cuts, no angle changes, no zoom, no pan. Camera locked throughout.",
+          "explicit_negations": [
+            "NO single home setup — this is a professional training facility",
+            "NO outdoor scenes",
+            "NO dated office aesthetics — keep it modern and tech-forward",
+            "no on-screen text, no captions",
+            "no character dialogue"
+          ],
+          "image_reference_filename_hint": null
+        },
+        "3_cta": {
+          "image_reference_en": "(Optional) Reference image: young Korean digital marketer in neat smart-casual clothing, trendy energetic demeanor.",
+          "transition_note_en": "New scene, completely different from previous segment. NO monitors, NO classroom equipment, NO wall screens.",
+          "scene_location_en": "A cheerful young Korean digital marketer stands in front of a clean modern Jeju training facility entrance, with softly blurred Jeju natural landscape (greenery, distant low oreum) in the background.",
+          "camera_framing_en": "Medium shot (chest to head). Eye-level. Subject facing camera directly, centered in frame. Shallow depth of field so background is soft. Fixed single frame.",
+          "subjects_wardrobe_en": "One Korean adult (early-20s to early-30s), neat smart-casual clothing (modern, trendy aesthetic) with a 제주 lanyard. Warm, bright, trendy energetic demeanor.",
+          "action_movement_en": "Subject begins speaking IMMEDIATELY at the start of the segment with no initial silent pause. Faces camera directly throughout, bright confident smile, warm eye contact. Hands remain comfortably clasped in front at waist level in a stable presenter pose, no raised palms, no prolonged hand gestures, no waving. A single brief head nod on the final word for emphasis.",
+          "lighting_mood_en": "Soft natural daylight, warm, even across the face. Inviting, confident mood.",
+          "audio_narration_directive_en": "Character speaks in bright, quick-paced, energetic Korean with a broadcast-announcer tempo. Begin speaking immediately as the segment starts, no initial silence. Deliver the ENTIRE dialogue continuously within 7 seconds, leaving only the final 2-3 seconds for the closing smile and brief head nod. NO long pauses, NO mid-sentence breaks. Clear, accurate lip sync. No music. No on-screen text, no captions. Clean room tone.",
+          "dialogue_kr_template": "{course_title}, {start_date} 개강! 내일배움카드로 지금 신청하세요!",
+          "cut_rules_en": "Single continuous take. No camera movement, no cuts within segment.",
+          "explicit_negations": [
+            "NO monitors or workstations behind subject",
+            "NO classroom or studio equipment",
+            "NO raised palms, NO prolonged hand gestures",
+            "no initial silent pause",
+            "NO long pauses between sentences",
+            "no on-screen text, no captions",
+            "no music"
+          ],
+          "speech_constraints": {
+            "begin_immediately": true,
+            "max_dialogue_duration_s": 7,
+            "max_inter_sentence_pause_s": 0.3,
+            "closing_buffer_s": 2.5
+          }
+        }
+      }
+    },
+    "3D모델링": {
+      "parent_field": "3D콘텐츠",
+      "title_keywords": [
+        "3D모델링",
+        "3D 모델링",
+        "블렌더",
+        "Blender",
+        "3D 디자인",
+        "3D그래픽",
+        "3D 비주얼",
+        "3D 시각화",
+        "3D 콘텐츠"
+      ],
+      "training_context_label": "블렌더 활용 호텔 인테리어 시각화·제품 패키지 디자인·관광 AR/VR·디지털 아카이빙·게임 자산 제작",
+      "narrator_persona_en": "bright, cheerful, energetic young female Korean voiceover in news-anchor style with clear enunciation",
+      "cta_speaker_persona_en": "young Korean 3D digital designer (early-20s to early-30s), neat trendy casual clothing with a 제주 lanyard, creative and confident demeanor",
+      "cta_dialogue_template_kr": "{course_title}, {start_date} 개강! 내일배움카드로 지금 신청하세요!",
+      "segments": {
+        "1_hook": {
+          "image_reference_en": "(Optional) Reference image: dual-monitor 3D designer workspace showing Blender interface with a 3D model in the viewport, alongside printed product visualization samples on the desk.",
+          "scene_location_en": "Modern bright 3D designer workspace in Jeju. On a clean desk: a large primary monitor displaying the Blender 3D modeling interface with a detailed 3D model of a Jeju citrus product package (or a hotel interior room) being rotated in the viewport, a secondary smaller monitor showing a rendered final image of the same model, and on the desk surface a few 3D-printed product samples and a graphics tablet with stylus. Through a soft window, a glimpse of distant Jeju oreum or coastal greenery is visible. Clean, creative, contemporary atmosphere.",
+          "camera_framing_en": "Fixed wide medium shot at desk-level, slightly angled to capture both monitors, the printed samples, and the graphics tablet together. Tripod-stable. No zoom, no pan, no tilt. Vertical composition uses upper third for window/light, middle for monitors and 3D content, lower for desk surface and physical samples.",
+          "subjects_wardrobe_en": "No human subjects in frame. The 3D designer workspace itself is the subject. A hand may briefly enter frame holding a stylus over the graphics tablet but no full body visible.",
+          "action_movement_en": "On the primary monitor, the Blender viewport shows a 3D model gently rotating to display its detail. On the secondary monitor, the rendered final image remains static. The stylus may make subtle movements over the tablet. Subtle ambient activity, no dramatic camera movement. The energy comes from the rotating 3D model on screen, not from camera motion.",
+          "lighting_mood_en": "Bright natural daylight from the window plus subtle warm desk lamp accent. Creative, modern, growth-oriented mood.",
+          "audio_narration_directive_en": "Bright, cheerful, energetic young female Korean voiceover in news-anchor style with clear enunciation. Subtle keyboard typing and stylus tapping ambience, no music. No on-screen text, no captions.",
+          "narration_kr": "블렌더 하나로 호텔 인테리어부터 감귤 패키지, 오름 VR까지! 글로벌 3D 시장 연 12 퍼센트 성장, 제주에서 디지털 디자이너로 시작하세요.",
+          "cut_rules_en": "Single continuous take. No cuts, no angle changes, no scene transitions. Camera locked throughout.",
+          "explicit_negations": [
+            "NOT AutoCAD, NOT Revit, NOT BIM software (this distinguishes from architectural design field)",
+            "NO 2D architectural blueprints or floor plans on screen",
+            "NO construction-site context — this is a creative digital studio",
+            "no on-screen text, no captions",
+            "no music"
+          ],
+          "image_reference_filename_hint": null
+        },
+        "2_demo": {
+          "image_reference_en": "(Optional) Reference image: 3D modeling training classroom with instructor presenting Blender interface on a large screen and trainees with laptops.",
+          "transition_note_en": "New scene, completely different location from previous segment. Indoor training classroom.",
+          "scene_location_en": "Bright modern 3D modeling training classroom in Jeju. A Korean instructor stands in front of a large wall-mounted screen displaying the Blender interface with a 3D model being shaped, lit, and rendered in real time. Two trainees sit at desks with laptops open to Blender, taking notes and following along. Clean modern interior with soft daylight from large windows showing distant low oreum landscape.",
+          "camera_framing_en": "Fixed wide observer shot, eye-level, tripod-locked. Captures the wall screen on left or center, instructor in middle, trainees with laptops on right. No camera movement.",
+          "subjects_wardrobe_en": "One Korean instructor (30s-40s, smart casual creative outfit, holding a wireless presenter clicker or graphics tablet stylus). Two Korean trainees (20s-30s, neat casual, both with 제주 identifiers, attentive engaged expressions).",
+          "action_movement_en": "Instructor gestures toward the wall screen explaining a Blender modeling or shading technique. One trainee operates Blender on laptop testing the same technique, the other watches the wall screen and takes notes on tablet. Natural, focused, creative learning atmosphere. No one walks out of frame.",
+          "lighting_mood_en": "Bright warm interior lighting, soft daylight through large windows. Creative, modern, learning-forward atmosphere.",
+          "audio_narration_directive_en": "Same bright female Korean voiceover from segment 1 continues, warm encouraging tone. Low ambient classroom sound (subtle keyboard, soft instructor voice). No character dialogue. No on-screen text, no captions.",
+          "narration_kr": "3D 모델링부터 라이팅·렌더링, AR VR 콘텐츠 제작까지! 제주에서 디지털 시각화 전문가로 성장합니다.",
+          "cut_rules_en": "Single continuous take. No cuts, no angle changes, no zoom, no pan. Camera locked throughout.",
+          "explicit_negations": [
+            "NOT AutoCAD, NOT Revit, NOT architectural drafting software",
+            "NO printed 2D blueprints or construction drawings",
+            "NO outdoor scenes, NO construction site",
+            "no on-screen text, no captions",
+            "no character dialogue"
+          ],
+          "image_reference_filename_hint": null
+        },
+        "3_cta": {
+          "image_reference_en": "(Optional) Reference image: young Korean 3D digital designer in neat trendy casual clothing, creative confident demeanor.",
+          "transition_note_en": "New scene, completely different from previous segment. NO monitors, NO classroom equipment, NO Blender interface visible.",
+          "scene_location_en": "A cheerful young Korean 3D digital designer stands in front of a clean modern Jeju training facility entrance, with softly blurred Jeju natural landscape (greenery, distant low oreum) in the background.",
+          "camera_framing_en": "Medium shot (chest to head). Eye-level. Subject facing camera directly, centered in frame. Shallow depth of field so background is soft. Fixed single frame.",
+          "subjects_wardrobe_en": "One Korean adult (early-20s to early-30s), neat trendy casual clothing (modern creative aesthetic) with a 제주 lanyard. Warm, bright, creative confident demeanor.",
+          "action_movement_en": "Subject begins speaking IMMEDIATELY at the start of the segment with no initial silent pause. Faces camera directly throughout, bright confident smile, warm eye contact. Hands remain comfortably clasped in front at waist level in a stable presenter pose, no raised palms, no prolonged hand gestures, no waving. A single brief head nod on the final word for emphasis.",
+          "lighting_mood_en": "Soft natural daylight, warm, even across the face. Inviting, confident mood.",
+          "audio_narration_directive_en": "Character speaks in bright, quick-paced, energetic Korean with a broadcast-announcer tempo. Begin speaking immediately as the segment starts, no initial silence. Deliver the ENTIRE dialogue continuously within 7 seconds, leaving only the final 2-3 seconds for the closing smile and brief head nod. NO long pauses, NO mid-sentence breaks. Clear, accurate lip sync. No music. No on-screen text, no captions. Clean room tone.",
+          "dialogue_kr_template": "{course_title}, {start_date} 개강! 내일배움카드로 지금 신청하세요!",
+          "cut_rules_en": "Single continuous take. No camera movement, no cuts within segment.",
+          "explicit_negations": [
+            "NO monitors or workstations behind subject",
+            "NO Blender interface or 3D models visible",
+            "NO classroom equipment",
+            "NO raised palms, NO prolonged hand gestures",
+            "no initial silent pause",
+            "NO long pauses between sentences",
+            "no on-screen text, no captions",
+            "no music"
+          ],
+          "speech_constraints": {
+            "begin_immediately": true,
+            "max_dialogue_duration_s": 7,
+            "max_inter_sentence_pause_s": 0.3,
+            "closing_buffer_s": 2.5
+          }
+        }
+      }
     }
   }
 }

@@ -66,6 +66,41 @@ def load_v2_profile(field_key: str) -> dict:
     return profile
 
 
+def detect_v2_field_key(course_title: str, ncs_cd: Optional[str] = None) -> Optional[str]:
+    """과정 제목에서 v2 프로파일 키 자동 감지.
+
+    video_profiles_v2.json의 각 프로파일에 정의된 title_keywords를
+    제목과 매칭해 가장 적합한 분야 키를 반환.
+
+    Args:
+        course_title: 훈련과정 제목
+        ncs_cd: NCS 코드 (현재 미사용, 향후 확장 여지)
+
+    Returns:
+        매칭된 v2 프로파일 키 (예: "드론배송"), 없으면 None
+    """
+    if not os.path.exists(PROFILES_PATH):
+        return None
+    with open(PROFILES_PATH, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    profiles = data.get("profiles", {})
+    title_upper = course_title.upper()
+
+    # 키워드 매칭 — 더 길고 구체적인 키워드를 우선 매칭
+    candidates = []
+    for field_key, profile in profiles.items():
+        for kw in profile.get("title_keywords", []):
+            if kw.upper() in title_upper:
+                candidates.append((len(kw), field_key))
+                break  # 같은 분야 내에서는 한 번만
+
+    if not candidates:
+        return None
+    # 가장 긴 키워드로 매칭된 분야 우선 (구체성 우선)
+    candidates.sort(reverse=True)
+    return candidates[0][1]
+
+
 # ── 프롬프트 렌더링 ─────────────────────────────────────────────
 def _render_segment_prompt(seg: dict, segment_role: str) -> str:
     """세그먼트 데이터를 Grok에 입력할 8-블록 프롬프트 텍스트로 렌더.

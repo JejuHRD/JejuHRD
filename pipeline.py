@@ -30,7 +30,11 @@ except ImportError:
 
 # v2 릴스 (Grok 네이티브 음성 + 컷 전환) 사용 가능 여부 확인
 try:
-    from reels_v2_helper import generate_reels_v2_package, load_v2_profile
+    from reels_v2_helper import (
+        generate_reels_v2_package,
+        load_v2_profile,
+        detect_v2_field_key,
+    )
     HAS_REELS_V2 = True
 except ImportError:
     HAS_REELS_V2 = False
@@ -513,9 +517,15 @@ def generate_content_for_course(course, output_dir):
     blog_txt, _ = generate_blog_post(course, output_dir)
 
     # v2 릴스 패키지 생성 (Grok 네이티브 음성 + 컷 전환)
-    # video_profiles_v2.json에 정의된 분야만 자동 생성됨. 미정의 분야는 v1 릴스 대본만 출력.
+    # 1순위: course["video_field_v2"]에 명시된 분야 사용
+    # 2순위: 제목에서 자동 감지 (video_profiles_v2.json title_keywords 매칭)
+    # 매칭 실패 시 v2 생성 건너뜀 (v1만 정상 작동)
     reels_v2_paths = None
-    reels_v2_field = course.get("video_field_v2")  # 명시적 지정 우선
+    reels_v2_field = course.get("video_field_v2")
+    if HAS_REELS_V2 and not reels_v2_field:
+        reels_v2_field = detect_v2_field_key(course["title"], course.get("ncsCd"))
+        if reels_v2_field:
+            print(f"  🔍 v2 분야 자동 감지: {reels_v2_field}")
     if HAS_REELS_V2 and reels_v2_field:
         try:
             reels_v2_paths = generate_reels_v2_package(course, reels_v2_field, output_dir)
