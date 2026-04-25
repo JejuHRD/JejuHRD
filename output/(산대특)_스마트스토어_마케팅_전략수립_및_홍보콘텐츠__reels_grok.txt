@@ -23,11 +23,11 @@
 🎬 세그먼트 1 — 처음 생성 (0~10초)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   장면: 활기차게 입장 → 카메라에 말하기
-  나레이션: 스마트스토어, 제대로 배우면 달라요, 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정.
+  나레이션: 내 가게를 온라인에 여는 가장 빠른 길, 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정.
 
 🤖 Grok 프롬프트 (복사용)
 ────────────────────────────────────────────
-The person speaks clearly in Korean with natural lip-sync: "스마트스토어, 제대로 배우면 달라요, 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정."
+The person speaks clearly in Korean with natural lip-sync: "내 가게를 온라인에 여는 가장 빠른 길, 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정."
 
 A cinematic video. A Korean professional wearing smart casual business attire, walks into a bright co-working cafe space with a laptop showing SNS analytics dashboards and a smartphone on the table and speaks to the camera with energy. Bright lighting, handheld camera.
 No background music, no BGM.

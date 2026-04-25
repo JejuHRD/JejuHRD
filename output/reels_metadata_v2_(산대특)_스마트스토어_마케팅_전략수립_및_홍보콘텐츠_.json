@@ -1,0 +1,54 @@
+{
+  "course_id": "(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠_",
+  "course_title": "(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정",
+  "start_date": "2026.05.11 ~ 2026.07.07",
+  "field": "이커머스",
+  "training_context": "제주 농수산물·관광상품 온라인 판매와 라이브커머스 실무",
+  "generated_at": "2026-04-25T02:06:29.644674",
+  "schema_version": "2.0",
+  "ui_settings": {
+    "aspect_ratio": "9:16",
+    "duration_per_segment_sec": 10,
+    "platform": "Instagram Reels"
+  },
+  "narration": {
+    "1_hook": "온라인쇼핑 242조 원, 모바일 비중 76 퍼센트 시대! 제주 농가의 유통비를 절반으로 줄이는 스마트스토어, 1인 셀러로 매출을 만드는 시대가 왔습니다.",
+    "2_demo": "스마트스토어 운영부터 라이브커머스 실습, AI 상품 기획까지! 제주에서 온라인 셀러 전문가로 성장합니다.",
+    "3_cta_dialogue": "(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정, 2026.05.11 ~ 2026.07.07 개강! 내일배움카드로 지금 신청하세요!"
+  },
+  "explicit_negations": {
+    "1_hook": [
+      "NO offline retail store, NO supermarket scenes",
+      "NO printed flyers or physical advertising",
+      "NO crowds of shoppers — focus is the digital workspace",
+      "no on-screen text, no captions",
+      "no music"
+    ],
+    "2_demo": [
+      "NO single person at home setup — this is a professional training facility",
+      "NO outdoor scenes",
+      "no on-screen text, no captions",
+      "no character dialogue"
+    ],
+    "3_cta": [
+      "NO studio equipment behind subject",
+      "NO product boxes or shopping props",
+      "NO raised palms, NO prolonged hand gestures",
+      "no initial silent pause",
+      "NO long pauses between sentences",
+      "no on-screen text, no captions",
+      "no music"
+    ]
+  },
+  "image_reference_hints": {
+    "1_hook": null,
+    "2_demo": null,
+    "3_cta": null
+  },
+  "validation": {
+    "passed": true,
+    "issue_count": 0,
+    "issues": []
+  },
+  "evaluation_log": []
+}

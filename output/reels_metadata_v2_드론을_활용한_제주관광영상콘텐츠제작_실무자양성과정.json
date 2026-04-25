@@ -1,0 +1,55 @@
+{
+  "course_id": "드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정",
+  "course_title": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정",
+  "start_date": "2026.06.22 ~ 2026.07.22",
+  "field": "드론영상",
+  "training_context": "제주 풍경(오름·해안·UNESCO 세계자연유산) 시네마틱 항공 촬영 및 영상 편집",
+  "generated_at": "2026-04-25T02:06:38.394045",
+  "schema_version": "2.0",
+  "ui_settings": {
+    "aspect_ratio": "9:16",
+    "duration_per_segment_sec": 10,
+    "platform": "Instagram Reels"
+  },
+  "narration": {
+    "1_hook": "한국 드론 산업 1조 원, 자격 보유자 64만 명! 제주는 전국 최대 1,283 제곱킬로미터 드론 특별자유화구역, 시네마틱 항공 촬영의 최고 무대입니다.",
+    "2_demo": "드론 비행 기본기부터 시네마틱 촬영, AI 영상 편집까지! 제주의 자연을 담는 항공 콘텐츠 전문가로 성장합니다.",
+    "3_cta_dialogue": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정, 2026.06.22 ~ 2026.07.22 개강! 내일배움카드로 지금 신청하세요!"
+  },
+  "explicit_negations": {
+    "1_hook": [
+      "NOT a heavy-lift cargo drone, NOT an octocopter",
+      "NOT an agricultural sprayer drone",
+      "NO visible cargo or rope underneath the drone",
+      "no on-screen text, no captions",
+      "no music"
+    ],
+    "2_demo": [
+      "NO drone actually flying indoors (only on launch pad for safety realism)",
+      "NOT a cargo drone or agricultural sprayer",
+      "NO toy or hobby drones — professional cinematic drone only",
+      "no on-screen text, no captions",
+      "no character dialogue"
+    ],
+    "3_cta": [
+      "NO drone visible in the scene",
+      "NO editing monitor or studio equipment",
+      "NO raised palms, NO prolonged hand gestures",
+      "no initial silent pause",
+      "NO long pauses between sentences",
+      "no on-screen text, no captions",
+      "no music"
+    ]
+  },
+  "image_reference_hints": {
+    "1_hook": null,
+    "2_demo": null,
+    "3_cta": null
+  },
+  "validation": {
+    "passed": true,
+    "issue_count": 0,
+    "issues": []
+  },
+  "evaluation_log": []
+}
