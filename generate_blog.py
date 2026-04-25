@@ -28,7 +28,6 @@ from seo_helper import (
     generate_blog_hashtags,
     generate_instagram_caption,
     generate_instagram_hashtags,
-    generate_reels_package,
     generate_posting_guide,
     extract_seo_keywords,
     detect_course_field,
@@ -240,20 +239,8 @@ STEP 3. 배우면서 혜택도 받기
 
     print(f"  📸 인스타그램 캡션 생성: {caption_filepath}")
 
-    # ── 릴스 Grok 영상 가이드 생성 ──
-    reels_result = generate_reels_package(course_data)
-
-    if isinstance(reels_result, str):
-        # "[SKIP] ..." — 이미 시작된 과정
-        reels_filepath = os.path.join(output_dir, f"{safe_name}_reels_grok.txt")
-        with open(reels_filepath, "w", encoding="utf-8") as f:
-            f.write(reels_result)
-        print(f"  ⏭️  릴스 스킵: {reels_result[:60]}")
-    else:
-        grok_path = os.path.join(output_dir, f"{safe_name}_reels_grok.txt")
-        with open(grok_path, "w", encoding="utf-8") as f:
-            f.write(reels_result["grok"])
-        print(f"  🎬 Grok 영상 가이드 생성: {grok_path}")
+    # ── 릴스 v2 영상 가이드 (reels_v2_helper.py + pipeline.py에서 처리) ──
+    # v1 reels_grok.txt 생성 코드는 v2 워크플로우 도입으로 제거됨
 
     # ── 게시 가이드 생성 ──
     guide_filepath = os.path.join(output_dir, f"{safe_name}_posting_guide.txt")

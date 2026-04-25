@@ -499,7 +499,7 @@ def parse_api_course(api_item):
 
 
 def generate_content_for_course(course, output_dir):
-    """단일 과정에 대해 카드뉴스 + 블로그 + 인스타 캡션 + 릴스 대본 + 게시 가이드를 생성"""
+    """단일 과정에 대해 카드뉴스 + 블로그 + 인스타 캡션 + v2 릴스 + 게시 가이드를 생성"""
     print(f"\n{'─' * 50}")
     print(f"  📌 {course['title']}")
     if course.get("period"):
@@ -513,43 +513,102 @@ def generate_content_for_course(course, output_dir):
     else:
         cardnews_paths = generate_cardnews(course, output_dir)
 
-    # 블로그 포스트 생성 (인스타 캡션, 릴스 대본, 게시 가이드도 함께 생성됨)
+    # 블로그 포스트 생성 (인스타 캡션, 게시 가이드도 함께 생성됨)
     blog_txt, _ = generate_blog_post(course, output_dir)
 
     # v2 릴스 패키지 생성 (Grok 네이티브 음성 + 컷 전환)
     # 1순위: course["video_field_v2"]에 명시된 분야 사용
     # 2순위: 제목에서 자동 감지 (video_profiles_v2.json title_keywords 매칭)
-    # 매칭 실패 시 v2 생성 건너뜀 (v1만 정상 작동)
-    reels_v2_paths = None
-    reels_v2_field = course.get("video_field_v2")
-    if HAS_REELS_V2 and not reels_v2_field:
-        reels_v2_field = detect_v2_field_key(course["title"], course.get("ncsCd"))
-        if reels_v2_field:
-            print(f"  🔍 v2 분야 자동 감지: {reels_v2_field}")
-    if HAS_REELS_V2 and reels_v2_field:
-        try:
-            reels_v2_paths = generate_reels_v2_package(course, reels_v2_field, output_dir)
-            if reels_v2_paths.get("validation_issues"):
-                print(f"  ⚠️  v2 릴스 검증 이슈 {len(reels_v2_paths['validation_issues'])}건")
-            else:
-                print(f"  ✅ v2 릴스 패키지 생성 완료 (분야: {reels_v2_field})")
-        except (FileNotFoundError, KeyError) as e:
-            print(f"  ⚠️  v2 릴스 생성 건너뜀: {e}")
+    # 매칭 실패 시 v2 생성 건너뜀
+    reels_v2_paths = _generate_reels_v2_for_course(course, output_dir)
 
     # 생성된 부가 파일 경로 조합
     safe_name = course["title"][:30].replace(" ", "_").replace("/", "_")
     caption_path = os.path.join(output_dir, f"{safe_name}_instagram_caption.txt")
-    grok_path = os.path.join(output_dir, f"{safe_name}_reels_grok.txt")
     guide_path = os.path.join(output_dir, f"{safe_name}_posting_guide.txt")
 
     return {
         "cardnews": cardnews_paths,
         "blog_txt": blog_txt,
         "instagram_caption": caption_path if os.path.exists(caption_path) else None,
-        "reels_grok": grok_path if os.path.exists(grok_path) else None,
         "posting_guide": guide_path if os.path.exists(guide_path) else None,
         "reels_v2": reels_v2_paths,
     }
+
+
+def _generate_reels_v2_for_course(course, output_dir):
+    """v2 릴스 패키지 생성 (분야 매칭 + 검증). 실패 시 None 반환.
+
+    재사용 가능한 헬퍼로 분리하여 신규 처리·누락 보완 두 경로 모두에서 호출 가능.
+    """
+    if not HAS_REELS_V2:
+        return None
+    reels_v2_field = course.get("video_field_v2")
+    if not reels_v2_field:
+        reels_v2_field = detect_v2_field_key(course["title"], course.get("ncsCd"))
+        if reels_v2_field:
+            print(f"  🔍 v2 분야 자동 감지: {reels_v2_field}")
+    if not reels_v2_field:
+        return None
+    try:
+        reels_v2_paths = generate_reels_v2_package(course, reels_v2_field, output_dir)
+        if reels_v2_paths.get("validation_issues"):
+            print(f"  ⚠️  v2 릴스 검증 이슈 {len(reels_v2_paths['validation_issues'])}건")
+        else:
+            print(f"  ✅ v2 릴스 패키지 생성 완료 (분야: {reels_v2_field})")
+        return reels_v2_paths
+    except (FileNotFoundError, KeyError) as e:
+        print(f"  ⚠️  v2 릴스 생성 건너뜀: {e}")
+        return None
+
+
+def _backfill_missing_reels_v2(courses, processed):
+    """이미 처리된 과정 중 v2 릴스가 누락된 항목을 자동 보완.
+
+    캐시(processed_courses.json)에 등록된 키 중 reels_v2 산출물이 없거나 None인
+    경우, v1 산출물은 건드리지 않고 v2만 신규 생성하고 캐시를 갱신한다.
+
+    이 함수는 v2 워크플로우 도입 후 기존 처리 항목에 v2 산출물이 누락된 케이스를
+    재실행 없이 보완하기 위해 추가됨.
+    """
+    if not HAS_REELS_V2:
+        return 0
+
+    # 캐시 키 → course 매핑 (현재 입력된 courses 중에서만)
+    course_by_key = {}
+    for course in courses:
+        course_key = make_course_key(course)
+        course_by_key[course_key] = course
+
+    backfill_count = 0
+    for course_key, entry in list(processed.items()):
+        # 캐시에 있지만 현재 입력된 courses에 없는 항목은 건너뜀
+        # (Work24에서 더 이상 노출되지 않는 과정일 수 있음)
+        if course_key not in course_by_key:
+            continue
+
+        files = entry.get("files", {}) if isinstance(entry, dict) else {}
+        existing_v2 = files.get("reels_v2")
+
+        # v2 산출물이 이미 존재하면 스킵
+        if existing_v2 and isinstance(existing_v2, dict) and existing_v2.get("prompts_md"):
+            continue
+
+        course = course_by_key[course_key]
+        print(f"\n  🔧 v2 누락 보완: {course['title'][:40]} ({course.get('period', '')})")
+        reels_v2_paths = _generate_reels_v2_for_course(course, OUTPUT_DIR)
+        if reels_v2_paths:
+            files["reels_v2"] = reels_v2_paths
+            entry["files"] = files
+            entry["reels_v2_backfilled_at"] = datetime.now().isoformat()
+            backfill_count += 1
+
+    if backfill_count:
+        save_processed_ids(processed)
+        print(f"\n  ✅ v2 누락 {backfill_count}건 보완 완료 및 캐시 갱신")
+    return backfill_count
+
+
 
 
 def run_pipeline(courses):
@@ -558,6 +617,7 @@ def run_pipeline(courses):
     - 같은 과정이라도 회차/훈련기간이 다르면 새로 생성
     - 이미 동일 키로 처리한 과정은 건너뜀
     - 새 과정이 0건이면 콘텐츠 생성 없이 종료 (API 비용 절감)
+    - 이미 처리된 과정 중 v2 릴스 누락 항목은 자동 보완
     """
     processed = load_processed_ids()
 
@@ -572,9 +632,17 @@ def run_pipeline(courses):
         else:
             new_courses.append((course, course_key))
 
+    # ── 이미 처리된 과정 중 v2 릴스 누락 항목 자동 보완 ──
+    # v2 워크플로우 도입 전에 처리된 항목에 v2 산출물이 없는 경우, v1은 건드리지 않고
+    # v2만 추가 생성. 신규 과정 처리 전에 실행하여 항상 일관된 상태 유지.
+    backfill_count = _backfill_missing_reels_v2(courses, processed)
+
     if not new_courses:
-        print(f"\n  ✅ 새로운 과정 없음 (전체 {len(courses)}건 중 {skip_count}건 중복)")
-        print(f"  💰 카드뉴스·이미지 생성 건너뜀 (API 비용 절감)")
+        if backfill_count:
+            print(f"\n  ✅ 새 과정은 없지만 v2 누락 {backfill_count}건 보완 완료 (전체 {len(courses)}건 중 {skip_count}건 기존)")
+        else:
+            print(f"\n  ✅ 새로운 과정 없음 (전체 {len(courses)}건 중 {skip_count}건 중복)")
+            print(f"  💰 카드뉴스·이미지 생성 건너뜀 (API 비용 절감)")
         return
 
     print(f"\n  📊 전체 {len(courses)}건 중 신규 {len(new_courses)}건, 중복 {skip_count}건")
@@ -596,7 +664,7 @@ def run_pipeline(courses):
     save_processed_ids(processed)
 
     print(f"\n{'=' * 60}")
-    print(f"  ✅ 실행 결과: 새 과정 {new_count}건 생성, {skip_count}건 스킵")
+    print(f"  ✅ 실행 결과: 새 과정 {new_count}건 생성, {skip_count}건 스킵, v2 누락 보완 {backfill_count}건")
     print(f"{'=' * 60}")
 
     # 생성된 파일 요약
@@ -608,7 +676,8 @@ def run_pipeline(courses):
         print(f"    - *_2_detail.png      : 카드뉴스 상세 이미지")
         print(f"    - *_3_howto.png       : 카드뉴스 신청방법 이미지")
         print(f"    - *_instagram_caption.txt : 인스타그램 캡션 + 해시태그")
-        print(f"    - *_reels_grok.txt    : Grok 영상 가이드 (30초, 세그먼트별 프롬프트)")
+        print(f"    - grok_prompts_v2_*.md  : v2 Grok 영상 프롬프트 세트 (분야 매칭 시)")
+        print(f"    - reels_metadata_v2_*.json : v2 영상 메타데이터")
         print(f"    - *_posting_guide.txt : 게시 타이밍/시리즈 전략 가이드")
 
     return new_count
