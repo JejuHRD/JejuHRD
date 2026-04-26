@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-27 06:35",
+  "updated": "2026-04-27 07:36",
   "count": 8,
   "data": [
     {
@@ -11,14 +11,6 @@
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20253001129433&tracseTme=4&crseTracseSe=C0061&trainstCstmrId=500020018203"
     },
     {
-      "address": "제주 서귀포시",
-      "subTitle": "중앙컴퓨터직업전문학원",
-      "title": "(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정",
-      "traStartDate": "2026-05-11",
-      "traEndDate": "2026-07-07",
-      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20253001129433&tracseTme=5&crseTracseSe=C0061&trainstCstmrId=500020018203"
-    },
-    {
       "address": "제주 제주시",
       "subTitle": "제주건축기술학원",
       "title": "(산대특)녹색정원사(조경) 양성",
@@ -28,11 +20,11 @@
     },
     {
       "address": "제주 서귀포시",
-      "subTitle": "드론항공평생교육원",
-      "title": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정",
-      "traStartDate": "2026-05-18",
-      "traEndDate": "2026-06-17",
-      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001247924&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500035584309"
+      "subTitle": "중앙컴퓨터직업전문학원",
+      "title": "(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정",
+      "traStartDate": "2026-05-11",
+      "traEndDate": "2026-07-07",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20253001129433&tracseTme=5&crseTracseSe=C0061&trainstCstmrId=500020018203"
     },
     {
       "address": "제주 제주시",
@@ -41,6 +33,14 @@
       "traStartDate": "2026-05-18",
       "traEndDate": "2026-09-03",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001294040&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500036189345"
+    },
+    {
+      "address": "제주 서귀포시",
+      "subTitle": "드론항공평생교육원",
+      "title": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정",
+      "traStartDate": "2026-05-18",
+      "traEndDate": "2026-06-17",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001247924&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500035584309"
     },
     {
       "address": "제주 제주시",
