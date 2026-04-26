@@ -239,9 +239,6 @@ STEP 3. 배우면서 혜택도 받기
 
     print(f"  📸 인스타그램 캡션 생성: {caption_filepath}")
 
-    # ── 릴스 v2 영상 가이드 (reels_v2_helper.py + pipeline.py에서 처리) ──
-    # v1 reels_grok.txt 생성 코드는 v2 워크플로우 도입으로 제거됨
-
     # ── 게시 가이드 생성 ──
     guide_filepath = os.path.join(output_dir, f"{safe_name}_posting_guide.txt")
     guide = generate_posting_guide(course_data)
