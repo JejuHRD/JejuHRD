@@ -22,10 +22,14 @@
 
     /* 기관별 색상 */
     --c-drone-aviation: #E74C3C;
-    --c-skyfarm: #3498DB;
     --c-dronebus: #2ECC71;
     --c-jewon: #9B59B6;
     --c-jungang: #F39C12;
+    --c-jungjanbi: #1ABC9C;
+    --c-jejudodrone: #E67E22;
+    --c-geonchuk: #34495E;
+    --c-jejuvs: #3498DB;
+    --c-neungryeok: #C0392B;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -482,6 +486,10 @@
   .inst-card:nth-child(4) { animation-delay: 0.2s; }
   .inst-card:nth-child(5) { animation-delay: 0.25s; }
   .inst-card:nth-child(6) { animation-delay: 0.3s; }
+  .inst-card:nth-child(7) { animation-delay: 0.35s; }
+  .inst-card:nth-child(8) { animation-delay: 0.4s; }
+  .inst-card:nth-child(9) { animation-delay: 0.45s; }
+  .inst-card:nth-child(10) { animation-delay: 0.5s; }
 
   .no-results {
     text-align: center;
@@ -508,21 +516,21 @@
 <div class="stats-bar">
   <div class="stat-item">
     <div>
-      <div class="stat-number">5</div>
+      <div class="stat-number" id="statInst">-</div>
       <div class="stat-label">훈련기관</div>
     </div>
   </div>
   <div class="stat-divider"></div>
   <div class="stat-item">
     <div>
-      <div class="stat-number">6</div>
+      <div class="stat-number" id="statCourse">-</div>
       <div class="stat-label">훈련과정</div>
     </div>
   </div>
   <div class="stat-divider"></div>
   <div class="stat-item">
     <div>
-      <div class="stat-number">4</div>
+      <div class="stat-number" id="statField">-</div>
       <div class="stat-label">훈련분야</div>
     </div>
   </div>
@@ -545,6 +553,11 @@
         <button class="filter-btn" data-filter="소형무인기운용조종">소형무인기</button>
         <button class="filter-btn" data-filter="마케팅전략기획">마케팅</button>
         <button class="filter-btn" data-filter="전자상거래">전자상거래</button>
+        <button class="filter-btn" data-filter="지게차운전">지게차</button>
+        <button class="filter-btn" data-filter="보일러설치정비">보일러</button>
+        <button class="filter-btn" data-filter="조경시공">조경</button>
+        <button class="filter-btn" data-filter="실내디자인">실내디자인</button>
+        <button class="filter-btn" data-filter="건축설계">건축설계</button>
       </div>
     </div>
     <div class="card-list" id="cardList"></div>
@@ -559,10 +572,6 @@
         <div class="legend-dot" style="background:var(--c-drone-aviation)"></div>
         <span class="legend-label">드론항공평생교육원</span>
       </div>
-      <div class="legend-item" data-inst="skyfarm">
-        <div class="legend-dot" style="background:var(--c-skyfarm)"></div>
-        <span class="legend-label">스카이팜에듀교육원</span>
-      </div>
       <div class="legend-item" data-inst="dronebus">
         <div class="legend-dot" style="background:var(--c-dronebus)"></div>
         <span class="legend-label">드론버스</span>
@@ -574,6 +583,26 @@
       <div class="legend-item" data-inst="jungang">
         <div class="legend-dot" style="background:var(--c-jungang)"></div>
         <span class="legend-label">중앙컴퓨터직업전문학원</span>
+      </div>
+      <div class="legend-item" data-inst="jungjanbi">
+        <div class="legend-dot" style="background:var(--c-jungjanbi)"></div>
+        <span class="legend-label">제주중장비학원</span>
+      </div>
+      <div class="legend-item" data-inst="jejudodrone">
+        <div class="legend-dot" style="background:var(--c-jejudodrone)"></div>
+        <span class="legend-label">주식회사 제주도드론</span>
+      </div>
+      <div class="legend-item" data-inst="geonchuk">
+        <div class="legend-dot" style="background:var(--c-geonchuk)"></div>
+        <span class="legend-label">제주건축기술학원</span>
+      </div>
+      <div class="legend-item" data-inst="jejuvs">
+        <div class="legend-dot" style="background:var(--c-jejuvs)"></div>
+        <span class="legend-label">㈜제주직업전문학교</span>
+      </div>
+      <div class="legend-item" data-inst="neungryeok">
+        <div class="legend-dot" style="background:var(--c-neungryeok)"></div>
+        <span class="legend-label">제주직업능력개발학원</span>
       </div>
     </div>
   </div>
@@ -598,7 +627,8 @@ const institutions = [
     field: '드론콘텐츠제작',
     color: '#E74C3C',
     lat: 33.4170,
-    lng: 126.8413
+    lng: 126.8413,
+    hidden: false
   },
   {
     id: 'skyfarm',
@@ -610,7 +640,8 @@ const institutions = [
     field: '소형무인기운용조종',
     color: '#3498DB',
     lat: 33.5547,
-    lng: 126.8078
+    lng: 126.8078,
+    hidden: true
   },
   {
     id: 'dronebus',
@@ -622,7 +653,8 @@ const institutions = [
     field: '소형무인기운용조종',
     color: '#2ECC71',
     lat: 33.4414,
-    lng: 126.4064
+    lng: 126.4064,
+    hidden: false
   },
   {
     id: 'jewon',
@@ -631,13 +663,14 @@ const institutions = [
     phone: '064-747-5252',
     website: 'http://jejujewon.com/',
     courses: [
-      '(산대특) 챗GPT를 활용한 SNS마케팅과 빅데이터의 이해',
-      '(산대특) 제주 소상공인을 위한 AI활용 실전 브랜드 마케팅'
+      '(산대특) AI 마케팅 자동화 실무 향상과정 : ChatGPT & Gemini 활용',
+      '(산대특) AI 유튜브 크리에이터 향상과정 : 분석·제작·성장 올인원 패키지'
     ],
     field: '마케팅전략기획',
     color: '#9B59B6',
     lat: 33.4860,
-    lng: 126.4930
+    lng: 126.4930,
+    hidden: false
   },
   {
     id: 'jungang',
@@ -649,9 +682,89 @@ const institutions = [
     field: '전자상거래',
     color: '#F39C12',
     lat: 33.2461,
-    lng: 126.5676
+    lng: 126.5676,
+    hidden: false
+  },
+  {
+    id: 'jungjanbi',
+    name: '제주중장비학원',
+    address: '제주특별자치도 제주시 조천읍 일주동로 1462',
+    phone: '064-784-0400',
+    website: 'http://jeju.keyon.co.kr/pages/',
+    courses: ['(산대특) 제주 물류 실무인력(지게차) 양성과정'],
+    field: '지게차운전',
+    color: '#1ABC9C',
+    lat: 33.546062883933,
+    lng: 126.690659039883,
+    hidden: false
+  },
+  {
+    id: 'jejudodrone',
+    name: '주식회사 제주도드론',
+    address: '제주특별자치도 서귀포시 안덕면 신화역사로 372-4',
+    phone: '064-794-9530',
+    website: 'http://jejudodrone.co.kr/',
+    courses: ['(산대특) 제주 스마트물류산업 분야 드론배송 실무자 양성과정'],
+    field: '소형무인기운용조종',
+    color: '#E67E22',
+    lat: 33.3091364749917,
+    lng: 126.327703043832,
+    hidden: false
+  },
+  {
+    id: 'geonchuk',
+    name: '제주건축기술학원',
+    address: '제주특별자치도 제주시 조천읍 신촌서5길 12-1',
+    phone: '064-783-4839',
+    website: 'https://blog.naver.com/jata2018',
+    courses: [
+      '(산대특) 기계설비유지관리자(에너지관리)양성',
+      '(산대특) 녹색 정원사(조경) 양성'
+    ],
+    field: '보일러설치정비',
+    fields: ['보일러설치정비', '조경시공'],
+    color: '#34495E',
+    lat: 33.5300093153006,
+    lng: 126.614844074251,
+    hidden: false
+  },
+  {
+    id: 'jejuvs',
+    name: '㈜제주직업전문학교',
+    address: '제주특별자치도 제주시 서사로 81',
+    phone: '064-725-5546',
+    website: 'http://www.jejuvs.co.kr',
+    courses: ['(산대특) CAD설계 및 블렌더를 활용한 3D모델링 기초 양성'],
+    field: '실내디자인',
+    color: '#3498DB',
+    lat: 33.5048279693862,
+    lng: 126.520134421365,
+    hidden: false
+  },
+  {
+    id: 'neungryeok',
+    name: '제주직업능력개발학원',
+    address: '제주특별자치도 제주시 중앙로 182 3층',
+    phone: '064-726-0076',
+    website: null,
+    courses: ['(산대특) 건축CAD + AI 융합설계'],
+    field: '건축설계',
+    color: '#C0392B',
+    lat: 33.5028261598067,
+    lng: 126.527309742383,
+    hidden: false
   }
 ];
+
+// ── 표시 대상 필터 (hidden 제외) ──
+const visibleInstitutions = institutions.filter(i => !i.hidden);
+
+// ── 통계 자동 계산 ──
+document.getElementById('statInst').textContent = visibleInstitutions.length;
+document.getElementById('statCourse').textContent = visibleInstitutions.reduce((sum, i) => sum + i.courses.length, 0);
+const allFields = new Set();
+visibleInstitutions.forEach(i => { (i.fields || [i.field]).forEach(f => allFields.add(f)); });
+document.getElementById('statField').textContent = allFields.size;
 
 // ── Map Init ──
 const map = L.map('map', {
@@ -684,7 +797,7 @@ function createIcon(color) {
 
 // ── Add Markers ──
 const markers = {};
-institutions.forEach(inst => {
+visibleInstitutions.forEach(inst => {
   const coursesHtml = inst.courses.map(c =>
     `<div class="popup-course">${c.replace('(산대특) ', '')}</div>`
   ).join('');
@@ -700,7 +813,7 @@ institutions.forEach(inst => {
     <div class="popup-inner">
       <div class="popup-header" style="background:${inst.color}">
         <h3>${inst.name}</h3>
-        <div class="popup-field">${inst.field}</div>
+        <div class="popup-field">${(inst.fields || [inst.field]).join(' · ')}</div>
       </div>
       <div class="popup-body">
         ${coursesHtml}
@@ -730,8 +843,9 @@ function renderCards(filter = 'all', search = '') {
   cardList.innerHTML = '';
   const searchLower = search.toLowerCase();
 
-  let filtered = institutions.filter(inst => {
-    const matchFilter = filter === 'all' || inst.field === filter;
+  let filtered = visibleInstitutions.filter(inst => {
+    const instFields = inst.fields || [inst.field];
+    const matchFilter = filter === 'all' || instFields.includes(filter);
     const matchSearch = !search ||
       inst.name.toLowerCase().includes(searchLower) ||
       inst.courses.some(c => c.toLowerCase().includes(searchLower)) ||
@@ -760,10 +874,14 @@ function renderCards(filter = 'all', search = '') {
       .map(c => c.replace('(산대특) ', ''))
       .join('<br>');
 
+    const fieldTags = (inst.fields || [inst.field]).map(f =>
+      `<span class="inst-field-tag" style="background:${inst.color}">${f}</span>`
+    ).join(' ');
+
     card.innerHTML = `
       <div class="inst-card-header">
         <span class="inst-name">${inst.name}</span>
-        <span class="inst-field-tag" style="background:${inst.color}">${inst.field}</span>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;flex-shrink:0">${fieldTags}</div>
       </div>
       <div class="inst-course">${coursesHtml}</div>
       <div class="inst-meta">
