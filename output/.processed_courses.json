@@ -162,5 +162,20 @@
         "validation_issues": []
       }
     }
+  },
+  "AIG20263001296177_1_2026-05-11_2026-06-19": {
+    "title": "(산대특)녹색정원사(조경) 양성",
+    "period": "2026.05.11 ~ 2026.06.19",
+    "generated_at": "2026-04-27T02:31:41.855160",
+    "files": {
+      "cardnews": [
+        "output/(산대특)녹색정원사(조경)_양성_v2_1_cover.png",
+        "output/(산대특)녹색정원사(조경)_양성_v2_2_detail.png",
+        "output/(산대특)녹색정원사(조경)_양성_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)녹색정원사(조경)_양성_blog_naver.txt",
+      "instagram_caption": "output/(산대특)녹색정원사(조경)_양성_instagram_caption.txt",
+      "posting_guide": "output/(산대특)녹색정원사(조경)_양성_posting_guide.txt"
+    }
   }
 }
