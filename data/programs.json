@@ -1,6 +1,6 @@
 {
-  "updated": "2026-04-28 11:44",
-  "count": 7,
+  "updated": "2026-04-28 14:58",
+  "count": 8,
   "data": [
     {
       "address": "제주 서귀포시",
@@ -44,11 +44,19 @@
     },
     {
       "address": "제주 제주시",
+      "subTitle": "주식회사제주중장비학원",
+      "title": "(산대특)제주물류실무인력(지게차)양성과정",
+      "traStartDate": "2026-05-20",
+      "traEndDate": "2026-06-24",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001300784&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500046937135"
+    },
+    {
+      "address": "제주 제주시",
       "subTitle": "주식회사 제원직업전문학교",
       "title": "(산대특) AI 유튜브 크리에이터 향상과정 : 분석·제작·성장 올인원 패키지",
       "traStartDate": "2026-06-01",
       "traEndDate": "2026-07-27",
-      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001294061&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500020051252"
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001301001&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500020051252"
     },
     {
       "address": "제주 서귀포시",
