@@ -1,6 +1,6 @@
 {
-  "updated": "2026-04-30 13:10",
-  "count": 9,
+  "updated": "2026-04-30 16:08",
+  "count": 10,
   "data": [
     {
       "address": "제주 서귀포시",
@@ -73,6 +73,14 @@
       "traStartDate": "2026-06-22",
       "traEndDate": "2026-07-22",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001247924&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500035584309"
+    },
+    {
+      "address": "제주 서귀포시",
+      "subTitle": "주식회사제주도드론",
+      "title": "(산대특) 제주 스마트물류산업 분야 드론배송 실무자 양성과정",
+      "traStartDate": "2026-06-22",
+      "traEndDate": "2026-07-10",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001303135&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500037083746"
     }
   ]
 }
