@@ -207,5 +207,20 @@
       "instagram_caption": null,
       "posting_guide": null
     }
+  },
+  "AIG20263001301492_1_2026-06-15_2026-07-23": {
+    "title": "(산대특) AI 마케팅 자동화 실무 향상과정 : ChatGPT & Gemini 활용",
+    "period": "2026.06.15 ~ 2026.07.23",
+    "generated_at": "2026-04-30T02:40:24.402473",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_AI_마케팅_자동화_실무_향상과정__Cha_v2_1_cover.png",
+        "output/(산대특)_AI_마케팅_자동화_실무_향상과정__Cha_v2_2_detail.png",
+        "output/(산대특)_AI_마케팅_자동화_실무_향상과정__Cha_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_AI_마케팅_자동화_실무_향상과정__Cha_blog_naver.txt",
+      "instagram_caption": null,
+      "posting_guide": null
+    }
   }
 }
