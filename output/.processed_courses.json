@@ -222,5 +222,20 @@
       "instagram_caption": null,
       "posting_guide": null
     }
+  },
+  "AIG20263001303135_1_2026-06-22_2026-07-10": {
+    "title": "(산대특) 제주 스마트물류산업 분야 드론배송 실무자 양성과정",
+    "period": "2026.06.22 ~ 2026.07.10",
+    "generated_at": "2026-05-01T02:46:29.482089",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_제주_스마트물류산업_분야_드론배송_실무자_양_v2_1_cover.png",
+        "output/(산대특)_제주_스마트물류산업_분야_드론배송_실무자_양_v2_2_detail.png",
+        "output/(산대특)_제주_스마트물류산업_분야_드론배송_실무자_양_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_제주_스마트물류산업_분야_드론배송_실무자_양_blog_naver.txt",
+      "instagram_caption": "output/(산대특)_제주_스마트물류산업_분야_드론배송_실무자_양_instagram_caption.txt",
+      "posting_guide": "output/(산대특)_제주_스마트물류산업_분야_드론배송_실무자_양_posting_guide.txt"
+    }
   }
 }
