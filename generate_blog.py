@@ -28,6 +28,7 @@ from seo_helper import (
     generate_blog_hashtags,
     generate_instagram_caption,
     generate_instagram_hashtags,
+    generate_reels_package,
     generate_posting_guide,
     extract_seo_keywords,
     detect_course_field,
@@ -223,7 +224,7 @@ STEP 3. 배우면서 혜택도 받기
     final_content = work_guide + "\n" + post_content
 
     # ── 파일 저장 ──
-    safe_name = title[:30].translate(str.maketrans(" /", "__", ':"<>|*?\r\n'))
+    safe_name = title[:30].replace(" ", "_").replace("/", "_")
     filepath = os.path.join(output_dir, f"{safe_name}_blog_naver.txt")
 
     with open(filepath, "w", encoding="utf-8") as f:
@@ -238,6 +239,21 @@ STEP 3. 배우면서 혜택도 받기
         f.write(caption)
 
     print(f"  📸 인스타그램 캡션 생성: {caption_filepath}")
+
+    # ── 릴스 Grok 영상 가이드 생성 ──
+    reels_result = generate_reels_package(course_data)
+
+    if isinstance(reels_result, str):
+        # "[SKIP] ..." — 이미 시작된 과정
+        reels_filepath = os.path.join(output_dir, f"{safe_name}_reels_grok.txt")
+        with open(reels_filepath, "w", encoding="utf-8") as f:
+            f.write(reels_result)
+        print(f"  ⏭️  릴스 스킵: {reels_result[:60]}")
+    else:
+        grok_path = os.path.join(output_dir, f"{safe_name}_reels_grok.txt")
+        with open(grok_path, "w", encoding="utf-8") as f:
+            f.write(reels_result["grok"])
+        print(f"  🎬 Grok 영상 가이드 생성: {grok_path}")
 
     # ── 게시 가이드 생성 ──
     guide_filepath = os.path.join(output_dir, f"{safe_name}_posting_guide.txt")
@@ -339,6 +355,13 @@ def _get_seo_section_title(field, year):
         "출판": f"왜 지금 출판 제작을 배워야 할까요?",
         "이커머스": f"왜 지금 온라인 판매를 배워야 할까요?",
         "산업안전": f"왜 지금 산업안전을 배워야 할까요?",
+        "마케팅": f"왜 지금 마케팅 전략을 배워야 할까요?",
+        "물류/운송": f"왜 지금 지게차 자격증을 따야 할까요?",
+        "건축/설계": f"왜 지금 건축설계·디자인을 배워야 할까요?",
+        "건축AI": f"왜 지금 건축CAD+AI를 배워야 할까요?",
+        "드론": f"왜 지금 드론 전문가가 되어야 할까요?",
+        "조경": f"왜 지금 조경기능사를 따야 할까요?",
+        "에너지/시설관리": f"왜 지금 에너지관리기능사를 따야 할까요?",
     }
     return titles.get(field, "왜 이 과정을 추천할까요?")
 

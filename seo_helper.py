@@ -72,6 +72,7 @@ TITLE_FIELD_KEYWORDS = {
     "AI": ["AI", "인공지능", "챗GPT", "CHATGPT", "머신러닝", "딥러닝", "생성형"],
     "드론": ["드론배송", "드론물류", "드론관제", "드론택배", "UTM", "자율비행", "배송드론"],
     "영상": ["영상", "비디오", "유튜브", "숏폼", "프리미어", "에프터이펙트", "촬영", "릴스"],
+    "건축AI": ["AI융합설계", "AI건축", "AI설계", "AI렌더링", "Midjourney건축", "건축AI", "CAD+AI", "건축CAD+AI", "AI융합", "생성형AI설계"],
     "건축/설계": ["건축", "설계", "CAD", "BIM", "Revit", "AutoCAD", "인테리어", "실내건축", "실내디자인", "SketchUp", "스케치업", "3DS MAX", "리모델링"],
     "디자인": ["디자인", "UI", "UX", "피그마", "FIGMA", "웹디자인", "그래픽"],
     "출판": ["출판", "인디자인", "편집디자인", "전자책", "EPUB", "오디오북"],
@@ -97,7 +98,7 @@ def detect_course_field(title, ncs_cd=None):
     """
     title_upper = title.upper()
     # 1단계: 고유 복합 키워드 우선 체크 (NCS 오분류 방지)
-    _priority_fields = ["드론", "건축/설계", "물류/운송", "조경", "에너지/시설관리"]
+    _priority_fields = ["드론", "건축AI", "건축/설계", "물류/운송", "조경", "에너지/시설관리"]
     for field in _priority_fields:
         if field in TITLE_FIELD_KEYWORDS:
             for kw in TITLE_FIELD_KEYWORDS[field]:
@@ -168,6 +169,7 @@ FIELD_DEFAULT_SCENES = {
     "데이터": "a data science workspace with complex visualizations and code on dual monitors, organized desk setup",
     "코딩": "a developer workspace with code on dark-themed screens, mechanical keyboard, minimalist desk with plants",
     "물류/운송": "a logistics warehouse interior with forklift operating, pallets and shelving units, industrial lighting",
+    "건축AI": "a modern architect workspace with dual monitors showing AI-generated building renders and AutoCAD drawings side by side, futuristic blue accent lighting",
     "건축/설계": "an architect's studio with CAD drawings on large monitor, architectural model on desk, blueprint prints, warm professional lighting",
     "드론": "a drone delivery operation center with monitors showing flight paths, a delivery drone on launchpad, coastal island landscape in background",
     "조경": "a landscaping professional planting trees in a beautiful garden with stone walls, Jeju volcanic rock, and subtropical plants under clear sky",
@@ -553,6 +555,13 @@ EMPATHY_INTROS = {
         "제주도가 '도외직업훈련 지원사업'을 운영할 만큼 지역 내 훈련 인프라가 부족했어요. 비행기 타지 않고 제주에서 자격증을 딸 수 있는 첫 번째 국비지원 기회예요.",
         "50대 이상이 가장 많이 취득하는 자격증이 지게차예요. 경력단절이든 전직이든, 나이 상관없이 현장에서 바로 쓸 수 있는 자격을 제주에서 준비하세요.",
     ],
+    "건축AI": [
+        "영국 59%, 미국 61%, 글로벌 60%가 건축 설계에 AI를 쓰고 있어요. 제주에서 'CAD+AI'를 한 과정으로 배울 수 있는 곳은 이 과정이 사실상 처음이에요.",
+        "AI 렌더링 30초, 전통 렌더링 4~8시간. 같은 시안을 만드는데 시간 차이가 100배. 이 격차가 곧 경쟁력 차이가 됩니다.",
+        "희림은 법규 검토를 30분에, 정림건축은 하루에 평면 3,000개를 만들어요. 'CAD만 배우면 충분한 시대'는 데이터로 보면 끝났어요.",
+        "포트폴리오에 렌더링 한 장 넣느라 사흘 밤새던 시절, AI 쓰는 친구는 30분에 12장을 뽑아 와요. 도구가 아니라 워크플로우를 배워야 해요.",
+        "전국에서도 CAD+AI 결합 국비지원 과정은 한 자릿수, 제주에선 0건이었어요. 제주 최초의 건축AI 융합 교육 기회입니다.",
+    ],
     "건축/설계": [
         "제주 건설 취업자가 27개월 연속 줄고 있어요. 현장 일감이 반토막 난 지금, AutoCAD와 Revit을 배우면 설계·인테리어·리모델링 분야로 전환할 수 있어요.",
         "제주 주택의 47.4%가 20년 넘은 노후 건물이에요. 신축은 멈춰도 리모델링 수요는 폭발합니다. 설계·디자인 역량이 이 시장을 이끌어요.",
@@ -775,6 +784,7 @@ def generate_blog_hashtags(course_data):
         "이커머스": ["#스마트스토어교육", "#온라인쇼핑몰창업", "#이커머스교육", "#라이브커머스", "#제주특산품판매"],
         "산업안전": ["#산업안전기사", "#안전관리자교육", "#중대재해처벌법", "#산업안전교육", "#위험성평가"],
         "물류/운송": ["#지게차자격증", "#지게차운전기능사", "#건설기계조종사면허", "#물류취업", "#제주지게차"],
+        "건축AI": ["#건축AI", "#CAD+AI", "#Midjourney건축", "#AI렌더링", "#AutoCAD2026", "#AI설계교육"],
         "건축/설계": ["#건축설계교육", "#AutoCAD교육", "#BIM교육", "#인테리어교육", "#Revit", "#제주건축"],
         "드론": ["#드론배송", "#드론물류교육", "#UTM관제", "#자율비행", "#K드론배송", "#제주드론"],
         "조경": ["#조경기능사", "#조경교육", "#정원도시제주", "#그린키퍼", "#골프장취업", "#제주조경"],
@@ -823,6 +833,7 @@ def generate_instagram_hashtags(course_data):
         "이커머스": ["#스마트스토어", "#온라인창업", "#제주특산품"],
         "산업안전": ["#산업안전기사", "#안전관리자", "#중대재해처벌법"],
         "물류/운송": ["#지게차자격증", "#물류취업", "#건설기계면허"],
+        "건축AI": ["#건축AI", "#AI설계", "#Midjourney"],
         "건축/설계": ["#건축설계", "#AutoCAD", "#인테리어디자인"],
         "드론": ["#드론배송", "#드론물류", "#자율비행"],
         "조경": ["#조경기능사", "#정원도시", "#제주조경"],
@@ -952,6 +963,520 @@ def generate_instagram_caption(course_data):
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 릴스 영상 시스템 v3
+# 원칙: 세그먼트당 장면 1개, 짧은 나레이션(1~2문장/세그먼트), Vrew 음성인식 자막
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# 분야별 배경 장소 (30초 내내 동일 공간 유지)
+def _clean_title(title):
+    """(산대특) 접두사 제거한 깨끗한 과정명"""
+    return title.replace("(산대특)", "").replace("산대특", "").strip()
+
+
+def _goal_to_actions_kr(training_goal):
+    """
+    훈련목표에서 한국어 핵심 동작 2개를 추출합니다.
+    나레이션/action_kr 표시용 (장면 묘사에는 사용하지 않음)
+    """
+    if not training_goal:
+        return "", ""
+
+    import re
+    text = re.sub(r'\d+\.\s*', '', training_goal)
+    sentences = [s.strip() for s in text.replace('\n', '.').split('.')
+                 if s.strip() and len(s.strip()) > 5]
+
+    if len(sentences) >= 2:
+        return sentences[0], sentences[1]
+    elif len(sentences) == 1:
+        return sentences[0], ""
+    else:
+        return "", ""
+
+
+# 과정 키워드 → (배경, 복장) 매핑 (seg1 전용)
+FIELD_SETTING = {
+    "드론정비": (
+        "an outdoor drone test field with workbenches, spare parts, and a landed drone on the ground",
+        "wearing a hard hat, work coveralls, and holding a toolkit",
+    ),
+    "드론촬영": (
+        "an open outdoor landscape with a drone landing pad and portable monitors on a folding table",
+        "wearing an outdoor vest with pockets, cap, and holding a drone controller",
+    ),
+    "3D모델링": (
+        "a high-tech studio with a large curved monitor displaying 3D wireframe models and a graphics tablet on the desk",
+        "wearing a collared shirt and glasses, with a stylus pen in hand",
+    ),
+    "드론": (
+        "an open airfield with a drone on the ground, flight controller, and a tablet showing aerial maps",
+        "wearing a reflective safety vest and cap, holding a drone controller",
+    ),
+    "3D": (
+        "a digital design studio with dual large monitors showing 3D rendered objects and modeling software",
+        "wearing a collared shirt, with a stylus pen in hand",
+    ),
+    "마케팅": (
+        "a bright co-working cafe space with a laptop showing SNS analytics dashboards and a smartphone on the table",
+        "wearing smart casual business attire",
+    ),
+    "AI": (
+        "a modern tech office with dual monitors showing AI dashboards, code, and neural network visualizations",
+        "wearing a neat business casual shirt",
+    ),
+    "영상편집": (
+        "a video editing studio with an ultrawide monitor showing a timeline, color grading panels, and studio monitors",
+        "wearing a casual creative outfit with headphones around the neck",
+    ),
+    "영상": (
+        "a video production studio with a professional camera on a tripod, lighting rigs, and a director's monitor",
+        "wearing a casual creative outfit with a lanyard badge",
+    ),
+    "콘텐츠": (
+        "a content creation studio with a ring light, camera on tripod, and a laptop showing social media feeds",
+        "wearing a casual outfit with a small microphone clipped on",
+    ),
+    "디자인": (
+        "a bright design studio with a large display showing UI mockups, a pen tablet, and color swatches on the wall",
+        "wearing a turtleneck and neat trousers",
+    ),
+    "출판": (
+        "a cozy publishing workspace with bookshelves, manuscript pages spread on the desk, and a laptop showing page layouts",
+        "wearing smart glasses and a cardigan",
+    ),
+    "바리스타": (
+        "a stylish cafe behind the counter with an espresso machine, coffee grinder, and cups lined up",
+        "wearing a barista apron over a neat shirt",
+    ),
+    "데이터": (
+        "an analytics office with multiple monitors showing data charts, graphs, and dark-themed dashboards",
+        "wearing business casual with rolled-up sleeves",
+    ),
+    "코딩": (
+        "a developer workspace with dual monitors showing syntax-highlighted code, a mechanical keyboard, and a plant on the desk",
+        "wearing a hoodie and glasses",
+    ),
+    "관광": (
+        "an outdoor scenic Jeju landscape with a laptop on a portable table and camera equipment nearby",
+        "wearing outdoor casual clothes with a camera bag",
+    ),
+    "정비": (
+        "a professional maintenance workshop with diagnostic tools, parts shelves, and equipment on the workbench",
+        "wearing work coveralls and safety gloves",
+    ),
+    "스마트스토어": (
+        "a bright home office with a laptop showing an online store dashboard, product packages neatly stacked on a shelf",
+        "wearing a casual smart outfit",
+    ),
+    "이커머스": (
+        "a product photography studio with a laptop showing an e-commerce dashboard, packaged goods and shipping boxes nearby",
+        "wearing a casual smart outfit with an apron",
+    ),
+    "산업안전": (
+        "a safety training room with PPE equipment on display, safety posters on walls, and a monitor showing risk assessment software",
+        "wearing a safety helmet, reflective vest, and holding a clipboard",
+    ),
+    "안전관리": (
+        "a construction site office with safety inspection checklists on desk, a hard hat, and a monitor showing safety dashboards",
+        "wearing a hard hat and reflective safety vest",
+    ),
+    "default": (
+        "a bright modern classroom with laptops on desks, a whiteboard, and large windows with natural light",
+        "wearing smart casual attire",
+    ),
+}
+
+
+def _get_setting(title):
+    """과정명에서 키워드 매칭하여 (배경, 복장) 반환."""
+    for keyword in FIELD_SETTING:
+        if keyword == "default":
+            continue
+        if keyword in title:
+            return FIELD_SETTING[keyword]
+    return FIELD_SETTING["default"]
+
+
+# 과정 키워드 → 영문 행동 묘사 (seg2, seg3)
+FIELD_ACTIONS_EN = {
+    "드론정비": (
+        "inspects and repairs drone components, checking propellers and rotors with tools",
+        "tests the repaired drone, reviewing maintenance checklist on a tablet",
+    ),
+    "드론촬영": (
+        "operates a drone controller, launching the drone for aerial photography",
+        "reviews captured aerial footage on a monitor and adjusts flight path",
+    ),
+    "3D모델링": (
+        "works on 3D modeling software, rotating digital objects on a large monitor",
+        "reviews a rendered 3D terrain model and adjusts textures on screen",
+    ),
+    "드론": (
+        "operates drone control equipment in an open field, monitoring flight on a tablet",
+        "inspects drone hardware and reviews aerial data on screen",
+    ),
+    "3D": (
+        "creates 3D digital content on a large screen with modeling software",
+        "reviews and refines a 3D rendered model on monitor",
+    ),
+    "마케팅": (
+        "creates brand marketing content on a laptop using AI-powered tools",
+        "analyzes campaign performance metrics and charts on screen",
+    ),
+    "AI": (
+        "works with an AI dashboard on screen, adjusting parameters and reviewing outputs",
+        "tests AI-generated content results and fine-tunes the model on laptop",
+    ),
+    "영상편집": (
+        "edits video footage on a timeline with professional editing software",
+        "color-grades and reviews the final cut on a large monitor",
+    ),
+    "영상": (
+        "operates a professional video camera, adjusting angles and lighting",
+        "edits video clips on editing software with multiple monitors",
+    ),
+    "콘텐츠": (
+        "creates digital content with a camera setup and ring light",
+        "reviews content analytics and engagement metrics on a laptop",
+    ),
+    "디자인": (
+        "designs UI mockups on a large monitor with a pen tablet",
+        "reviews design iterations and adjusts layout details on screen",
+    ),
+    "출판": (
+        "works on book layout design with publishing software on screen",
+        "reviews printed manuscript pages and adjusts typography on laptop",
+    ),
+    "바리스타": (
+        "operates an espresso machine and prepares coffee with precise technique",
+        "pours latte art into a cup with careful hand movements",
+    ),
+    "데이터": (
+        "analyzes data visualizations and charts on multiple dark-themed screens",
+        "builds a dashboard with pivot tables and filtered data views",
+    ),
+    "코딩": (
+        "writes code on dual monitors with syntax-highlighted editor",
+        "runs and tests the program, reviewing output in terminal",
+    ),
+    "관광": (
+        "photographs scenic spots with professional camera equipment",
+        "reviews tourism content on a laptop in an outdoor setting",
+    ),
+    "정비": (
+        "inspects mechanical components with diagnostic tools and equipment",
+        "repairs and reassembles parts, then tests the system operation",
+    ),
+    "스마트스토어": (
+        "photographs products with a smartphone and edits listing images on laptop",
+        "reviews online store sales dashboard and packs shipping boxes",
+    ),
+    "이커머스": (
+        "creates product detail pages on a laptop with e-commerce platform open",
+        "reviews order management dashboard and prepares packages for shipping",
+    ),
+    "산업안전": (
+        "conducts safety inspection with a checklist, examining equipment and signage",
+        "reviews risk assessment documents on screen and marks safety zones on a map",
+    ),
+    "안전관리": (
+        "inspects a construction site with a clipboard, checking guardrails and signage",
+        "reviews safety training materials and updates risk assessment on laptop",
+    ),
+    "default": (
+        "works on practical training exercises with professional equipment",
+        "reviews completed work results on screen and takes notes",
+    ),
+}
+
+
+def _get_actions_en(title):
+    """과정명에서 구체적 키워드를 먼저 매칭하여 영문 행동 2개를 반환."""
+    for keyword in FIELD_ACTIONS_EN:
+        if keyword == "default":
+            continue
+        if keyword in title:
+            return FIELD_ACTIONS_EN[keyword]
+    return FIELD_ACTIONS_EN["default"]
+
+
+def _build_segments(course_data, ctype):
+    """
+    3세그먼트 장면을 생성합니다.
+    seg1: 배경+복장 상세 설정 + 나레이션 (훅+과정명)
+    seg2: 훈련목표 실습 장면 1개, 나레이션 없음
+    seg3: 마무리 (카메라 보며 CTA) + 나레이션
+    """
+    title = course_data.get("title", "")
+    clean = _clean_title(title)
+    training_goal = (course_data.get("trainingGoal", "")
+                     or course_data.get("traingGoal", "")
+                     or course_data.get("training_goal", ""))
+    kr1, _ = _goal_to_actions_kr(training_goal)
+    en1, _ = _get_actions_en(clean)
+    bg, outfit = _get_setting(clean)
+
+    if ctype == "long":
+        return [
+            {
+                "scene_en": f"A Korean professional {outfit}, in {bg}. They look at the camera and begin speaking. Medium shot, warm lighting.",
+                "action_kr": "작업 현장 → 카메라 보며 이야기",
+            },
+            {
+                "scene_en": f"The same person {en1}.",
+                "action_kr": f"실습: {kr1[:45] if kr1 else en1[:45]}",
+            },
+            {
+                "scene_en": "The same person looks at the camera and speaks confidently with a warm smile.",
+                "action_kr": "카메라 보며 자신있게 마무리",
+            },
+        ]
+    elif ctype == "short":
+        return [
+            {
+                "scene_en": f"A Korean professional {outfit}, walks into {bg} and speaks to the camera with energy. Bright lighting, handheld camera.",
+                "action_kr": "활기차게 입장 → 카메라에 말하기",
+            },
+            {
+                "scene_en": f"The same person {en1}.",
+                "action_kr": f"실습: {kr1[:45] if kr1 else en1[:45]}",
+            },
+            {
+                "scene_en": "The same person gives a thumbs up and speaks to the camera with energy.",
+                "action_kr": "엄지척하며 밝게 마무리",
+            },
+        ]
+    else:  # general
+        return [
+            {
+                "scene_en": f"A Korean professional {outfit}, in {bg}. They smile at the camera and begin speaking. Medium shot, bright natural lighting.",
+                "action_kr": "작업 공간 → 카메라 보며 인사",
+            },
+            {
+                "scene_en": f"The same person {en1}.",
+                "action_kr": f"실습: {kr1[:45] if kr1 else en1[:45]}",
+            },
+            {
+                "scene_en": "The same person smiles at the camera and speaks warmly.",
+                "action_kr": "카메라 보며 따뜻하게 마무리",
+            },
+        ]
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# [통합] 릴스 패키지 생성 (Grok 영상 가이드)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+def generate_reels_package(course_data):
+    """
+    릴스 제작에 필요한 2종 패키지를 생성합니다.
+
+    Returns:
+        dict | str:
+            성공 시 {"grok": str}
+            만료 과정이면 "[SKIP] ..." 문자열
+    """
+    from benefits_helper import get_course_type, get_total_hours
+
+    title = course_data.get("title", "")
+    ncs_cd = course_data.get("ncsCd", "")
+    field = detect_course_field(title, ncs_cd)
+    ctype = get_course_type(course_data)
+    hours = get_total_hours(course_data)
+    institution = course_data.get("institution", "")
+    period = course_data.get("period", "")
+
+    # 훈련목표 키워드
+    training_goal = (course_data.get("trainingGoal", "")
+                     or course_data.get("training_goal", ""))
+    goal_summary = summarize_training_goal(training_goal)
+    if not goal_summary:
+        fallback = {
+            "AI": "AI 활용 · 실무 프로젝트", "영상": "영상 편집 · 콘텐츠 제작",
+            "디자인": "UI/UX 디자인 · 실무 포트폴리오", "출판": "편집디자인 · 전자책 제작",
+            "콘텐츠": "콘텐츠 기획 · 제작 실무", "마케팅": "디지털 마케팅 · SNS 운영",
+            "데이터": "데이터 분석 · 시각화", "코딩": "프로그래밍 · 개발 실무",
+            "이커머스": "스마트스토어 운영 · 온라인 판매", "산업안전": "안전관리 · 위험성평가",
+            "default": "전문 기술 · 실무 역량",
+        }
+        goal_summary = fallback.get(field, fallback["default"])
+
+    hook = _generate_dynamic_hook(title, field, goal_summary)
+    benefit_line = _generate_benefit_line(course_data, ctype, hours)
+
+    cta_text, cta_sub, urgency = _generate_cta(course_data)
+    if urgency == "expired":
+        return f"[SKIP] {title} - 이미 시작된 과정 (릴스 생성 건너뜀)"
+
+    mood = VISUAL_MOOD.get(field, VISUAL_MOOD["default"])
+
+    # 타임라인 구조 라벨
+    structure_labels = {
+        "long": "성장 서사형 (Before→After)",
+        "short": "빠른 전개형 (에너지)",
+        "general": "밸런스형 (실무 중심)",
+    }
+    structure_label = structure_labels.get(ctype, structure_labels["general"])
+
+    # 3세그먼트 장면 생성 (과정명+훈련목표 기반)
+    segments = _build_segments(course_data, ctype)
+
+    # ═══════════════════════════════════════════════════
+    # 나레이션 원고 (Vrew TTS용, 30초)
+    # ═══════════════════════════════════════════════════
+
+    title_short = title.replace("(산대특) ", "").replace("(산대특)", "")
+
+    benefit_short = (benefit_line
+                     .replace(" 💰", "")
+                     .replace("받으며 배우기", "지원")
+                     .replace("부담 없이 배우기", "만 부담")
+                     .rstrip("!."))
+    cta_short = (cta_text
+                 .replace(" 🔥", "").replace(" 👆", "")
+                 .replace("!", "").replace("📢", "")
+                 .strip())
+
+    # 훈련기간 짧은 표현 (나레이션용)
+    period_narr_short = ""
+    start_str = course_data.get("traStartDate", "")
+    end_str = course_data.get("traEndDate", "")
+    if start_str and end_str and len(start_str) >= 8 and len(end_str) >= 8:
+        try:
+            s_m = int(start_str[4:6])
+            e_m = int(end_str[4:6])
+            if s_m == e_m:
+                period_narr_short = f"{s_m}월에 시작해요."
+            else:
+                period_narr_short = f"{s_m}월에 시작해요."
+        except ValueError:
+            period_narr_short = ""
+
+    # 훈련기간 상세 (Vrew 자막용)
+    period_narr_full = ""
+    if start_str and end_str and len(start_str) >= 8 and len(end_str) >= 8:
+        try:
+            s_m, s_d = int(start_str[4:6]), int(start_str[6:8])
+            e_m, e_d = int(end_str[4:6]), int(end_str[6:8])
+            period_narr_full = f"{s_m}월 {s_d}일부터 {e_m}월 {e_d}일까지"
+        except ValueError:
+            period_narr_full = ""
+
+    # 나레이션용: '·' 제거, 첫 번째 키워드만 추출
+    goal_narr = goal_summary.replace(" · ", "과 ")
+    goal_first = goal_summary.split(" · ")[0] if " · " in goal_summary else goal_summary
+
+    # ═══════════════════════════════════════════════════
+    # 세그먼트별 나레이션 (쉼표로 호흡 구분)
+    # ═══════════════════════════════════════════════════
+    seg_narrations = {
+        1: f"{hook}, {title_short}.",
+        2: f"{goal_narr}을, 배울 수 있어요.",
+        3: f"지금 바로 신청하세요, {period_narr_full}." if period_narr_full else f"지금 바로 신청하세요.",
+    }
+
+    # ═══════════════════════════════════════════════════
+    # Grok 영상 가이드 (영상 + 나레이션)
+    # ═══════════════════════════════════════════════════
+
+    # 세그먼트별 Grok 프롬프트
+    def _grok_prompt(seg_num, seg, narr_text):
+        if seg_num == 1:
+            return f"""The person speaks clearly in Korean with natural lip-sync: "{narr_text}"
+
+A cinematic video. {seg['scene_en']}
+No background music, no BGM."""
+        elif seg_num == 2:
+            # 나레이션 없이 장면만
+            return f"""{seg['scene_en']}"""
+        else:
+            return f"""The person speaks clearly in Korean with natural lip-sync: "{narr_text}"
+
+{seg['scene_en']}"""
+
+    seg1_prompt = _grok_prompt(1, segments[0], seg_narrations[1])
+    seg2_prompt = _grok_prompt(2, segments[1], seg_narrations[2])
+    seg3_prompt = _grok_prompt(3, segments[2], seg_narrations[3])
+
+    urgency_label = {
+        "urgent": "높음 🔴 (마감 임박)",
+        "soon": "보통 🟡",
+        "open": "보통 🟢",
+        "normal": "보통 🟢",
+    }
+
+    grok = f"""[Grok 영상 가이드] {title}
+영상 + 나레이션 생성
+구조: {structure_label} | 30초 (10초×3) | 9:16 세로형
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 제작 워크플로
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  1) Grok에서 세그먼트 1 (0~10초) 영상 생성
+  2) 세그먼트 1 영상을 기반으로 +10초 연장 → 세그먼트 2 (10~20초)
+  3) 세그먼트 2 영상을 기반으로 +10초 연장 → 세그먼트 3 (20~30초)
+  4) 완성된 30초 영상 편집 (자막은 Vrew 자동 생성 활용)
+  5) 인스타그램 릴스 업로드 (캡션: *_instagram_caption.txt)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚙️ 핵심 원칙
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  • 세그먼트당 장면 1개 (장면 전환 없음)
+  • 동일 인물 · 동일 공간 · 동일 조명 유지
+  • 나레이션은 쉼표(,)로 호흡 단위 구분
+  • 연장 프롬프트는 이전 장면을 구체적으로 언급
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎬 세그먼트 1 — 처음 생성 (0~10초)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  장면: {segments[0]['action_kr']}
+  나레이션: {seg_narrations[1]}
+
+🤖 Grok 프롬프트 (복사용)
+────────────────────────────────────────────
+{seg1_prompt}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎬 세그먼트 2 — +10초 연장 (10~20초)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  장면: {segments[1]['action_kr']}
+  나레이션: {seg_narrations[2]}
+
+🤖 Grok 프롬프트 (복사용)
+────────────────────────────────────────────
+{seg2_prompt}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎬 세그먼트 3 — +10초 연장 (20~30초)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  장면: {segments[2]['action_kr']}
+  나레이션: {seg_narrations[3]}
+
+🤖 Grok 프롬프트 (복사용)
+────────────────────────────────────────────
+{seg3_prompt}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 게시 설정
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  화면 비율:      9:16 (세로형)
+  커버 이미지:    4~10초 구간 캡처 권장
+  게시 우선순위:  {urgency_label.get(urgency, '보통 🟢')}
+"""
+
+    return {
+        "grok": grok,
+    }
+
+
+def generate_reels_script(course_data):
+    """하위 호환용 래퍼. 기존 코드에서 단일 문자열 반환이 필요한 경우."""
+    result = generate_reels_package(course_data)
+    if isinstance(result, str):
+        return result  # "[SKIP] ..."
+    return result["grok"]
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 게시 가이드
