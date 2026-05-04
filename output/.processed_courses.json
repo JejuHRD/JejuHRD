@@ -237,5 +237,20 @@
       "instagram_caption": "output/(산대특)_제주_스마트물류산업_분야_드론배송_실무자_양_instagram_caption.txt",
       "posting_guide": "output/(산대특)_제주_스마트물류산업_분야_드론배송_실무자_양_posting_guide.txt"
     }
+  },
+  "AIG20263001304174_1_2026-06-01_2026-08-13": {
+    "title": "건축CAD + AI융합설계",
+    "period": "2026.06.01 ~ 2026.08.13",
+    "generated_at": "2026-05-04T02:37:07.527550",
+    "files": {
+      "cardnews": [
+        "output/건축CAD_+_AI융합설계_v2_1_cover.png",
+        "output/건축CAD_+_AI융합설계_v2_2_detail.png",
+        "output/건축CAD_+_AI융합설계_v2_3_howto.png"
+      ],
+      "blog_txt": "output/건축CAD_+_AI융합설계_blog_naver.txt",
+      "instagram_caption": "output/건축CAD_+_AI융합설계_instagram_caption.txt",
+      "posting_guide": "output/건축CAD_+_AI융합설계_posting_guide.txt"
+    }
   }
 }
