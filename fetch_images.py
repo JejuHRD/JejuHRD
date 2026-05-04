@@ -12,7 +12,21 @@ from io import BytesIO
 
 
 def _build_image_prompt(course_data):
-    """과정명을 그대로 활용하여 이미지 생성 프롬프트를 만듭니다."""
+    """이미지 생성 프롬프트 빌더.
+
+    설계 원칙 (v2 개선):
+    1. 텍스트 제거 강화 — 부정문("NO TEXT") 단독 사용은 image diffusion 모델이
+       자주 무시하므로, 텍스트가 빈출하는 요소(모니터/책/간판 등)에 대해
+       긍정문 형태의 "대체 지시"를 명시함.
+    2. 구도 가이드 — 카드뉴스 레이아웃 분석 결과:
+         · 커버 (cover_v2):  상단 다크오버레이(y=0~200) + 하단 그라데이션·흰색카드(y=440~)
+                            → 클린존 y=200~378 (전체 16~35%)
+         · 상세 (detail_v2): 상단 280px(26%)만 헤더 배경 + y=0~110 흰 텍스트 오버레이
+                            → 클린존 y=110~280 (전체 10~26%)
+       → 두 슬라이드 공통 황금구역 = **상단 1/3**. 주제를 상단에 배치하도록 지시.
+    3. 한글 입력 차단 — title이 한국어이므로 "이건 컨셉 설명일 뿐, 한글을
+       그려넣지 말라"고 명시하여 hallucination 방지.
+    """
     if isinstance(course_data, str):
         title = course_data
     else:
@@ -22,12 +36,35 @@ def _build_image_prompt(course_data):
     clean_title = title.replace("(산대특)", "").replace("산대특", "").strip()
 
     prompt = (
-        f"A high-quality photorealistic background image representing: {clean_title}. "
-        f"Style: professional, clean, slightly blurred background suitable for text overlay. "
-        f"STRICTLY NO TEXT anywhere in the image. No words, no letters, no numbers, no signs, "
-        f"no labels, no captions, no logos, no watermarks, no writing of any kind. "
-        f"The image must contain only visual elements with zero readable characters. "
-        f"Soft lighting, professional color grading."
+        # ── 1. 메인 컨셉 (한국어 title은 컨셉 설명용임을 명시) ──
+        f"A photorealistic cinematic image illustrating the concept of: {clean_title}. "
+        f"(The Korean phrase above describes the subject matter only — it must NOT appear "
+        f"as visible text, hangul, or any characters in the rendered image.) "
+
+        # ── 2. 구도 가이드 (가장 중요: 상단 1/3에 주제 배치) ──
+        f"COMPOSITION (critical): Place the main subject in the UPPER THIRD of the frame "
+        f"(top 30–40% of vertical space). Faces, hands at work, primary equipment, and "
+        f"any focal point must sit above the vertical midline. The lower two-thirds is "
+        f"intentionally simpler — atmospheric negative space, soft out-of-focus background, "
+        f"smooth surfaces, or gentle bokeh — leaving a clean area for text overlay. "
+        f"Do NOT place important visual details below the vertical center. "
+
+        # ── 3. 텍스트 제거 정책 (긍정문 대체 지시 위주) ──
+        f"NO TEXT POLICY (strict): The image must contain zero readable characters of any "
+        f"writing system — no Korean hangul, no Latin alphabet, no Chinese characters, "
+        f"no numerals, no logos, no watermarks. "
+        f"Monitors and screens display only abstract glowing color patterns or soft light, "
+        f"never user interfaces, code, charts, or words. "
+        f"Books and papers are closed, shown edge-on, or fully blurred so nothing is legible. "
+        f"Signs, posters, whiteboards, name tags, and product labels are either cropped out "
+        f"of frame, heavily out of focus, or rendered as smooth blank surfaces. "
+        f"Keyboards and control panels show no visible key markings or labels. "
+        f"Clocks, if present, are analog with no numerals on the face. "
+
+        # ── 4. 스타일 (배경 용도임을 명시) ──
+        f"STYLE: professional cinematic photography, soft directional lighting, shallow "
+        f"depth of field, refined color grading. This image serves as a background — "
+        f"Korean text overlay will be composited on top in a separate step."
     )
 
     return prompt
