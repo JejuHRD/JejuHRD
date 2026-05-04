@@ -224,7 +224,7 @@ STEP 3. 배우면서 혜택도 받기
     final_content = work_guide + "\n" + post_content
 
     # ── 파일 저장 ──
-    safe_name = title[:30].replace(" ", "_").replace("/", "_")
+    safe_name = title[:30].translate(str.maketrans(" /", "__", ':"<>|*?\r\n'))
     filepath = os.path.join(output_dir, f"{safe_name}_blog_naver.txt")
 
     with open(filepath, "w", encoding="utf-8") as f:

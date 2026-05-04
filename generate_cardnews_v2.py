@@ -104,10 +104,7 @@ def apply_gradient_overlay(img, direction="bottom"):
 
 def generate_cover_v2(course_data, bg_image, credit, output_path):
     """커버 이미지 v2: 배경 이미지 + 텍스트 오버레이"""
-    # 다회차 과정이면 캔버스 높이 확장 (회차당 40px)
-    period = course_data.get("period", "")
-    extra_h = period.count(" | ") * 40
-    W, H = 1080, 1080 + extra_h
+    W, H = 1080, 1080
 
     bg = bg_image.copy().resize((W, H), Image.LANCZOS)
     bg = bg.filter(ImageFilter.GaussianBlur(radius=2))
@@ -208,9 +205,7 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
     # ── 정보 카드 (가로 배치, 배움기간 넓게) ──
     info_items = []
     if course_data.get("period"):
-        # 다회차 통합 period: "1회: ... | 2회: ..." → 줄바꿈으로 변환
-        period_val = course_data["period"].replace(" | ", "\n")
-        info_items.append(("배움 기간", period_val, 1.4))
+        info_items.append(("배움 기간", course_data["period"], 1.4))
     hours = get_total_hours(course_data)
     if hours > 0:
         info_items.append(("배움 시간", f"{hours}시간", 0.8))
@@ -225,13 +220,7 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
         total_gap = info_gap * (n_items - 1)
         usable_w = W - 120 - total_gap
         total_weight = sum(item[2] for item in info_items)
-
-        # 다회차 period 줄 수에 따라 카드 높이 동적 계산
         info_card_h = 90
-        for _, value, _ in info_items:
-            extra_lines = value.count("\n")
-            if extra_lines > 0:
-                info_card_h = max(info_card_h, 90 + extra_lines * 30)
 
         font_info_label = get_font(FONT_BOLD, 24)
         font_info_value = get_font(FONT_BOLD, 24)
@@ -251,15 +240,8 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
                               radius=dot_r, fill=hex_to_rgb(PRIMARY))
             draw.text((cx + 38, item_y + 14), label, font=font_info_label,
                       fill=hex_to_rgb(PRIMARY))
-            # 값 (다회차면 multiline)
-            if "\n" in value:
-                draw.multiline_text((cx + 38, item_y + 46), value,
-                                    font=font_info_value,
-                                    fill=(44, 62, 80),
-                                    spacing=5)
-            else:
-                draw.text((cx + 38, item_y + 48), value, font=font_info_value,
-                          fill=(44, 62, 80))
+            draw.text((cx + 38, item_y + 48), value, font=font_info_value,
+                      fill=(44, 62, 80))
             cx += info_card_w + info_gap
 
         item_y += info_card_h + 6
@@ -316,30 +298,13 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
                       font=font_cost_big, fill=hex_to_rgb(ACCENT))
         item_y = cost_y + cost_box_h + 8
 
-    # ── 혜택 배너 + 주석 (가용 공간에 맞춰 동적 배치) ──
-    footer_y = H - 75
+    # ── 혜택 배너 (세로 중앙 정렬) ──
     benefit_y = item_y + 4
-    available_h = footer_y - benefit_y - 8  # footer 위 8px 여백 확보
-
     benefits = course_data.get("benefits", "") or get_benefits_text(course_data)
     benefit_lines = [l.strip() for l in benefits.split('\n') if l.strip()]
     visible_lines = benefit_lines[:3]
-
     line_h = 30
-    footnote_h = 28
-    footnote_gap = 6
-    ideal_box_h = max(52, len(visible_lines) * line_h + 20)
-
-    # 공간 충분 → 혜택 배너 + 주석 모두 표시
-    # 공간 부족 → 혜택 배너만 표시 (주석은 블로그 포스트에서 확인)
-    if available_h >= ideal_box_h + footnote_h + footnote_gap:
-        benefit_box_h = ideal_box_h
-        show_footnote = True
-    else:
-        benefit_box_h = min(ideal_box_h, available_h)
-        benefit_box_h = max(52, benefit_box_h)
-        show_footnote = False
-
+    benefit_box_h = max(52, len(visible_lines) * line_h + 20)
     draw_rounded_rect(draw,
                        (50, benefit_y, W - 50, benefit_y + benefit_box_h),
                        radius=12, fill=(255, 248, 230))
@@ -356,15 +321,15 @@ def generate_cover_v2(course_data, bg_image, credit, output_path):
         draw.text((100, text_start_y + bi * line_h), bline,
                   font=font_benefit, fill=(60, 60, 60))
 
-    # ── 하단 ※ 주석 (공간 충분할 때만 표시) ──
-    if show_footnote:
-        font_footnote = get_font(FONT_REGULAR, 22)
-        footnote = get_benefits_footnote(course_data)
-        footnote_y = benefit_y + benefit_box_h + footnote_gap
-        draw.text((50, footnote_y), footnote,
-                  font=font_footnote, fill=(44, 62, 80))
+    # ── 하단 ※ 주석 (footer bar 위 충분한 여백) ──
+    font_footnote = get_font(FONT_REGULAR, 22)
+    footnote = get_benefits_footnote(course_data)
+    footnote_y = H - 75 - 35  # footer bar 시작(H-75) 위 35px
+    draw.text((50, footnote_y), footnote,
+              font=font_footnote, fill=(44, 62, 80))
 
     # ── 하단 바 ──
+    footer_y = H - 75
     footer_bar_bottom = H - 30
     footer_bar_h = footer_bar_bottom - footer_y
     draw.rectangle((30, footer_y, W - 30, footer_bar_bottom), fill=hex_to_rgb(PRIMARY))
