@@ -1,6 +1,6 @@
 {
-  "updated": "2026-05-04 08:42",
-  "count": 10,
+  "updated": "2026-05-04 11:42",
+  "count": 11,
   "data": [
     {
       "address": "제주 서귀포시",
@@ -57,6 +57,14 @@
       "traStartDate": "2026-06-01",
       "traEndDate": "2026-07-27",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001301001&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500020051252"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "제주직업능력개발학원",
+      "title": "건축CAD + AI융합설계",
+      "traStartDate": "2026-06-01",
+      "traEndDate": "2026-08-13",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001304174&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500045726794"
     },
     {
       "address": "제주 제주시",
