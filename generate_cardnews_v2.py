@@ -663,7 +663,10 @@ def generate_cardnews_v2(course_data, output_dir="output"):
     from generate_cardnews import generate_slide_howto
 
     os.makedirs(output_dir, exist_ok=True)
-    safe_name = course_data["title"][:30].replace(" ", "_").replace("/", "_")
+    # NTFS 금지 문자(< > : " / \ | ? * 줄바꿈) 모두 제거
+    # → GitHub Actions actions/upload-artifact 호환 (콜론 포함 과정명도 안전)
+    import re
+    safe_name = re.sub(r'[<>:"/\\|?*\r\n\t]', "_", course_data["title"][:30]).replace(" ", "_")
 
     bg_image, credit = get_course_image(course_data)
 

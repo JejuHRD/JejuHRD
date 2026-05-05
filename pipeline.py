@@ -576,7 +576,10 @@ def generate_content_for_course(course, output_dir):
     blog_txt, _ = generate_blog_post(course, output_dir)
 
     # 생성된 부가 파일 경로 조합
-    safe_name = course["title"][:30].replace(" ", "_").replace("/", "_")
+    # NTFS 금지 문자(< > : " / \ | ? * 줄바꿈) 모두 제거 → GitHub Actions
+    # actions/upload-artifact 호환 (콜론 포함 과정명도 안전)
+    import re
+    safe_name = re.sub(r'[<>:"/\\|?*\r\n\t]', "_", course["title"][:30]).replace(" ", "_")
     caption_path = os.path.join(output_dir, f"{safe_name}_instagram_caption.txt")
     guide_path = os.path.join(output_dir, f"{safe_name}_posting_guide.txt")
 
