@@ -55,8 +55,12 @@ def make_course_key(course):
     같은 과정(trprId)이라도 회차(trprDegr)나 훈련기간이 다르면
     별도의 콘텐츠로 취급합니다.
 
-    키 구성: {과정ID}_{회차}_{훈련시작일}_{훈련종료일}
-    예시: "AIG20250001_1_20260315_20260614"
+    다회차 통합된 경우(_merged_degrs 필드 존재) 통합된 회차 목록을 키에 반영
+    → 1회차만 처리됐다가 2회차가 추가되면 새 키로 인식되어 통합 카드뉴스 재생성
+
+    키 구성:
+      · 단일 회차: {과정ID}_{회차}_{시작일}_{종료일}
+      · 다회차 통합: {과정ID}_{회차1}_{회차2}_{시작일}_{종료일}
     """
     parts = []
 
@@ -65,10 +69,14 @@ def make_course_key(course):
     if course_id:
         parts.append(str(course_id))
 
-    # 회차
-    degr = course.get("trprDegr", "")
-    if degr:
-        parts.append(str(degr))
+    # 회차 (다회차 통합된 경우 _merged_degrs 우선)
+    merged_degrs = course.get("_merged_degrs", "")
+    if merged_degrs:
+        parts.append(merged_degrs)
+    else:
+        degr = course.get("trprDegr", "")
+        if degr:
+            parts.append(str(degr))
 
     # 훈련기간 (시작일~종료일)
     start = course.get("traStartDate", "")
@@ -89,6 +97,68 @@ def make_course_key(course):
         parts.append(course.get("institution", ""))
 
     return "_".join(parts)
+
+
+def merge_multi_degr(courses):
+    """
+    같은 과정(trprId)의 다회차를 1건으로 통합합니다.
+
+    예: 스마트스토어 1회(5/6~6/18) + 2회(5/11~7/7)
+      → 1건으로 통합
+        period = "1회: 2026.05.06 ~ 2026.06.18 | 2회: 2026.05.11 ~ 2026.07.07"
+
+    단일 회차 과정은 그대로 통과합니다.
+    """
+    from collections import OrderedDict
+
+    groups = OrderedDict()
+    for course in courses:
+        trpr_id = course.get("trprId", "")
+        if not trpr_id:
+            # trprId가 없으면 통합 불가 → 그대로 사용
+            groups[id(course)] = [course]
+            continue
+        if trpr_id not in groups:
+            groups[trpr_id] = []
+        groups[trpr_id].append(course)
+
+    merged = []
+    for key, group in groups.items():
+        if len(group) == 1:
+            # 단일 회차 → 그대로
+            merged.append(group[0])
+            continue
+
+        # ── 다회차 → 시작일 기준 정렬 후 통합 ──
+        group.sort(key=lambda c: c.get("traStartDate", ""))
+
+        # 대표 과정 = 가장 빠른 회차 기반 복사
+        rep = group[0].copy()
+
+        # 회차별 기간 표시 구성
+        period_parts = []
+        degr_keys = []
+        hrd_urls = []
+        for i, c in enumerate(group):
+            label = f"{i+1}회"
+            period_parts.append(f"{label}: {c.get('period', '')}")
+            degr_keys.append(str(c.get("trprDegr", i + 1)))
+            hrd_urls.append(c.get("hrd_url", ""))
+
+        rep["period"] = " | ".join(period_parts)
+        rep["hrd_url"] = hrd_urls[0]
+        rep["_merged_degrs"] = "_".join(sorted(degr_keys))
+
+        print(f"  🔗 다회차 통합: {rep['title'][:40]} ({len(group)}회차 → 1건)")
+        for p in period_parts:
+            print(f"     └ {p}")
+
+        merged.append(rep)
+
+    if len(merged) < len(courses):
+        print(f"\n  📊 다회차 통합: API {len(courses)}건 → {len(merged)}건")
+
+    return merged
 
 
 def _get_field(item, *keys):
@@ -118,12 +188,10 @@ def format_date(raw):
     return str(raw) if raw else ""
 
 
-def fetch_course_detail(course, api_key, is_first=False):
+def fetch_course_detail(course, api_key):
     """
     L02 API로 과정 상세 정보를 조회하여 course dict에 업데이트합니다.
     totalHours, trainingGoal, ncsName, address 등 L01에 없는 필드를 보완합니다.
-
-    is_first=True일 때 응답 raw JSON 키 목록을 1회만 출력합니다 (디버깅용).
     """
     import requests
 
@@ -152,29 +220,12 @@ def fetch_course_detail(course, api_key, is_first=False):
 
         data = resp.json()
 
-        # 디버그: 첫 과정의 응답 구조 출력 (1회만)
-        if is_first:
-            print(f"    [DEBUG L02] 응답 최상위 키: {list(data.keys())[:10]}")
-
         # L02 응답 키: inst_base_info 또는 inst_det_info
         base_info = data.get("inst_base_info", data.get("instBaseInfo", data.get("inst_det_info", {})))
         if isinstance(base_info, list):
             base_info = base_info[0] if base_info else {}
         if not base_info:
             base_info = data
-
-        # 디버그: base_info의 키와 훈련목표 후보 값 출력 (1회만)
-        if is_first and isinstance(base_info, dict):
-            keys = list(base_info.keys())
-            print(f"    [DEBUG L02] base_info 키 ({len(keys)}개): {keys[:30]}")
-            # 'goal' 또는 'objectiv'가 들어간 키 찾기
-            goal_keys = [k for k in keys if any(s in k.lower() for s in
-                         ["goal", "objectiv", "purpos", "aim", "target"])]
-            if goal_keys:
-                print(f"    [DEBUG L02] 'goal' 관련 키 발견: {goal_keys}")
-                for gk in goal_keys[:3]:
-                    val = str(base_info.get(gk, ""))[:80]
-                    print(f"      · {gk} = {val}")
 
         # 훈련시간 (다중 키 시도)
         raw_hours = _get_field(base_info, "trtm", "TRTM", "totTraingHr", "teTm")
@@ -196,19 +247,8 @@ def fetch_course_detail(course, api_key, is_first=False):
         if inst_name:
             course["institution"] = inst_name
 
-        # 훈련목표 — 키 후보 대폭 확장 (work24 API 변형 흡수)
-        training_goal = _get_field(base_info,
-            # 기존
-            "traingGoal", "trainingGoal",
-            # 단축형
-            "trGoal", "TR_GOAL",
-            # 내용 접미사형
-            "trGoalCn", "trainGoalCn", "goalCn", "GOAL_CN",
-            # 영문형
-            "objective", "trainObjective", "trainingObjective",
-            # 한글 직역형
-            "trainPurpose", "purpose",
-        )
+        # 훈련목표
+        training_goal = _get_field(base_info, "traingGoal", "trainingGoal")
         if training_goal:
             course["trainingGoal"] = training_goal
 
@@ -239,15 +279,9 @@ def fetch_course_detail(course, api_key, is_first=False):
 def _fetch_training_goal(hrd_url, is_first=False):
     """
     고용24 과정 상세 페이지에서 훈련목표/훈련과정 강점을 크롤링합니다.
-
-    v2 강화:
-      · 잘못된 crseTracseSe로 만들어진 URL이면 다른 코드(C0061/C0102/C0061)로 재시도
-      · th_text 매칭을 정확일치(==) → 부분일치(in)로 변경
-        ('NCS수준 도움말'처럼 도움말 span이 붙은 케이스 대응)
-      · www → m(모바일) → 다른 분류코드 폴백 순서로 최대 6회 시도
+    www 먼저 시도, 실패 시 m(모바일) fallback.
     """
     import requests
-    import re
 
     try:
         from bs4 import BeautifulSoup
@@ -256,38 +290,22 @@ def _fetch_training_goal(hrd_url, is_first=False):
             print("  ⚠️  beautifulsoup4 미설치 — pip install beautifulsoup4 필요")
         return None
 
-    # crseTracseSe 폴백 — 원래 URL 코드가 잘못됐을 수 있어
-    # 다른 가능한 분류코드도 시도
-    fallback_codes = ["C0061", "C0102", "C0103", "C0105"]
-
-    # 원래 URL의 코드 추출
-    orig_code_match = re.search(r"crseTracseSe=([A-Z0-9]+)", hrd_url)
-    orig_code = orig_code_match.group(1) if orig_code_match else "C0102"
-
-    # 시도 순서: 원래 코드 → 나머지 코드들
-    codes_to_try = [orig_code] + [c for c in fallback_codes if c != orig_code]
-
-    def _build_url(base_url, new_code):
-        return re.sub(r"crseTracseSe=[A-Z0-9]+",
-                      f"crseTracseSe={new_code}", base_url)
-
-    attempts = []
-    for code in codes_to_try:
-        url_with_code = _build_url(hrd_url, code)
-        attempts.append({
-            "url": url_with_code,
+    attempts = [
+        {
+            "url": hrd_url,
             "ua": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                    "AppleWebKit/537.36 (KHTML, like Gecko) "
                    "Chrome/120.0.0.0 Safari/537.36"),
-            "label": f"www/{code}",
-        })
-        attempts.append({
-            "url": url_with_code.replace("www.work24.go.kr", "m.work24.go.kr"),
+            "label": "www",
+        },
+        {
+            "url": hrd_url.replace("www.work24.go.kr", "m.work24.go.kr"),
             "ua": ("Mozilla/5.0 (Linux; Android 13) "
                    "AppleWebKit/537.36 (KHTML, like Gecko) "
                    "Chrome/120.0.0.0 Mobile Safari/537.36"),
-            "label": f"mobile/{code}",
-        })
+            "label": "mobile",
+        },
+    ]
 
     for attempt in attempts:
         try:
@@ -311,20 +329,17 @@ def _fetch_training_goal(hrd_url, is_first=False):
             training_goal = ""
             course_strength = ""
 
-            # 1차 시도: <th> 부분일치 매칭 (도움말 span 등 흡수)
             for th in soup.find_all("th"):
                 th_text = th.get_text(strip=True)
-                # "훈련목표"가 포함되되 "강점"은 안 포함되어야 (구분)
-                if "훈련목표" in th_text and "강점" not in th_text:
+
+                if th_text == "훈련목표":
                     td = th.find_next_sibling("td")
                     if not td:
                         tr = th.find_parent("tr")
                         if tr:
                             td = tr.find("td")
                     if td:
-                        text = td.get_text(separator="\n", strip=True)
-                        if text and len(text) > 5:  # 빈 td 또는 "-" 같은 placeholder 제외
-                            training_goal = text
+                        training_goal = td.get_text(separator="\n", strip=True)
 
                 elif "훈련과정의 강점" in th_text or "훈련과정의강점" in th_text:
                     td = th.find_next_sibling("td")
@@ -333,26 +348,21 @@ def _fetch_training_goal(hrd_url, is_first=False):
                         if tr:
                             td = tr.find("td")
                     if td:
-                        text = td.get_text(separator="\n", strip=True)
-                        if text and text != "-" and len(text) > 5:
-                            course_strength = text
+                        course_strength = td.get_text(separator="\n", strip=True)
 
-            # 2차 fallback: <dt>/<dl> 구조
+            # fallback: "훈련목표" 텍스트를 포함하는 모든 요소
             if not training_goal:
                 for elem in soup.find_all(string=lambda t: t and "훈련목표" in t):
-                    parent = (elem.find_parent("th") or elem.find_parent("dt")
-                              or elem.find_parent("strong") or elem.find_parent("label"))
+                    parent = elem.find_parent("th") or elem.find_parent("dt") or elem.find_parent("strong")
                     if parent:
-                        next_td = parent.find_next(["td", "dd", "div", "p"])
+                        next_td = parent.find_next(["td", "dd"])
                         if next_td:
-                            text = next_td.get_text(separator="\n", strip=True)
-                            if text and len(text) > 5 and "훈련목표" not in text[:10]:
-                                training_goal = text
-                                break
+                            training_goal = next_td.get_text(separator="\n", strip=True)
+                            break
 
             if training_goal:
                 if is_first:
-                    print(f"  ✅ 크롤링 ({attempt['label']}) → 훈련목표: {training_goal[:60]}...")
+                    print(f"  ✅ 크롤링 → 훈련목표: {training_goal[:60]}...")
                 return {
                     "trainingGoal": training_goal,
                     "courseStrength": course_strength,
@@ -449,7 +459,7 @@ def fetch_courses_from_api():
             import time
             for i, course in enumerate(courses):
                 print(f"  [{i+1}/{len(courses)}] {course['title'][:40]}")
-                fetch_course_detail(course, api_key, is_first=(i == 0))
+                fetch_course_detail(course, api_key)
                 time.sleep(0.3)  # API 부하 방지
 
         # ── 3단계: 훈련목표 크롤링 (L02에서 못 가져온 경우) ──
@@ -500,14 +510,6 @@ def parse_api_course(api_item):
         trpr_id = _get_field(api_item, "trprId", "TRPR_ID")
         trpr_degr = _get_field(api_item, "trprDegr", "TRPR_DEGR")
 
-        # crseTracseSe: API 응답에서 실제 분류코드 추출 (없으면 C0102 폴백)
-        # 과정마다 다름 (C0061, C0102 등) — 하드코딩하면 잘못된 URL 생성됨
-        crse_tracse_se = (
-            _get_field(api_item, "crseTracseSe", "CRSE_TRACSE_SE",
-                       "trainTargetCd", "TRAIN_TARGET_CD")
-            or "C0102"
-        )
-
         raw_course_man = _get_field(api_item, "courseMan", "COURSE_MAN")
         course_cost = format_cost(raw_course_man)
 
@@ -520,7 +522,6 @@ def parse_api_course(api_item):
         return {
             "trprId": trpr_id,
             "trprDegr": trpr_degr,
-            "crseTracseSe": crse_tracse_se,    # 크롤링 폴백용
             "traStartDate": str(start_raw),
             "traEndDate": str(end_raw),
             "instCd": _get_field(api_item, "instCd", "INST_CD", "trainstCstId"),
@@ -547,7 +548,7 @@ def parse_api_course(api_item):
                 f"https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do"
                 f"?tracseId={trpr_id}"
                 f"&tracseTme={trpr_degr}"
-                f"&crseTracseSe={crse_tracse_se}"
+                f"&crseTracseSe=C0102"
             ),
         }
 
@@ -590,10 +591,13 @@ def generate_content_for_course(course, output_dir):
 def run_pipeline(courses):
     """
     메인 파이프라인 실행
-    - 같은 과정이라도 회차/훈련기간이 다르면 새로 생성
-    - 이미 동일 키로 처리한 과정은 건너뜀
-    - 새 과정이 0건이면 콘텐츠 생성 없이 종료 (API 비용 절감)
+    1. 같은 과정(trprId)의 다회차를 1건으로 통합 (period에 회차별 표시)
+    2. 이미 동일 키로 처리한 과정은 건너뜀
+    3. 새 과정이 0건이면 콘텐츠 생성 없이 종료 (API 비용 절감)
     """
+    # ── 다회차 통합 (단일 회차는 그대로 통과) ──
+    courses = merge_multi_degr(courses)
+
     processed = load_processed_ids()
 
     # ── 먼저 새 과정이 있는지 확인 ──

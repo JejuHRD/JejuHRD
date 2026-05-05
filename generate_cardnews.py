@@ -169,9 +169,11 @@ def generate_slide_cover(course_data, output_path):
     # ══════════════════════════════════════════════════
 
     # ── 정보 아이콘 카드 (가로 배치, 배움기간 넓게) ──
+    # 다회차 과정: period의 " | " 구분자를 줄바꿈으로 변환
+    period_val = course_data.get("period", "").replace(" | ", "\n")
     info_items = []
-    if course_data.get("period"):
-        info_items.append(("배움 기간", course_data["period"], 1.4))
+    if period_val:
+        info_items.append(("배움 기간", period_val, 1.4))
     hours = get_total_hours(course_data)
     if hours > 0:
         info_items.append(("배움 시간", f"{hours}시간", 0.8))
@@ -187,7 +189,13 @@ def generate_slide_cover(course_data, output_path):
         total_gap = gap * (n_items - 1)
         usable_w = W - card_margin * 2 - total_gap
         total_weight = sum(item[2] for item in info_items)
+
+        # 다회차 줄바꿈 → 카드 높이 동적 확장 (회차당 +32px)
         card_h = 105
+        for _, value, _ in info_items:
+            extra_lines = value.count("\n")
+            if extra_lines > 0:
+                card_h = max(card_h, 105 + extra_lines * 32)
 
         font_info_label = get_font(FONT_BOLD, 25)
         font_info_value = get_font(FONT_BOLD, 27)
@@ -209,9 +217,15 @@ def generate_slide_cover(course_data, output_path):
             # 라벨
             draw.text((cx + 42, card_top + 16), label, font=font_info_label,
                       fill=hex_to_rgb(COLORS["primary"]))
-            # 값
-            draw.text((cx + 42, card_top + 52), value, font=font_info_value,
-                      fill=hex_to_rgb(COLORS["text_dark"]))
+            # 값 (다회차 → 줄바꿈 렌더링)
+            if "\n" in value:
+                draw.multiline_text((cx + 42, card_top + 52), value,
+                                    font=font_info_value,
+                                    fill=hex_to_rgb(COLORS["text_dark"]),
+                                    spacing=6)
+            else:
+                draw.text((cx + 42, card_top + 52), value, font=font_info_value,
+                          fill=hex_to_rgb(COLORS["text_dark"]))
             cx += card_w + gap
 
         next_y = card_top + card_h + 12
@@ -810,7 +824,7 @@ def generate_cardnews(course_data, output_dir="output"):
     """
     os.makedirs(output_dir, exist_ok=True)
 
-    safe_name = course_data["title"][:30].translate(str.maketrans(" /", "__", ':"<>|*?\r\n'))
+    safe_name = course_data["title"][:30].replace(" ", "_").replace("/", "_")
 
     paths = []
 
