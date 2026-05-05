@@ -8,18 +8,22 @@ Grok (xAI) 이미지 생성 모듈
 """
 
 import os
+import re
 from io import BytesIO
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# 분야별 시각 가이드 (v3)
+# 분야별 시각 가이드 (v4)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def _get_field_visual_guide(clean_title, training_goal=""):
     """과정명·훈련목표에서 분야를 감지해 시각 가이드를 반환합니다.
 
-    우선순위 (memory 기준): 복합 분야 → 우선 분야(드론/건축/물류/조경/에너지)
-    → 일반 분야(영상/AI/코딩/디자인/마케팅/이커머스/안전) → 기본값.
+    매칭 우선순위:
+      [복합] 드론+영상 / 드론+배송 / 건축+AI / AI+마케팅 / 3D모델링
+      [우선] 드론 / 건축 / 물류 / 조경 / 에너지
+      [일반] 영상 / 마케팅 / AI / 코딩 / 디자인 / 이커머스 / 안전
+      [기본값]
 
     반환 dict:
       - subject: 메인 비주얼 묘사 (사물·환경·결과물 중심, 사람 ❌)
@@ -27,58 +31,154 @@ def _get_field_visual_guide(clean_title, training_goal=""):
       - monitor_content: 화면이 등장할 때 표시할 내용 (없으면 빈 문자열)
     """
     haystack = (clean_title + " " + training_goal).lower()
-    t_pad = " " + clean_title.lower() + " "
 
-    has_drone = any(k in haystack for k in ["드론", "uav", "무인기", "무인항공"])
-    has_video = any(k in haystack for k in ["영상", "촬영", "편집", "비디오", "유튜브"])
+    # 영문 약어를 토큰 단위로 정확 매칭 (한글 인접 케이스 대응)
+    # 예: "AI마케팅" → ['ai', '마케팅'], "건축CAD AI융합" → ['cad', 'ai']
+    eng_tokens = set(re.findall(r'[a-z]+', haystack))
+
+    has_drone = any(k in haystack for k in ["드론", "무인기", "무인항공"]) or 'uav' in eng_tokens
+    has_video = any(k in haystack for k in [
+        "영상", "촬영", "편집", "비디오", "유튜브", "크리에이터", "콘텐츠 제작", "콘텐츠제작"
+    ])
     has_delivery = any(k in haystack for k in ["배송", "택배", "물류"])
-    has_ai = (" ai " in t_pad) or any(k in haystack for k in [
-        "인공지능", "머신러닝", "딥러닝", "chatgpt", "생성형", "프롬프트엔지니어", "llm"
+    has_ai = ('ai' in eng_tokens) or ('llm' in eng_tokens) or any(k in haystack for k in [
+        "인공지능", "머신러닝", "딥러닝", "chatgpt", "생성형", "프롬프트엔지니어"
+    ])
+    has_3d = any(k in haystack for k in [
+        "블렌더", "3d 모델링", "3d모델링", "마야", "지브러시", "캐릭터 모델링"
+    ]) or any(t in eng_tokens for t in ["blender", "maya", "zbrush"])
+    has_arch = any(k in haystack for k in ["건축", "설계", "도면"]) \
+               or any(t in eng_tokens for t in ["cad", "bim"])
+    has_marketing = any(k in haystack for k in [
+        "마케팅", "광고", "퍼포먼스마케팅", "콘텐츠마케팅", "디지털마케팅", "sns 마케팅"
     ])
 
-    # ── 복합 분야 (가장 구체적 매칭 우선) ──
+    # ──────────────────────────────────────────────────────────────────
+    # 복합 매칭 (가장 구체적 우선)
+    # ──────────────────────────────────────────────────────────────────
+
+    # 드론 + 영상/촬영/유튜브/크리에이터 → 시네마틱 드론
     if has_drone and has_video:
         return {
             "subject": (
-                "A professional aerial drone hovering in mid-air with its gimbal camera "
-                "tilted toward a stunning Jeju coastal landscape below — volcanic black "
-                "coastline, blue ocean waves, green fields. The drone is the central focal "
-                "subject, its rotors in soft motion-blur, capturing the scene below."
+                "A cinematic aerial photography quadcopter drone hovering in mid-air — "
+                "sleek matte-grey folding body, four propeller arms unfolded with "
+                "propellers in soft motion-blur, a 3-axis gimbal-stabilized camera "
+                "mounted at the front underbelly. The drone is captured against a "
+                "stunning Jeju coastal landscape: volcanic black coastline, emerald "
+                "ocean, green oreum (volcanic cone) hills in the distance. The drone "
+                "and its mounted camera are the central focal subject."
             ),
             "human_policy": "no people visible in the frame",
             "monitor_content": "",
         }
 
+    # 드론 + 배송/물류 → 화물 드론 (헥사/옥토콥터)
     if has_drone and has_delivery:
         return {
             "subject": (
-                "A delivery drone with a small parcel attached underneath, mid-flight above "
-                "a Jeju coastal landscape, approaching a marked landing pad on the ground "
-                "below. The drone and package are the central subject."
+                "An industrial cargo delivery drone hovering above a coastal landing "
+                "zone — a robust hexacopter or octocopter frame with six-to-eight rotors "
+                "extending from a central body, a small package box suspended from "
+                "cables underneath the drone, a parachute housing visible on top, sturdy "
+                "landing gear. The Jeju coast and a marked circular landing pad are in "
+                "the background. The cargo drone and its package are the central subject."
             ),
             "human_policy": "no people visible",
             "monitor_content": "",
         }
 
-    # ── 우선 분야 ──
+    # 건축 + AI 융합 → CAD + AI 생성 컨셉 격자
+    if has_arch and has_ai:
+        return {
+            "subject": (
+                "A modern AI-assisted architectural design workspace: a wide split-screen "
+                "monitor displaying CAD drawings on one half and AI-generated building "
+                "concept renderings on the other, a small physical architectural model "
+                "and a digital stylus resting on the desk. Drawings, computational "
+                "design output, and the model are the focus."
+            ),
+            "human_policy": "no people visible — empty workspace style",
+            "monitor_content": (
+                "The split-screen monitor shows two coordinated views. LEFT HALF: a 3D "
+                "building wireframe view with a floor plan line drawing below it. "
+                "RIGHT HALF: a 3x3 grid of AI-generated building concept thumbnails in "
+                "diverse architectural styles (curved organic forms, angular modular, "
+                "biomorphic, parametric facades) — each thumbnail a small rendered "
+                "building image. NO text, NO labels, NO numbers — only the visual "
+                "language of computational architectural design."
+            ),
+        }
+
+    # AI + 마케팅 → AI 마케팅 자동화 (워크플로우 + 광고 variations)
+    if has_ai and has_marketing:
+        return {
+            "subject": (
+                "An AI-powered marketing automation workspace: multiple monitors showing "
+                "automated campaign workflows alongside AI-generated ad creative "
+                "variations, a tablet with stylus on the desk, modern minimal aesthetic, "
+                "soft cool ambient lighting."
+            ),
+            "human_policy": "no people visible",
+            "monitor_content": (
+                "Monitors display AI marketing automation. LEFT: a workflow node "
+                "diagram (rectangular nodes connected by directional arrows showing "
+                "automation steps in a flowchart). MIDDLE: a 3x3 grid of AI-generated "
+                "ad creative variations (each tile a different colored composition with "
+                "abstract product shapes). RIGHT: a performance analytics dashboard with "
+                "line graphs trending upward and small KPI metric tiles. NO text, "
+                "NO ad copy, NO labels — only the visual structure of automated "
+                "marketing."
+            ),
+        }
+
+    # 3D 모델링 / 블렌더 → 3D 뷰포트 + 폴리곤 메시
+    if has_3d:
+        return {
+            "subject": (
+                "A 3D modeling artist's workstation: a large monitor displaying a 3D "
+                "modeling viewport with a partially-completed character or product "
+                "model in mid-creation, a graphics tablet with stylus on the desk, "
+                "soft cool-toned ambient lighting. No operator present."
+            ),
+            "human_policy": "no people visible",
+            "monitor_content": (
+                "Monitor shows a 3D modeling interface (Blender-style viewport): a "
+                "perspective viewport with a colorful 3D character or product model in "
+                "mid-creation, a polygon mesh wireframe overlaid on the shaded surface, "
+                "a transform gizmo (red/green/blue arrow handles) visible on the model, "
+                "a small material preview sphere at the corner, an outliner panel on "
+                "the side as plain rectangular bars. NO text, NO menu labels, NO panel "
+                "titles — only the visual language of 3D modeling."
+            ),
+        }
+
+    # ──────────────────────────────────────────────────────────────────
+    # 우선 분야
+    # ──────────────────────────────────────────────────────────────────
+
+    # 드론 단독 → 시네마틱 드론 (배송 키워드 없으면 영상 드론으로 디폴트)
     if has_drone:
         return {
             "subject": (
-                "A modern professional drone in mid-flight, propellers in soft motion-blur, "
-                "gimbal camera mounted underneath, set against a vivid Jeju sky and "
-                "landscape backdrop. The drone itself is the central subject."
+                "A cinematic quadcopter drone in mid-flight — sleek matte-grey folding "
+                "body, four unfolded propeller arms with propellers in soft motion-blur, "
+                "a 3-axis gimbal camera mounted at the front underbelly, sturdy landing "
+                "gear retracted. Set against a vivid Jeju sky and coastal landscape "
+                "backdrop. The drone itself is the central subject."
             ),
             "human_policy": "no people visible",
             "monitor_content": "",
         }
 
-    if any(k in haystack for k in ["건축", "설계", "cad", "bim", "도면"]):
+    # 건축/설계/CAD (단독)
+    if has_arch:
         return {
             "subject": (
-                "An architect's empty workspace: large monitors displaying CAD floor plans "
-                "and 3D building models, blueprint prints spread on the desk, a small "
-                "physical architectural model nearby. Drawings, instruments, and the model "
-                "are the focus."
+                "An architect's empty workspace: large monitors displaying CAD floor "
+                "plans and 3D building models, blueprint prints spread on the desk, a "
+                "small physical architectural model nearby. Drawings, instruments, and "
+                "the model are the focus."
             ),
             "human_policy": "no people visible — empty workspace style",
             "monitor_content": (
@@ -92,14 +192,14 @@ def _get_field_visual_guide(clean_title, training_goal=""):
     if any(k in haystack for k in ["지게차", "포크리프트", "물류", "창고", "운송", "하역"]):
         return {
             "subject": (
-                "An industrial warehouse interior: a forklift mid-operation lifting wooden "
-                "pallets stacked with goods, multi-tier shelving units lining the aisles, "
-                "polished concrete floor with directional line markings. Industrial overhead "
-                "lighting."
+                "An industrial warehouse interior: a forklift mid-operation lifting "
+                "wooden pallets stacked with goods, multi-tier shelving units lining "
+                "the aisles, polished concrete floor with directional line markings. "
+                "Industrial overhead lighting."
             ),
             "human_policy": (
-                "no operator visible — show the forklift mid-action with the cabin empty "
-                "or driver entirely obscured behind cabin frame"
+                "no operator visible — show the forklift mid-action with the cabin "
+                "empty or driver entirely obscured behind cabin frame"
             ),
             "monitor_content": "",
         }
@@ -107,10 +207,10 @@ def _get_field_visual_guide(clean_title, training_goal=""):
     if any(k in haystack for k in ["조경", "정원", "원예", "가드닝", "식재"]):
         return {
             "subject": (
-                "A beautifully designed Jeju garden landscape: volcanic basalt stone walls, "
-                "stepping-stone pathways winding through subtropical plants (palm trees, "
-                "hydrangeas, ornamental grasses), pruned ornamental trees, and a small "
-                "reflecting pond. Natural daylight, lush greenery."
+                "A beautifully designed Jeju garden landscape: volcanic basalt stone "
+                "walls, stepping-stone pathways winding through subtropical plants "
+                "(palm trees, hydrangeas, ornamental grasses), pruned ornamental trees, "
+                "and a small reflecting pond. Natural daylight, lush greenery."
             ),
             "human_policy": "no people visible",
             "monitor_content": "",
@@ -121,129 +221,155 @@ def _get_field_visual_guide(clean_title, training_goal=""):
             "subject": (
                 "A clean mechanical room interior: industrial boiler systems, pressure "
                 "gauges with analog dials (no numerals), valve manifolds, and parallel "
-                "pipe networks of varying diameters. Polished metal surfaces, subtle warm "
-                "under-lighting."
+                "pipe networks of varying diameters. Polished metal surfaces, subtle "
+                "warm under-lighting."
             ),
             "human_policy": "no people visible — empty mechanical room",
             "monitor_content": "",
         }
 
-    # ── 일반 분야 ──
+    # ──────────────────────────────────────────────────────────────────
+    # 일반 분야
+    # ──────────────────────────────────────────────────────────────────
+
+    # 영상/편집/촬영/유튜브/크리에이터 — monitor_content 구체화 (v4 강화)
     if has_video:
         return {
             "subject": (
-                "A professional video editing workstation: two large monitors on a desk, a "
-                "cinema camera and headphones beside the keyboard, soft warm room lighting. "
-                "The equipment and screens carry the subject."
+                "A professional video editing workstation: two large monitors on a "
+                "desk, a cinema camera with a follow-focus mounted nearby, headphones "
+                "beside the keyboard, a small clapper slate on the desk. Soft warm "
+                "room lighting, subtle backlight from behind the monitors."
             ),
             "human_policy": "no people visible — empty editor's station",
             "monitor_content": (
-                "Primary monitor shows a video editing timeline: stacked horizontal clip "
-                "strips in different colors (video tracks in blue, audio tracks in green "
-                "with waveforms), a vertical playhead line, and transport controls. "
-                "Secondary monitor shows the preview of a Jeju landscape clip with "
-                "cinematic color grading. NO text, NO file names, NO labels visible — "
-                "only the visual structure of editing."
+                "Primary monitor shows a video editing application interface "
+                "(Premiere Pro / DaVinci Resolve style). Layout: TOP-LEFT a media bin "
+                "panel with thumbnail clips arranged in a grid; TOP-RIGHT a video "
+                "preview window showing a color-graded Jeju coastal aerial shot; "
+                "BOTTOM third dominated by a horizontal multi-track timeline with "
+                "stacked colored clip strips (blue and purple video tracks) above "
+                "green audio tracks displaying waveform shapes, a vertical playhead "
+                "line crossing all tracks, and a row of transport buttons. Secondary "
+                "monitor shows a color grading panel with three round color wheels "
+                "and curve graphs. NO text, NO file names, NO panel labels — only "
+                "the visual structure of editing software."
             ),
         }
 
-    if has_ai:
+    # 마케팅 (단독, AI+마케팅 매칭에서 빠진 케이스)
+    if has_marketing:
         return {
             "subject": (
-                "A modern AI development workstation: multiple monitors displaying neural "
-                "network architectures and data visualizations, soft blue ambient lighting, "
-                "sleek minimalist hardware setup."
-            ),
-            "human_policy": "no people visible — empty workstation",
-            "monitor_content": (
-                "Monitors show AI-themed visualizations specific to AI tooling: a neural "
-                "network node graph (rows of connected dots arranged in layers, with "
-                "glowing blue connecting lines between layers), a heatmap matrix in "
-                "red-to-blue gradient, and a data flow diagram with rectangular nodes "
-                "linked by directional arrows. NO code text, NO interface labels, "
-                "NO numbers — only the visual structures themselves."
-            ),
-        }
-
-    if any(k in haystack for k in ["코딩", "개발", "프로그래밍", "웹개발", "앱개발", "파이썬", "자바", "백엔드", "프론트엔드"]):
-        return {
-            "subject": (
-                "A developer's workstation: a wide curved monitor and mechanical keyboard, "
-                "subtle RGB ambient lighting, a small plant on the desk. Dark theme "
-                "aesthetic, no operator present."
+                "A marketing operations workspace: multiple monitors showing campaign "
+                "dashboards and analytics, sticky notes and printed campaign mockups "
+                "on the wall behind, a tablet with stylus on the desk, modern minimal "
+                "aesthetic."
             ),
             "human_policy": "no people visible",
             "monitor_content": (
-                "Monitor shows a code-like visual rhythm: indented horizontal colored bars "
-                "of varying lengths arranged like syntax-highlighted code blocks — but "
-                "rendered as abstract solid-color shapes with absolutely NO actual letters, "
-                "characters, or readable text. Only the visual cadence of code structure."
+                "Monitors display marketing campaign dashboards (Google Ads / Meta Ads "
+                "manager style): rectangular campaign cards arranged in a grid layout, "
+                "line graphs trending upward, donut charts with multiple color "
+                "segments, small KPI metric tiles, and a funnel visualization on one "
+                "screen. NO text, NO numerical values, NO campaign names — only the "
+                "visual shape of marketing data."
             ),
         }
 
-    if any(k in haystack for k in ["디자인", "그래픽", "ui", "ux", "포토샵", "일러스트", "브랜딩"]):
+    # AI 단독 (마케팅·영상·건축에 흡수되지 않은 순수 AI 과정)
+    if has_ai:
         return {
             "subject": (
-                "A designer's clean studio: a large monitor showing a design canvas, color "
-                "palette swatches arranged on the desk, a graphics tablet and stylus, "
-                "natural daylight from a side window."
+                "A modern AI development workstation: multiple monitors displaying "
+                "neural network architectures and data visualizations, soft blue "
+                "ambient lighting, sleek minimalist hardware setup."
+            ),
+            "human_policy": "no people visible — empty workstation",
+            "monitor_content": (
+                "Monitors show AI-themed visualizations specific to AI tooling: a "
+                "neural network node graph (rows of connected dots arranged in layers, "
+                "with glowing blue connecting lines between layers), a heatmap matrix "
+                "in red-to-blue gradient, and a data flow diagram with rectangular "
+                "nodes linked by directional arrows. NO code text, NO interface "
+                "labels, NO numbers — only the visual structures themselves."
+            ),
+        }
+
+    if any(k in haystack for k in [
+        "코딩", "개발", "프로그래밍", "웹개발", "앱개발", "파이썬", "자바",
+        "백엔드", "프론트엔드"
+    ]):
+        return {
+            "subject": (
+                "A developer's workstation: a wide curved monitor and mechanical "
+                "keyboard, subtle RGB ambient lighting, a small plant on the desk. "
+                "Dark theme aesthetic, no operator present."
+            ),
+            "human_policy": "no people visible",
+            "monitor_content": (
+                "Monitor shows a code-like visual rhythm: indented horizontal colored "
+                "bars of varying lengths arranged like syntax-highlighted code blocks "
+                "— but rendered as abstract solid-color shapes with absolutely NO "
+                "actual letters, characters, or readable text. Only the visual "
+                "cadence of code structure."
+            ),
+        }
+
+    if any(k in haystack for k in [
+        "디자인", "그래픽", "ui", "ux", "포토샵", "일러스트", "브랜딩"
+    ]):
+        return {
+            "subject": (
+                "A designer's clean studio: a large monitor showing a design canvas, "
+                "color palette swatches arranged on the desk, a graphics tablet and "
+                "stylus, natural daylight from a side window."
             ),
             "human_policy": "no people visible",
             "monitor_content": (
                 "Monitor displays a design canvas with: geometric shapes (circles, "
-                "rectangles, polygons) in vibrant brand colors, a horizontal row of color "
-                "palette swatches, layout grid guides. NO text, NO letter-form logos."
+                "rectangles, polygons) in vibrant brand colors, a horizontal row of "
+                "color palette swatches, layout grid guides. NO text, NO letter-form "
+                "logos."
             ),
         }
 
-    if any(k in haystack for k in ["마케팅", "광고", "sns", "소셜", "퍼포먼스마케팅", "콘텐츠마케팅"]):
+    if any(k in haystack for k in [
+        "이커머스", "쇼핑몰", "스마트스토어", "온라인판매", "오픈마켓", "셀러"
+    ]):
         return {
             "subject": (
-                "A marketing analytics workspace: multiple monitors showing dashboard-style "
-                "data visualizations, sticky notes on the wall behind, a tablet on the desk."
-            ),
-            "human_policy": "no people visible",
-            "monitor_content": (
-                "Monitors display marketing dashboard visualizations: a line graph trending "
-                "upward, colorful bar charts side-by-side, a donut chart with multiple "
-                "color segments, rectangular metric widgets in a grid. NO text labels, "
-                "NO numerical values — only the visual shape of data."
-            ),
-        }
-
-    if any(k in haystack for k in ["이커머스", "쇼핑몰", "스마트스토어", "온라인판매", "오픈마켓", "셀러"]):
-        return {
-            "subject": (
-                "A clean product photography setup: a tabletop product on a white seamless "
-                "backdrop, softbox lighting equipment, a laptop and DSLR camera nearby on "
-                "the workbench."
+                "A clean product photography setup: a tabletop product on a white "
+                "seamless backdrop, softbox lighting equipment, a laptop and DSLR "
+                "camera nearby on the workbench."
             ),
             "human_policy": "no people visible",
             "monitor_content": (
                 "Laptop monitor shows an e-commerce product grid: rectangular product "
-                "image tiles arranged in a 3x3 grid layout, a sidebar with simple category "
-                "icons, a small upward-trend chart in the corner. NO text, NO product "
-                "names, NO price labels."
+                "image tiles arranged in a 3x3 grid layout, a sidebar with simple "
+                "category icons, a small upward-trend chart in the corner. NO text, "
+                "NO product names, NO price labels."
             ),
         }
 
     if any(k in haystack for k in ["산업안전", "안전관리", "안전보건"]):
         return {
             "subject": (
-                "An industrial work site with safety equipment as the focus: a hard hat on "
-                "a workbench, safety goggles beside it, a hi-vis vest hanging nearby, and "
-                "tools laid out neatly on polished concrete."
+                "An industrial work site with safety equipment as the focus: a hard "
+                "hat on a workbench, safety goggles beside it, a hi-vis vest hanging "
+                "nearby, and tools laid out neatly on polished concrete."
             ),
             "human_policy": "no people visible",
             "monitor_content": "",
         }
 
-    # ── 기본값 (분야 미감지) ──
+    # 기본값
     return {
         "subject": (
             f"A clean professional workspace specifically illustrating the concept of: "
-            f"{clean_title}. The tools, equipment, materials, and environment specific to "
-            f"this profession are arranged thoughtfully — these objects ARE the subject."
+            f"{clean_title}. The tools, equipment, materials, and environment specific "
+            f"to this profession are arranged thoughtfully — these objects ARE the "
+            f"subject."
         ),
         "human_policy": (
             "no people visible — the equipment and environment carry the subject"
@@ -257,15 +383,21 @@ def _get_field_visual_guide(clean_title, training_goal=""):
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def _build_image_prompt(course_data):
-    """이미지 생성 프롬프트 빌더 (v3).
+    """이미지 생성 프롬프트 빌더 (v4).
 
-    v3 변경점:
-      1. 분야별 시각 가이드 (`_get_field_visual_guide`) 도입
-         → 사람 대신 사물·환경 중심 묘사, 분야별 모니터 콘텐츠 차별화
-      2. trainingGoal을 보조 컨셉으로 활용 (한글이 그려지지 않도록 명시)
-      3. 인물 정책 강화: "no people / focus on equipment" 우선
+    v4 변경점:
+      1. 복합 분야 매칭 3개 추가:
+         · 건축+AI 융합 → 분할 화면 (CAD + AI 생성 건물 컨셉 격자)
+         · AI+마케팅   → 자동화 워크플로우 + 광고 크리에이티브 변형 격자
+         · 3D 모델링/블렌더 → 별도 분야 (3D 뷰포트 + 폴리곤 메시 + 기즈모)
+      2. 드론 형태 구체화:
+         · 영상용 → "DJI Mavic 스타일 시네마틱 쿼드콥터, 짐벌 카메라 전면 하단"
+         · 배송용 → "헥사/옥토콥터 화물 드론, 화물 매달림, 낙하산 하우징"
+      3. 영상편집 monitor_content 구체화 (Premiere/DaVinci 인터페이스 시각 구조)
+      4. 영상 키워드에 "유튜브/크리에이터/콘텐츠 제작" 추가
 
-    유지 원칙 (v2):
+    유지 원칙 (v3):
+      · 인물 정책 — "no people / focus on equipment" 우선
       · 한글 입력 차단 — title/goal은 컨셉 설명일 뿐, 그려넣지 마라
       · 상단 1/3 구도 — 카드뉴스 텍스트 박스와 겹치지 않도록
       · NO TEXT 정책 — 부정문 + 긍정 대체 지시 병행
@@ -296,7 +428,7 @@ def _build_image_prompt(course_data):
             f"visible text): {goal_short}."
         )
 
-    # 모니터 콘텐츠 (분야에 따라 있을 수도, 없을 수도)
+    # 모니터 콘텐츠
     monitor_clause = ""
     if guide["monitor_content"]:
         monitor_clause = f"SCREEN CONTENT: {guide['monitor_content']} "
@@ -329,7 +461,7 @@ def _build_image_prompt(course_data):
         # ── 5. NO TEXT 정책 ──
         f"NO TEXT POLICY (strict): Zero readable characters of any writing system — "
         f"no Korean hangul, no Latin alphabet, no Chinese characters, no numerals, "
-        f"no logos with letters, no watermarks. "
+        f"no logos with letters, no watermarks, no brand names. "
         f"Books and papers are closed, edge-on, or fully blurred. "
         f"Signs, posters, whiteboards, name tags, and product labels are cropped, "
         f"out of focus, or rendered as blank surfaces. "
