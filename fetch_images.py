@@ -319,33 +319,39 @@ def _get_field_visual_guide(clean_title, training_goal=""):
                                    and not has_creator_modern
                                    and not has_editing_explicit)
 
-        # ── 크리에이터 오디오 코너 (① / ③ 공용) ──
+        # ── 크리에이터 콘텐츠 책상 (① / ③ 공용) ──
         # 도면 회귀 차단: monitor/screen/display/interface/grid/tile 단어 ❌
-        # 강한 단일 주제: 콘덴서 마이크 + 헤드폰 + 따뜻한 LED 라이트
-        # 보이스오버 환경 (ElevenLabs · Vrew 작업과 시각적 부합)
+        # 풍성한 도구 환경: 마이크(음성) + 헤드폰(모니터링) + 닫힌 노트북(편집)
+        # + 닫힌 태블릿(썸네일) + 스마트폰(채널) + 닫힌 노트(기획)
+        # 모든 디바이스가 닫힌/엎드린 상태 → 화면 콘텐츠 묘사 회피
         creator_audio_corner = {
             "subject": (
-                "A cinematic atmospheric photograph of a content creator's "
-                "audio recording corner. The central focal subject is a large "
-                "studio condenser microphone with a metal mesh head, mounted "
-                "on a sleek black boom arm, positioned in the upper third of "
-                "the frame and slightly tilted toward the front. A pair of "
-                "premium over-ear studio headphones hangs casually on the boom "
-                "arm beside the microphone. Behind the microphone, a soft warm "
-                "amber LED key light glows like a small sunset, casting gentle "
-                "highlights on the microphone's mesh head. Below the "
-                "microphone in soft focus: a warm wooden desk surface with a "
-                "closed leather notebook, a ceramic coffee mug, and a "
-                "smartphone resting face-down. The background is a deep "
-                "blue-to-purple gradient wall with subtle out-of-focus warm "
-                "bokeh dots from distant LED strip lights. Cinematic moody "
-                "atmosphere, shallow depth of field, warm amber foreground "
-                "against cool blue background color contrast, professional "
+                "A cinematic atmospheric photograph of an AI content "
+                "creator's desk, fully equipped but currently empty. The "
+                "central focal subject in the upper portion of the frame is "
+                "a large studio condenser microphone with a metal mesh head, "
+                "mounted on a sleek black boom arm and slightly tilted. A "
+                "pair of premium over-ear studio headphones hangs casually "
+                "on the boom arm beside the microphone. A warm amber LED key "
+                "light glows softly behind the microphone, casting gentle "
+                "highlights on the mesh head. "
+                "Below the microphone in soft focus, the warm wooden desk "
+                "holds a curated collection of creator tools: a slim closed "
+                "laptop on the left side, a closed digital drawing tablet "
+                "with a stylus resting on top of it, a smartphone resting "
+                "face-down, a closed leather notebook with a pen lying on "
+                "top, a ceramic coffee mug, and a small ceramic pot holding "
+                "a tiny succulent plant. Background: a deep blue-to-purple "
+                "gradient wall with subtle out-of-focus warm bokeh dots "
+                "from distant LED strip lights. Cinematic moody atmosphere, "
+                "shallow depth of field, warm amber foreground against "
+                "cool blue background color contrast, professional "
                 "photography style."
             ),
             "human_policy": (
                 "absolutely no people in the frame — the microphone, "
-                "headphones, and warm key light are the subjects"
+                "headphones, and the array of creator tools on the desk "
+                "are the subjects"
             ),
             "monitor_content": "",
         }
