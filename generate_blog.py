@@ -223,7 +223,11 @@ STEP 3. 배우면서 혜택도 받기
     final_content = work_guide + "\n" + post_content
 
     # ── 파일 저장 ──
-    safe_name = title[:30].translate(str.maketrans(" /", "__", ':"<>|*?\r\n'))
+    # NTFS 금지 문자(< > : " / \ | ? * 줄바꿈) 모두 제거
+    # 다른 파일(pipeline.py, generate_cardnews.py, generate_cardnews_v2.py)과
+    # 동일한 re.sub 방식으로 통일하여 같은 과정의 산출물 파일명 일치 보장
+    # → 카드뉴스·블로그·인스타·가이드 모두 동일한 safe_name prefix 사용
+    safe_name = re.sub(r'[<>:"/\\|?*\r\n\t]', "_", title[:30]).replace(" ", "_")
     filepath = os.path.join(output_dir, f"{safe_name}_blog_naver.txt")
 
     with open(filepath, "w", encoding="utf-8") as f:
