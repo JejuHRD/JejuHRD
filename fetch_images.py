@@ -48,11 +48,10 @@ def _get_field_visual_guide(clean_title, training_goal=""):
     has_3d = any(k in haystack for k in [
         "블렌더", "3d 모델링", "3d모델링", "마야", "지브러시", "캐릭터 모델링"
     ]) or any(t in eng_tokens for t in ["blender", "maya", "zbrush"])
-    # has_arch: "설계" 단독은 너무 광범위 (프롬프트설계·시스템설계·콘텐츠설계·
-    # 수익구조설계 등 모든 분야에 등장) → 건축 도메인 복합어로만 매칭
+    # has_arch (v10 정밀화):
+    # "설계" 단독은 너무 광범위 (프롬프트설계·시스템설계·콘텐츠설계·수익구조설계 등
+    # 모든 분야에 등장) → 건축 도메인 복합어로만 매칭
     # 추가 보호: 유튜브/크리에이터 키워드가 있으면 절대 건축으로 매칭 안 함
-    # (실제 사례: AI 유튜브 크리에이터 trainingGoal의 "프롬프트 설계"가 잡혀
-    #  건축+AI 분기로 빠지는 사고 방지)
     has_arch = (
         (
             "건축" in haystack
@@ -334,81 +333,18 @@ def _get_field_visual_guide(clean_title, training_goal=""):
                                    and not has_creator_modern
                                    and not has_editing_explicit)
 
-        # ── 크리에이터 콘텐츠 책상 (① / ③ 공용) ──
-        # 도면 회귀 차단: monitor/screen/display/interface/grid/tile 단어 ❌
-        # 풍성한 도구 환경: 마이크(음성) + 헤드폰(모니터링) + 닫힌 노트북(편집)
-        # + 닫힌 태블릿(썸네일) + 스마트폰(채널) + 닫힌 노트(기획)
-        # 모든 디바이스가 닫힌/엎드린 상태 → 화면 콘텐츠 묘사 회피
-        creator_audio_corner = {
-            "subject": (
-                "A cinematic atmospheric photograph of an AI content "
-                "creator's desk, fully equipped but currently empty. The "
-                "central focal subject in the upper portion of the frame is "
-                "a large studio condenser microphone with a metal mesh head, "
-                "mounted on a sleek black boom arm and slightly tilted. A "
-                "pair of premium over-ear studio headphones hangs casually "
-                "on the boom arm beside the microphone. A warm amber LED key "
-                "light glows softly behind the microphone, casting gentle "
-                "highlights on the mesh head. "
-                "Below the microphone in soft focus, the warm wooden desk "
-                "holds a curated collection of creator tools: a slim closed "
-                "laptop on the left side, a closed digital drawing tablet "
-                "with a stylus resting on top of it, a smartphone resting "
-                "face-down, a closed leather notebook with a pen lying on "
-                "top, a ceramic coffee mug, and a small ceramic pot holding "
-                "a tiny succulent plant. Background: a deep blue-to-purple "
-                "gradient wall with subtle out-of-focus warm bokeh dots "
-                "from distant LED strip lights. Cinematic moody atmosphere, "
-                "shallow depth of field, warm amber foreground against "
-                "cool blue background color contrast, professional "
-                "photography style."
-            ),
-            "human_policy": (
-                "absolutely no people in the frame — the microphone, "
-                "headphones, and the array of creator tools on the desk "
-                "are the subjects"
-            ),
-            "monitor_content": "",
-        }
+        # v10: 영상 분기 단순화 — 사용자 피드백 반영
+        # 이전 v9는 5분기 (① 유튜브+AI → 마이크 코너 / ② 편집 → 워크스테이션 /
+        #              ③ 유튜브·AI → 마이크 코너 / ④ 촬영 → 스튜디오 / ⑤ 디폴트 → 워크스테이션)
+        # 이전 마이크 코너는 도면 회귀 회피용 과잉 방어였음.
+        # 진짜 도면 회귀 원인은 has_arch 매칭 사고 (v9 → v10에서 해결됨).
+        # 이젠 영상 분기 진입한 케이스는 모두 영상편집 워크스테이션이 적합.
+        #
+        # v10 분기 (2분기로 단순화):
+        #   ① 전통 촬영 (촬영만) → 촬영 스튜디오
+        #   ② 그 외 모든 영상   → 영상편집 워크스테이션 (AI 유튜브 포함)
 
-        # ① 유튜브/크리에이터 + AI → 크리에이터 오디오 코너
-        if has_creator_modern and has_ai:
-            return creator_audio_corner
-
-        # ② 편집 키워드 → 영상편집 워크스테이션
-        if has_editing_explicit:
-            return {
-                "subject": (
-                    "A professional video editor's workstation: a wide primary "
-                    "monitor actively displaying a multi-track timeline "
-                    "interface, a smaller secondary monitor beside it showing a "
-                    "video preview, a tactile color-grading control surface "
-                    "(with round physical color wheels) on the desk, headphones "
-                    "on a stand, a clapper slate, and a small pile of memory "
-                    "cards. Soft warm key light from the side, subtle blue "
-                    "monitor glow."
-                ),
-                "human_policy": "no people visible — empty editor's station",
-                "monitor_content": (
-                    "Primary monitor displays a dark-themed video editing "
-                    "layout. BOTTOM HALF of the screen is dominated by "
-                    "horizontal stacked colored bars (red, blue, purple, green) "
-                    "of varying lengths, layered like horizontal bricks across "
-                    "the full width — these are video editing timeline clips "
-                    "with audio waveform shapes inside the green bars and a "
-                    "vertical playhead line crossing through. TOP HALF: a video "
-                    "preview window on the right showing a color-graded Jeju "
-                    "coastal aerial shot, and a media bin on the left with "
-                    "thumbnail clips arranged in a 3x2 grid. Pure dark editing "
-                    "UI aesthetic. NO text, NO file names, NO panel labels."
-                ),
-            }
-
-        # ③ 유튜브/크리에이터 또는 AI (편집 없음) → 크리에이터 오디오 코너
-        if has_creator_modern or has_ai:
-            return creator_audio_corner
-
-        # ④ 전통 촬영 키워드만 → 촬영 스튜디오
+        # ① 전통 촬영 키워드만 → 촬영 스튜디오
         if has_traditional_filming:
             return {
                 "subject": (
@@ -431,24 +367,52 @@ def _get_field_visual_guide(clean_title, training_goal=""):
                 "monitor_content": "",
             }
 
-        # ⑤ 디폴트 → 영상편집 워크스테이션
+        # ② 그 외 모든 영상 케이스 → 영상편집 워크스테이션
+        # AI 유튜브 / 크리에이터 / 영상편집 / 1인 미디어 등 모두 포함
+        # 도면 회피 안전장치 유지:
+        #   · "wireframe", "blueprint", "CAD", "architectural", "3D" 단어 ❌
+        #   · "split-screen" 단어 ❌ (한쪽 도면+한쪽 모델 패턴 환기)
+        #   · "grid" 격자 단어 회피 (vertical column으로 대체)
+        #   · timeline의 가로 색깔 막대 + waveform → 도면과 명백히 다른 시각 패턴
+        #   · preview에 풍경 영상 명시 (인물 X, 도면 X)
         return {
             "subject": (
                 "A professional video editor's workstation: a wide primary "
-                "monitor displaying a multi-track timeline interface, a "
-                "smaller secondary monitor showing video preview, headphones "
-                "on a stand, a clapper slate. Soft warm key light from the "
-                "side."
+                "monitor actively displaying a multi-track video editing "
+                "timeline, a smaller secondary monitor beside it showing a "
+                "video preview frame, a tactile color-grading control "
+                "surface with round physical color wheels resting on the "
+                "desk, a pair of premium over-ear studio headphones on a "
+                "stand, a small clapper slate, and a small pile of SD "
+                "memory cards. Soft warm directional key light from the "
+                "side, subtle blue glow from the monitors, deep dark "
+                "studio background with subtle bokeh from distant LED "
+                "strip lights. Cinematic moody atmosphere, professional "
+                "color graded look."
             ),
-            "human_policy": "no people visible",
+            "human_policy": (
+                "absolutely no people in the frame — the editor's "
+                "workstation is fully equipped but unoccupied"
+            ),
             "monitor_content": (
-                "Primary monitor displays a dark-themed video editing layout. "
-                "BOTTOM HALF: horizontal stacked colored bars (red, blue, "
-                "purple, green) of varying lengths layered like horizontal "
-                "bricks, with audio waveform shapes inside green bars and a "
-                "vertical playhead line. TOP HALF: a video preview window on "
-                "the right and a media bin with thumbnail clips on the left. "
-                "Pure dark editing UI. NO text, NO labels."
+                "The primary monitor displays a dark professional video "
+                "editing interface. The CENTER and BOTTOM portion of the "
+                "screen shows a multi-track timeline: horizontal stacked "
+                "colored bars (deep red, electric blue, purple, teal, "
+                "soft green) of varying lengths, layered horizontally "
+                "like flat bricks across the full width of the workspace. "
+                "Audio waveform shapes are visible inside the green and "
+                "teal bars. A thin vertical playhead line crosses "
+                "vertically through the timeline. The TOP-RIGHT portion "
+                "of the screen contains a single large video preview "
+                "window showing a color-graded cinematic shot of a "
+                "Jeju coastal landscape — sandy beach, turquoise ocean "
+                "water, soft golden-hour sunlight. The TOP-LEFT contains "
+                "a small vertical column of 3-4 media clip thumbnails "
+                "stacked one above another, each thumbnail showing a "
+                "different scenic landscape clip (forest, mountain, sky, "
+                "ocean). Pure dark modern video editing UI aesthetic. "
+                "NO text, NO file names, NO labels, NO numbers."
             ),
         }
 
@@ -540,24 +504,34 @@ def _get_field_visual_guide(clean_title, training_goal=""):
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def _build_image_prompt(course_data):
-    """이미지 생성 프롬프트 빌더 (v8).
+    """이미지 생성 프롬프트 빌더 (v10).
 
-    v8 변경점 (AI 유튜브 도면 회귀 구조적 차단):
-      체계적 원인 진단 결과:
-        · 7회 monitor_content 튜닝 모두 실패
-        · 근본 원인: "monitor displaying [X interface]" 패턴 + "grid/tile/layout"
-          단어가 모델 내부에서 CAD/도면/3D 시각 표상을 강하게 환기
-        · 단순 튜닝으로 해결 불가 → 모니터 자체를 프롬프트에서 제거하는
-          구조적 해결만 가능
+    v10 변경점 (영상 분기 단순화 + 진단 교훈):
+      [진단 교훈]
+        · v3~v9에서 8회 영상 분기 안 비주얼만 만지작 → 모두 실패
+        · 진짜 원인: has_arch의 "설계" 단독 매칭이 trainingGoal 안의
+          "프롬프트 설계", "수익 구조 설계" 등을 잡아서 건축+AI 분기로 빠짐
+        · 영상 분기에 진입조차 못 한 케이스에 영상 비주얼만 8번 다듬음
+        · v9에서 분기 매칭 자체 수정 (has_arch 정밀화) → 영상 분기 진입
+        · v8/v9의 "마이크 코너"는 도면 회피 과잉 방어였음 (사용자 검증 결과)
 
-      구조적 해결:
-        · ① 유튜브+AI / ③ 크리에이터·AI 단독 → "크리에이터 오디오 코너"
-          - 콘덴서 마이크 + 헤드폰 + 따뜻한 LED 키 라이트 + 깊은 블루 배경
-          - monitor/screen/display/interface/grid/tile 단어 ❌
-          - 도면 회귀 가능성 구조적으로 0 (모니터 캔버스 없음)
-        · 사용자 도구(ElevenLabs AI 음성)의 보이스오버 환경과 시각적 부합
+      [v10 영상 분기 단순화]
+        이전 5분기 → 2분기로 축소
+        · ① 전통 촬영 (촬영만)        → 촬영 스튜디오 (DSLR + 트라이포드)
+        · ② 그 외 모든 영상 케이스    → 영상편집 워크스테이션
+          (AI 유튜브 / 크리에이터 / 영상편집 / 1인 미디어 모두 포함)
 
-    v7.1 유지: 5분기 우선순위 (① 유튜브+AI / ② 편집 / ③ 크리에이터·AI / ④ 촬영 / ⑤ 디폴트)
+      [영상편집 워크스테이션 도면 회피 안전장치]
+        · "wireframe", "blueprint", "CAD", "architectural", "3D" 단어 ❌
+        · "split-screen" ❌ (한쪽 도면+한쪽 모델 패턴 환기)
+        · "grid" 격자 단어 회피 → "vertical column"으로 대체
+        · timeline의 가로 색깔 막대 + waveform → 도면과 명백히 다른 시각
+        · preview에 풍경 영상 명시 (인물 X, 도면 X)
+
+      [v9 has_arch 정밀화 유지]
+        · "설계" 단독 → 건축 도메인 복합어로만 (건축설계·인테리어설계 등)
+        · 유튜브/크리에이터 키워드 보호 (절대 건축으로 매칭 안 됨)
+
     v6 유지: negative cue 제거, 분홍 코끼리 회피
     v5 유지: 이커머스+마케팅 복합, 일반 분야 우선순위, 드론배송 낙하산 제거
     v4 유지: 복합 매칭 5종, 영문 토큰 매칭
