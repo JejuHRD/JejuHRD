@@ -48,8 +48,23 @@ def _get_field_visual_guide(clean_title, training_goal=""):
     has_3d = any(k in haystack for k in [
         "블렌더", "3d 모델링", "3d모델링", "마야", "지브러시", "캐릭터 모델링"
     ]) or any(t in eng_tokens for t in ["blender", "maya", "zbrush"])
-    has_arch = any(k in haystack for k in ["건축", "설계", "도면"]) \
-               or any(t in eng_tokens for t in ["cad", "bim"])
+    # has_arch: "설계" 단독은 너무 광범위 (프롬프트설계·시스템설계·콘텐츠설계·
+    # 수익구조설계 등 모든 분야에 등장) → 건축 도메인 복합어로만 매칭
+    # 추가 보호: 유튜브/크리에이터 키워드가 있으면 절대 건축으로 매칭 안 함
+    # (실제 사례: AI 유튜브 크리에이터 trainingGoal의 "프롬프트 설계"가 잡혀
+    #  건축+AI 분기로 빠지는 사고 방지)
+    has_arch = (
+        (
+            "건축" in haystack
+            or "도면" in haystack
+            or any(k in haystack for k in [
+                "건축설계", "구조설계", "환경설계", "공간설계",
+                "인테리어설계", "도시설계", "주택설계", "건물설계"
+            ])
+            or any(t in eng_tokens for t in ["cad", "bim"])
+        )
+        and not any(k in haystack for k in ["유튜브", "크리에이터", "vlog", "shorts"])
+    )
     has_marketing = any(k in haystack for k in [
         "마케팅", "광고", "퍼포먼스마케팅", "콘텐츠마케팅", "디지털마케팅", "sns 마케팅"
     ])
