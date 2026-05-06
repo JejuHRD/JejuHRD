@@ -1,19 +1,4 @@
 {
-  "AIG20253001129433_4_2026-05-06_2026-06-18": {
-    "title": "(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정",
-    "period": "2026.05.06 ~ 2026.06.18",
-    "generated_at": "2026-05-05T05:39:53.774048",
-    "files": {
-      "cardnews": [
-        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_1_cover.png",
-        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_2_detail.png",
-        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_3_howto.png"
-      ],
-      "blog_txt": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__blog_naver.txt",
-      "instagram_caption": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__instagram_caption.txt",
-      "posting_guide": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__posting_guide.txt"
-    }
-  },
   "AIG20263001296177_1_2026-05-11_2026-06-19": {
     "title": "(산대특)녹색정원사(조경) 양성",
     "period": "2026.05.11 ~ 2026.06.19",
@@ -132,6 +117,36 @@
       "blog_txt": "output/(산대특)_제주_스마트물류산업_분야_드론배송_실무자_양_blog_naver.txt",
       "instagram_caption": "output/(산대특)_제주_스마트물류산업_분야_드론배송_실무자_양_instagram_caption.txt",
       "posting_guide": "output/(산대특)_제주_스마트물류산업_분야_드론배송_실무자_양_posting_guide.txt"
+    }
+  },
+  "AIG20253001129433_4_2026-05-18_2026-06-30": {
+    "title": "(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정",
+    "period": "2026.05.18 ~ 2026.06.30",
+    "generated_at": "2026-05-06T02:34:06.219025",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_1_cover.png",
+        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_2_detail.png",
+        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__blog_naver.txt",
+      "instagram_caption": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__instagram_caption.txt",
+      "posting_guide": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__posting_guide.txt"
+    }
+  },
+  "AIG20263001296177_1_2026-05-18_2026-06-26": {
+    "title": "(산대특)녹색정원사(조경) 양성",
+    "period": "2026.05.18 ~ 2026.06.26",
+    "generated_at": "2026-05-06T02:34:12.145285",
+    "files": {
+      "cardnews": [
+        "output/(산대특)녹색정원사(조경)_양성_v2_1_cover.png",
+        "output/(산대특)녹색정원사(조경)_양성_v2_2_detail.png",
+        "output/(산대특)녹색정원사(조경)_양성_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)녹색정원사(조경)_양성_blog_naver.txt",
+      "instagram_caption": "output/(산대특)녹색정원사(조경)_양성_instagram_caption.txt",
+      "posting_guide": "output/(산대특)녹색정원사(조경)_양성_posting_guide.txt"
     }
   }
 }
