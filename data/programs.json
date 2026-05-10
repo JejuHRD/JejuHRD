@@ -1,6 +1,6 @@
 {
-  "updated": "2026-05-10 20:57",
-  "count": 10,
+  "updated": "2026-05-10 22:41",
+  "count": 11,
   "data": [
     {
       "address": "제주 제주시",
@@ -81,6 +81,14 @@
       "traStartDate": "2026-06-22",
       "traEndDate": "2026-07-10",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001303135&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500037083746"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "제주건축기술학원",
+      "title": "(산대특)기계설비유지관리자 (에너지 관리)양성",
+      "traStartDate": "2026-08-24",
+      "traEndDate": "2026-09-15",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001301005&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500020038195"
     }
   ]
 }
