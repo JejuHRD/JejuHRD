@@ -316,24 +316,26 @@
     background: rgba(20, 30, 60, 0.55);
     backdrop-filter: blur(4px);
     display: none;
-    align-items: center; justify-content: center;
-    padding: 24px;
     z-index: 1000;
     opacity: 0;
     transition: opacity .25s ease;
   }
-  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-overlay.show { display: block; opacity: 1; }
 
   .modal {
+    position: absolute;
+    left: 50%;
+    /* top은 JS에서 카드 위치 기반으로 동적 설정 */
     background: #fff;
     border-radius: var(--radius-lg);
-    max-width: 640px; width: 100%;
+    max-width: 640px;
+    width: calc(100% - 48px);
     max-height: 90vh; overflow-y: auto;
     box-shadow: var(--shadow-lg);
-    transform: scale(0.96);
+    transform: translate(-50%, -50%) scale(0.96);
     transition: transform .25s ease;
   }
-  .modal-overlay.show .modal { transform: scale(1); }
+  .modal-overlay.show .modal { transform: translate(-50%, -50%) scale(1); }
 
   .modal-head {
     padding: 32px 36px 24px;
@@ -854,7 +856,7 @@ function renderCards(filter = 'all') {
   resultCount.textContent = `총 ${filtered.length}개 사업`;
 
   document.querySelectorAll('.card').forEach(c => {
-    c.addEventListener('click', () => openModal(parseInt(c.dataset.id)));
+    c.addEventListener('click', () => openModal(parseInt(c.dataset.id), c));
   });
 }
 
@@ -870,7 +872,7 @@ document.getElementById('filterTabs').addEventListener('click', (e) => {
 const modal = document.getElementById('modal');
 const modalContent = document.getElementById('modalContent');
 
-function openModal(id) {
+function openModal(id, cardElement) {
   const p = programs.find(x => x.id === id);
   if (!p) return;
 
@@ -912,11 +914,39 @@ function openModal(id) {
 
   modal.classList.add('show');
   document.body.style.overflow = 'hidden';
+
+  // ===== 모달 세로 위치를 클릭한 카드 중간에 맞춤 =====
+  // 모달이 렌더링된 후 높이 측정해야 하므로 requestAnimationFrame 사용
+  requestAnimationFrame(() => {
+    if (!cardElement) return;
+    const cardRect = cardElement.getBoundingClientRect();
+    const cardCenterY = cardRect.top + cardRect.height / 2;
+    const modalH = modalContent.offsetHeight;
+    const viewportH = window.innerHeight;
+    const padding = 20;
+
+    // 기본: 모달 중심이 카드 중심과 일치 (transform: translateY(-50%))
+    let top = cardCenterY;
+
+    // 모달이 viewport 밖으로 나가지 않도록 clamp
+    const minTop = modalH / 2 + padding;
+    const maxTop = viewportH - modalH / 2 - padding;
+    if (minTop < maxTop) {
+      top = Math.max(minTop, Math.min(maxTop, top));
+    } else {
+      // 모달이 viewport보다 큰 경우엔 상단 여백 기준
+      top = modalH / 2 + padding;
+    }
+
+    modalContent.style.top = top + 'px';
+  });
 }
 
 function closeModal() {
   modal.classList.remove('show');
   document.body.style.overflow = '';
+  // 다음 열기 시 위치 재계산을 위해 inline 스타일 초기화
+  setTimeout(() => { modalContent.style.top = ''; }, 250);
 }
 
 document.getElementById('modalClose').addEventListener('click', closeModal);
