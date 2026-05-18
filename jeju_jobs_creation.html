@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026년 제주 지역산업맞춤형 일자리지원 사업</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root {
+    --c-bg: #f5f7fb;
+    --c-surface: #ffffff;
+    --c-ink: #1a2238;
+    --c-ink-sub: #4a5478;
+    --c-muted: #8a93b0;
+    --c-line: #e6eaf3;
+
+    /* 카테고리 컬러 */
+    --c-corp: #6B4B9A;        /* 기업지원: 보라 */
+    --c-corp-bg: #f3eefa;
+    --c-job: #2E9D6B;         /* 취업연계: 그린 */
+    --c-job-bg: #e8f5ee;
+    --c-incentive: #2F6BBF;   /* 장려금: 블루 */
+    --c-incentive-bg: #e8f0fb;
+    --c-edu: #D86A8A;         /* 교육훈련: 핑크 */
+    --c-edu-bg: #fbecf1;
+
+    --c-jeju: #0066B3;
+
+    --shadow-sm: 0 2px 8px rgba(20, 30, 60, 0.06);
+    --shadow-md: 0 8px 24px rgba(20, 30, 60, 0.08);
+    --shadow-lg: 0 20px 50px rgba(20, 30, 60, 0.12);
+
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: var(--c-bg);
+    color: var(--c-ink);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+  }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+  /* ================= HERO ================= */
+  .hero {
+    position: relative;
+    background: linear-gradient(135deg, #0066B3 0%, #1a4fa3 55%, #6B4B9A 100%);
+    color: #fff;
+    padding: 80px 0 100px;
+    overflow: hidden;
+  }
+  .hero::before, .hero::after {
+    content: ""; position: absolute; border-radius: 50%;
+    background: rgba(255,255,255,0.08); pointer-events: none;
+  }
+  .hero::before { width: 420px; height: 420px; top: -160px; right: -120px; }
+  .hero::after { width: 280px; height: 280px; bottom: -140px; left: -80px; background: rgba(255,255,255,0.05); }
+
+  .badges {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .badges span {
+    font-size: 13px; font-weight: 500;
+    padding: 7px 14px; border-radius: 999px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+
+  .hero h1 {
+    font-size: clamp(34px, 5vw, 56px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 20px;
+  }
+  .hero h1 .accent { color: #ffd84d; }
+
+  .hero .tagline {
+    font-size: clamp(15px, 1.8vw, 19px);
+    opacity: 0.92;
+    font-weight: 400;
+    margin-bottom: 8px;
+  }
+  .hero .subtitle {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 10px 22px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  /* ================= OVERVIEW ================= */
+  .overview {
+    position: relative;
+    margin-top: -60px;
+    margin-bottom: 80px;
+    z-index: 2;
+  }
+  .overview-card {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    box-shadow: var(--shadow-lg);
+  }
+  .overview-head {
+    display: flex; align-items: baseline; gap: 14px;
+    margin-bottom: 28px;
+  }
+  .overview-head .num {
+    font-family: 'Pretendard Variable', sans-serif;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--c-jeju);
+  }
+  .overview-head h2 {
+    font-size: 26px; font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .ov-item {
+    padding: 24px 22px;
+    border-radius: var(--radius-md);
+    position: relative;
+    transition: transform .25s ease;
+  }
+  .ov-item:hover { transform: translateY(-4px); }
+  .ov-item .tag {
+    display: inline-block;
+    font-size: 12px; font-weight: 700;
+    padding: 4px 10px; border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  .ov-item .amount {
+    font-size: 22px; font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+    line-height: 1.25;
+  }
+  .ov-item .desc {
+    font-size: 13px; color: var(--c-ink-sub); line-height: 1.5;
+  }
+
+  .ov-corp { background: var(--c-corp-bg); }
+  .ov-corp .tag { background: var(--c-corp); color: #fff; }
+  .ov-corp .amount { color: var(--c-corp); }
+
+  .ov-job { background: var(--c-job-bg); }
+  .ov-job .tag { background: var(--c-job); color: #fff; }
+  .ov-job .amount { color: var(--c-job); }
+
+  .ov-incentive { background: var(--c-incentive-bg); }
+  .ov-incentive .tag { background: var(--c-incentive); color: #fff; }
+  .ov-incentive .amount { color: var(--c-incentive); }
+
+  .ov-edu { background: var(--c-edu-bg); }
+  .ov-edu .tag { background: var(--c-edu); color: #fff; }
+  .ov-edu .amount { color: var(--c-edu); }
+
+  /* ================= FILTER TABS ================= */
+  .section-title {
+    display: flex; align-items: baseline; gap: 14px;
+    margin-bottom: 24px;
+  }
+  .section-title .num {
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.15em; color: var(--c-jeju);
+  }
+  .section-title h2 {
+    font-size: 26px; font-weight: 800; letter-spacing: -0.02em;
+  }
+  .section-title .count {
+    font-size: 14px; color: var(--c-muted);
+    margin-left: auto;
+  }
+
+  .filter-tabs {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 36px;
+  }
+  .tab {
+    padding: 10px 20px;
+    background: #fff;
+    border: 1.5px solid var(--c-line);
+    border-radius: 999px;
+    font-size: 14px; font-weight: 600;
+    color: var(--c-ink-sub);
+    cursor: pointer;
+    transition: all .2s ease;
+    font-family: inherit;
+  }
+  .tab:hover { border-color: var(--c-ink-sub); }
+  .tab.active {
+    background: var(--c-ink); border-color: var(--c-ink); color: #fff;
+  }
+  .tab[data-filter="corp"].active { background: var(--c-corp); border-color: var(--c-corp); }
+  .tab[data-filter="job"].active { background: var(--c-job); border-color: var(--c-job); }
+  .tab[data-filter="incentive"].active { background: var(--c-incentive); border-color: var(--c-incentive); }
+  .tab[data-filter="edu"].active { background: var(--c-edu); border-color: var(--c-edu); }
+
+  /* ================= CARD GRID ================= */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+    margin-bottom: 80px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 28px 26px 24px;
+    box-shadow: var(--shadow-sm);
+    border-top: 4px solid;
+    display: flex; flex-direction: column;
+    transition: transform .25s ease, box-shadow .25s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-md);
+  }
+  .card[data-cat="corp"] { border-top-color: var(--c-corp); }
+  .card[data-cat="job"] { border-top-color: var(--c-job); }
+  .card[data-cat="incentive"] { border-top-color: var(--c-incentive); }
+  .card[data-cat="edu"] { border-top-color: var(--c-edu); }
+
+  .card-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .card-tag {
+    font-size: 11px; font-weight: 700;
+    padding: 4px 10px; border-radius: 999px;
+    letter-spacing: 0.05em;
+  }
+  .card[data-cat="corp"] .card-tag { background: var(--c-corp-bg); color: var(--c-corp); }
+  .card[data-cat="job"] .card-tag { background: var(--c-job-bg); color: var(--c-job); }
+  .card[data-cat="incentive"] .card-tag { background: var(--c-incentive-bg); color: var(--c-incentive); }
+  .card[data-cat="edu"] .card-tag { background: var(--c-edu-bg); color: var(--c-edu); }
+
+  .card-no {
+    font-size: 12px; font-weight: 700; color: var(--c-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .card-title {
+    font-size: 19px; font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+    margin-bottom: 10px;
+    min-height: 51px;
+  }
+  .card-desc {
+    font-size: 13.5px; color: var(--c-ink-sub);
+    line-height: 1.55;
+    margin-bottom: 18px;
+  }
+
+  .card-highlight {
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 18px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+  .card[data-cat="corp"] .card-highlight { background: var(--c-corp-bg); color: var(--c-corp); }
+  .card[data-cat="job"] .card-highlight { background: var(--c-job-bg); color: var(--c-job); }
+  .card[data-cat="incentive"] .card-highlight { background: var(--c-incentive-bg); color: var(--c-incentive); }
+  .card[data-cat="edu"] .card-highlight { background: var(--c-edu-bg); color: var(--c-edu); }
+  .card-highlight .amt {
+    font-size: 22px; font-weight: 800; display: block; margin-bottom: 2px;
+    letter-spacing: -0.02em;
+  }
+  .card-highlight .label {
+    font-size: 12px; font-weight: 500; opacity: 0.8;
+  }
+
+  .card-foot {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px dashed var(--c-line);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12.5px;
+  }
+  .card-foot .org { color: var(--c-ink-sub); font-weight: 600; }
+  .card-foot .more {
+    color: var(--c-muted); font-weight: 600;
+    transition: color .2s;
+  }
+  .card:hover .card-foot .more { color: var(--c-ink); }
+  .card-foot .more::after { content: " →"; }
+
+  /* ================= MODAL ================= */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(20, 30, 60, 0.55);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 24px;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity .25s ease;
+  }
+  .modal-overlay.show { display: flex; opacity: 1; }
+
+  .modal {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    max-width: 640px; width: 100%;
+    max-height: 90vh; overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    transform: scale(0.96);
+    transition: transform .25s ease;
+  }
+  .modal-overlay.show .modal { transform: scale(1); }
+
+  .modal-head {
+    padding: 32px 36px 24px;
+    border-bottom: 1px solid var(--c-line);
+    position: sticky; top: 0; background: #fff;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    z-index: 1;
+  }
+  .modal-head .row {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 12px;
+  }
+  .modal-head h3 {
+    font-size: 24px; font-weight: 800;
+    letter-spacing: -0.02em; line-height: 1.3;
+    margin-top: 12px;
+  }
+  .modal-close {
+    background: var(--c-bg); border: none;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    font-size: 18px; cursor: pointer;
+    color: var(--c-ink-sub);
+    transition: background .2s;
+    flex-shrink: 0;
+    font-family: inherit;
+  }
+  .modal-close:hover { background: var(--c-line); }
+
+  .modal-body { padding: 24px 36px 32px; }
+
+  .modal-section { margin-bottom: 22px; }
+  .modal-section:last-child { margin-bottom: 0; }
+  .modal-section .lbl {
+    display: inline-block;
+    font-size: 12px; font-weight: 700;
+    padding: 4px 10px; border-radius: 6px;
+    margin-bottom: 10px;
+    letter-spacing: 0.03em;
+  }
+  .modal[data-cat="corp"] .lbl { background: var(--c-corp-bg); color: var(--c-corp); }
+  .modal[data-cat="job"] .lbl { background: var(--c-job-bg); color: var(--c-job); }
+  .modal[data-cat="incentive"] .lbl { background: var(--c-incentive-bg); color: var(--c-incentive); }
+  .modal[data-cat="edu"] .lbl { background: var(--c-edu-bg); color: var(--c-edu); }
+
+  .modal-section ul { padding-left: 18px; }
+  .modal-section li {
+    font-size: 14.5px; color: var(--c-ink-sub);
+    line-height: 1.65; margin-bottom: 4px;
+  }
+  .modal-section p {
+    font-size: 14.5px; color: var(--c-ink-sub); line-height: 1.65;
+  }
+
+  .modal-contact {
+    margin-top: 12px;
+    padding: 18px 20px;
+    background: var(--c-bg);
+    border-radius: var(--radius-sm);
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .modal-contact .org-name {
+    font-size: 14px; font-weight: 700; color: var(--c-ink);
+  }
+  .modal-contact .tel {
+    font-size: 15px; font-weight: 800; color: var(--c-jeju);
+    letter-spacing: 0.02em;
+  }
+  .modal-contact .tel::before { content: "☎ "; }
+
+  /* ================= FOOTER ================= */
+  .cta {
+    background: linear-gradient(135deg, #0066B3 0%, #1a4fa3 100%);
+    color: #fff;
+    border-radius: var(--radius-lg);
+    padding: 56px 40px;
+    text-align: center;
+    margin-bottom: 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta::before {
+    content: ""; position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255,216,77,0.15) 0%, transparent 50%);
+  }
+  .cta * { position: relative; }
+  .cta p {
+    font-size: 15px; opacity: 0.85;
+    margin-bottom: 10px;
+  }
+  .cta h2 {
+    font-size: clamp(22px, 3vw, 30px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.4;
+  }
+  .cta h2 .hl { color: #ffd84d; }
+
+  footer {
+    padding: 30px 0 50px;
+    text-align: center;
+    color: var(--c-muted);
+    font-size: 13px;
+  }
+  footer .orgs {
+    display: flex; flex-wrap: wrap;
+    justify-content: center; gap: 24px;
+    margin-bottom: 16px;
+    font-size: 13px; font-weight: 600;
+    color: var(--c-ink-sub);
+  }
+  footer .orgs span:not(:last-child)::after {
+    content: " ·"; margin-left: 24px; color: var(--c-line);
+  }
+
+  /* ================= ANIMATIONS ================= */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero h1, .hero .tagline, .hero .subtitle, .hero .badges {
+    animation: fadeUp 0.8s ease backwards;
+  }
+  .hero .badges { animation-delay: 0.05s; }
+  .hero .tagline { animation-delay: 0.15s; }
+  .hero h1 { animation-delay: 0.25s; }
+  .hero .subtitle { animation-delay: 0.4s; }
+
+  .card { animation: fadeUp 0.5s ease backwards; }
+
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 960px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .overview-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .hero { padding: 60px 0 80px; }
+    .overview-card { padding: 28px 22px; }
+    .grid { grid-template-columns: 1fr; gap: 16px; }
+    .overview-grid { grid-template-columns: 1fr; }
+    .card-title { min-height: auto; }
+    .modal-head, .modal-body { padding-left: 24px; padding-right: 24px; }
+    .cta { padding: 44px 24px; }
+    .section-title .count { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="wrap">
+    <div class="badges">
+      <span>고용노동부</span>
+      <span>제주특별자치도</span>
+      <span>제주지역인적자원개발위원회</span>
+    </div>
+    <p class="tagline">기업은 키우고! 일자리는 늘리고! 제주의 미래를 잇는!</p>
+    <h1>2026년<br><span class="accent">제주 지역산업맞춤형</span><br>일자리지원 사업</h1>
+    <div class="subtitle">관광산업 일자리 생태계 구축 프로젝트</div>
+  </div>
+</section>
+
+<!-- ================= OVERVIEW ================= -->
+<section class="wrap overview">
+  <div class="overview-card">
+    <div class="overview-head">
+      <span class="num">OVERVIEW</span>
+      <h2>한눈에 보기</h2>
+    </div>
+    <div class="overview-grid">
+      <div class="ov-item ov-corp">
+        <span class="tag">기업지원</span>
+        <div class="amount">최대 3,000만원</div>
+        <p class="desc">로컬크리에이터 지원금, 인턴십 인건비까지 기업 맞춤 지원</p>
+      </div>
+      <div class="ov-item ov-job">
+        <span class="tag">취업연계</span>
+        <div class="amount">1,000만원 내외</div>
+        <p class="desc">청년 특화 패키지로 항공·숙박부터 창업지원까지</p>
+      </div>
+      <div class="ov-item ov-incentive">
+        <span class="tag">장려금</span>
+        <div class="amount">월 40~150만원</div>
+        <p class="desc">고용정착·장기재직·정착지원·워라밸 환경개선</p>
+      </div>
+      <div class="ov-item ov-edu">
+        <span class="tag">교육훈련</span>
+        <div class="amount">취업 매칭</div>
+        <p class="desc">제주 관광테크 인재 양성 무상 교육 및 매칭</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROGRAMS ================= -->
+<section class="wrap">
+  <div class="section-title">
+    <span class="num">PROGRAMS</span>
+    <h2>지원사업 12개</h2>
+    <span class="count" id="resultCount">총 12개 사업</span>
+  </div>
+
+  <div class="filter-tabs" id="filterTabs">
+    <button class="tab active" data-filter="all">전체</button>
+    <button class="tab" data-filter="corp">기업지원</button>
+    <button class="tab" data-filter="job">취업연계</button>
+    <button class="tab" data-filter="incentive">장려금</button>
+    <button class="tab" data-filter="edu">교육훈련</button>
+  </div>
+
+  <div class="grid" id="cardGrid">
+    <!-- 카드는 JS로 렌더링 -->
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="wrap">
+  <div class="cta">
+    <p>더 큰 세상으로 나아가는 제주 관광기업의 모든 순간에</p>
+    <h2><span class="hl">2026년 제주 지역산업맞춤형 일자리지원 사업</span>이<br>함께합니다.</h2>
+  </div>
+</section>
+
+<footer>
+  <div class="orgs">
+    <span>고용노동부</span>
+    <span>제주특별자치도</span>
+    <span>제주지역인적자원개발위원회</span>
+  </div>
+  <p>© 2026 제주 지역산업맞춤형 일자리지원 사업</p>
+</footer>
+
+<!-- ================= MODAL ================= -->
+<div class="modal-overlay" id="modal" role="dialog" aria-modal="true">
+  <div class="modal" id="modalContent">
+    <div class="modal-head">
+      <div class="row">
+        <span class="card-tag" id="mTag"></span>
+        <button class="modal-close" id="modalClose" aria-label="닫기">✕</button>
+      </div>
+      <h3 id="mTitle"></h3>
+    </div>
+    <div class="modal-body" id="mBody"></div>
+  </div>
+</div>
+
+<script>
+// ========== 사업 데이터 ==========
+const programs = [
+  {
+    id: 1, cat: "corp", catName: "기업지원",
+    title: "제주 관광콘텐츠 프로젝트 지원",
+    desc: "관광지에 콘텐츠 기업의 기술과 아이디어를 입혀 체험형 관광콘텐츠를 실현하는 프로젝트 지원사업",
+    amount: "최대 3,000만원",
+    label: "컨소시엄 참여기업 1개사 당 / 신규 채용 1인당 1,500만원",
+    content: {
+      "사업내용": "도내 민간 관광지의 노후되거나 단조로운 체험을 콘텐츠 융합으로 고도화하여 트렌드 변화(야간, 실내, 디지털, 웰니스 등)에 대응할 수 있도록 제주 관광콘텐츠 고부가가치화 및 지속가능한 일자리 창출",
+      "지원대상": [
+        "도내 관광지, 민간 관광시설, 문화·체험형 관광공간 운영 주체",
+        "콘텐츠 기획·제작·운영 역량을 보유한 도내 콘텐츠 기업, 문화기술 기반 기업, 창작 스튜디오, 디지털 콘텐츠 기업 등",
+        "도내 관광지-콘텐츠 기업 간 컨소시엄 형태 프로젝트 수행 주체"
+      ],
+      "지원내용": [
+        "지역 관광지 내 콘텐츠 결합 형식의 개발·홍보 등 지원",
+        "신규 정규직 채용 약정 시 1명당 1,500만원 계상",
+        "컨소시엄 내 참여기업 1개사 당 최대 3,000만원",
+        "협약 후 지원금 70% 지급, 중간평가(현장점검 포함) 후 30%"
+      ]
+    },
+    org: "제주콘텐츠진흥원", team: "콘텐츠인재팀", tel: "064-735-0641"
+  },
+  {
+    id: 2, cat: "corp", catName: "기업지원",
+    title: "내일 찾기 프로젝트 Lab",
+    desc: "기업-대학-구직자 공동 프로젝트 수행을 통한 기업의 사업화 실현 및 일자리 연계 프로젝트Lab",
+    amount: "1,500만원",
+    label: "기업당 / 기술·서비스 애로사항 해결 맞춤 지원",
+    content: {
+      "사업내용": "도내 관광 및 미래산업 기업의 기술·서비스 애로를 산학협력 프로젝트로 해결하고 시제품 개발·서비스 고도화·마케팅을 지원하여 기업 경쟁력 강화와 지속가능한 일자리 창출",
+      "지원대상": ["제주특별자치도 내 관광서비스업 및 미래산업"],
+      "지원내용": [
+        "기업의 애로해결을 위한 맞춤형 기업 지원",
+        "기업당 1,500만원",
+        "재료비, 시제품 개발비용, 컨설팅, 마케팅, 전문가활용비 등"
+      ]
+    },
+    org: "제주산학융합원", team: "산학융합팀", tel: "070-8835-3362"
+  },
+  {
+    id: 3, cat: "corp", catName: "기업지원",
+    title: "청년과 지역자원을 활용한 제주관광 전환",
+    desc: "제주지역 주력산업인 관광산업에 사회적 가치 창출 기반을 조성하는 지원사업",
+    amount: "3,000만원",
+    label: "팀당 사회가치 창출 사업개발비",
+    content: {
+      "사업내용": "지역 자원을 활용한 관광상품/서비스화를 통해 지역 자원의 고부가가치 사업으로 좋은 일자리 창출 및 지역의 사회적가치 창출 기업 지원",
+      "지원대상": ["지원이 종료된 인증 사회적기업 등 사회가치 창출 기업"],
+      "지원내용": [
+        "지역 자원의 관광상품/서비스화 개발 지원",
+        "사회가치 창출 사업개발비 팀당 3,000만원"
+      ]
+    },
+    org: "제주사회적경제네트워크", team: "기업성장팀", tel: "070-7770-4332"
+  },
+  {
+    id: 4, cat: "corp", catName: "기업지원",
+    title: "제주 관광로컬기업 지속성장 지원",
+    desc: "제주 지역자원을 활용하는 관광로컬기업의 상품과 브랜드를 고도화하는 지원사업",
+    amount: "1,500만원",
+    label: "기업당 / F&B, 여행, 6차산업 스케일업",
+    content: {
+      "사업내용": "제주 관광산업의 핵심인 관광로컬 기업의 제품개발 및 마케팅 지원을 통해 기업의 성장을 견인하여 일자리 창출 기반 마련",
+      "지원대상": [
+        "제주도 소재 로컬기업",
+        "F&B, 여행, 6차산업 등 제주 관광과 연계된 로컬 자원 활용 기업"
+      ],
+      "지원내용": [
+        "제주 관광 로컬기업의 성장지원을 위한 사업화 지원",
+        "성장지원 : 제품 품질 개선, 브랜드 리뉴얼, 신규 패키지 디자인, DX전환 등",
+        "혁신지원 : 비즈니스 모델(BM)컨설팅, 시제품 제작 및 테스트 등",
+        "상생지원 : 지역자원 활용 상품 기획 및 개발, 마을 관광 활성화 등"
+      ]
+    },
+    org: "(사)한국능률협회 제주", team: "", tel: "064-727-5303"
+  },
+  {
+    id: 5, cat: "corp", catName: "기업지원",
+    title: "제주 관광기업 디지털 판로혁신, 스케일업",
+    desc: "디지털 전환 기술과 유통 인프라를 접목하여 온라인 판로를 구축하는 지원사업",
+    amount: "2,500만원",
+    label: "기업당 / 디지털전환 및 판로확대",
+    content: {
+      "사업내용": "제주 관광산업의 핵심인 관광기업의 디지털전환 및 판로확대 지원을 통해 매출 성장을 견인하여 일자리 창출 기반 마련",
+      "지원대상": [
+        "제주 내 디지털전환 및 판로확대를 희망하는 기업",
+        "온라인 판매 경험이 부족하여 유통·운영 지원이 필요한 기업"
+      ],
+      "지원내용": [
+        "제주 관광기업의 디지털 전환 및 판로확장 지원",
+        "디지털전환 및 판로확대 지원금 기업 당 2,500만원",
+        "사업모델 고도화, 디지털전환(DX), 유통·판로확대 마케팅",
+        "온라인 마케팅 및 플랫폼 활용 교육, 온·오프라인 판매채널 입점 지원 등"
+      ]
+    },
+    org: "제주특별자치도 경제통상진흥원", team: "기업성장팀", tel: "064-800-3395"
+  },
+  {
+    id: 6, cat: "corp", catName: "기업지원",
+    title: "제주 관광 일자리 밸류링크(Value-Link)",
+    desc: "가족친화 기반 고용유지 체계를 통해 일·생활균형 일자리를 실현하는 지원사업",
+    amount: "1,500만원",
+    label: "기업당 / 일생활균형 기반 고용유지",
+    content: {
+      "사업내용": "도내 관광기업과 가족친화 요소를 결합하여 서비스형 일자리를 고부가가치 일자리로 전환하고 지속가능한 일자리 구조 구축",
+      "지원대상": [
+        "제주도 내 가족친화 재인증 예정 또는 고도화, 유지관리가 필요한 관광기반 기업",
+        "제주도 내 관광·서비스업 중소기업, 가족친화 인증 미취득 기업 등"
+      ],
+      "지원내용": [
+        "가족친화 기반 근로환경 개선과 안정적인 고용유지·채용지원",
+        "근로환경 개선 및 정주지원, 제도 도입 지원금 기업 당 1,500만원",
+        "제도구축 및 정착, 근로환경 개선, 고용유지 지원 등"
+      ]
+    },
+    org: "제주여성가족연구원", team: "경영관리실", tel: "064-720-4922"
+  },
+  {
+    id: 7, cat: "job", catName: "취업연계",
+    title: "청년특화 패키지",
+    desc: "제주 관광자원 기반 청년 아이디어와 프로젝트로 일자리 연계하는 청년특화 지원사업",
+    amount: "1,000만원 내외",
+    label: "로컬크리에이터 프로젝트 지원금",
+    content: {
+      "사업내용": "청년-제주관광을 연계함으로써 관광산업의 MZ타겟형 사업화 아이디어 및 청년 주도형 제주관광 좋은 일자리 창출",
+      "지원대상": [
+        "제주도내·외 청년(~39세 이하)",
+        "제주 이주·정착 희망 도외 청년, 제주 관광 인턴 희망 청년, 예비창업팀 및 창업 3년 이내"
+      ],
+      "지원내용": [
+        "새로운 관광자원 발굴을 위한 프로그램 지원",
+        "런케이션 : 참여자 항공·숙박, 지역 전문가 멘토링, 교육 등",
+        "로컬 크리에이터 : 프로젝트 지원금(1,000만원 내외), 사전교육, 멘토링 등",
+        "인턴십 : 인턴십(인건비) 지원"
+      ]
+    },
+    org: "제주사회적경제네트워크", team: "지역전략팀", tel: "070-7770-3651"
+  },
+  {
+    id: 8, cat: "incentive", catName: "장려금",
+    title: "관광콘텐츠 특화형 고용정착 및 인재육성 지원",
+    desc: "도내 콘텐츠 및 관광 산업 연계 콘텐츠 기업의 신규 채용 활성화 지원사업",
+    amount: "월 최대 150만원",
+    label: "최대 5개월 / 신규 정규직 채용 장려금",
+    content: {
+      "사업내용": "관광·콘텐츠 산업 연계 지역 일자리 창출 효과 제고 및 전문 인력 수급 구조 개선을 통해 산업 경쟁력 강화",
+      "지원대상": [
+        "[기업] 도내 콘텐츠 산업 및 관광 연계 콘텐츠 기업 중 신규 정규직 채용 계획 보유중인 기업",
+        "[근로자] 제주 지역 거주 만 18세 이상 ~ 만 59세 이하 내국인 구직자",
+        "콘텐츠 산업에 종사 중이거나 채용 또는 직무 전환을 희망하는 자"
+      ],
+      "지원내용": [
+        "관광·콘텐츠 산업 분야 신규 정규직 채용 계획을 보유한 도내 기업 또는 단체",
+        "지급기준 : 신규 정규직 채용 장려금 최대 월 150만원 (최대 5개월 지원)"
+      ]
+    },
+    org: "제주콘텐츠진흥원", team: "콘텐츠인재팀", tel: "064-735-0641"
+  },
+  {
+    id: 9, cat: "incentive", catName: "장려금",
+    title: "장기재직자 우대지원",
+    desc: "관광산업 2년 이상 경력 근로자의 도외 유출 방지를 통한 지역 정착 유도 지원사업",
+    amount: "월 50만원",
+    label: "최대 5개월 / 2년 이상 재직 정규직",
+    content: {
+      "사업내용": "관광산업 근로자의 장기재직을 통한 전문성, 숙련도 확보를 통해 관광서비스 품질 향상",
+      "지원대상": [
+        "[기업] 공고일 기준 도내 고용보험 피보험자 1인 이상 관광산업 기업 (관광관련 음식숙박업(복합리조트 등), 도소매업, 사업서비스업(여행업) 등)",
+        "[근로자] 도내에 거주하고 2년 이상 재직 중인 정규직 근로자 (만 18세 ~ 만 59세)"
+      ],
+      "지원내용": [
+        "관광산업의 지속적인 발전을 위해 지역 근로자들의 장기근속 지원",
+        "2년 이상 재직중인 근로자 월 50만원 (최대 5개월)"
+      ]
+    },
+    org: "제주산학융합원", team: "산학융합팀", tel: "070-8835-3362"
+  },
+  {
+    id: 10, cat: "incentive", catName: "장려금",
+    title: "제주 정착지원",
+    desc: "도외에서 제주로 취업한 재직 근로자 대상 주거비 지원사업",
+    amount: "월 최대 40만원",
+    label: "최대 7개월 / 임대료 및 기숙사비",
+    content: {
+      "사업내용": "정착 지원을 통해 인력 조기이탈을 완화하고 관광산업 인력 수급 안정화 기여 및 장기근속 유도를 통해 관광서비스 품질과 기업 운영 안정성 제고",
+      "지원대상": [
+        "[업종] 카지노, 호텔, 면세점, 공항, 리조트 등",
+        "[근로자] 도외에서 제주로 취업하여 재직중인 근로자 (만 18세 ~ 만 59세)"
+      ],
+      "지원내용": [
+        "도외 유입 인력의 안정적인 정착을 위한 주거비 지원",
+        "임대 또는 기숙사비(관리비 등) 지원 월 최대 40만원 (최대 7개월)"
+      ]
+    },
+    org: "제주상공회의소", team: "사업팀", tel: "070-4566-9783"
+  },
+  {
+    id: 11, cat: "incentive", catName: "장려금",
+    title: "제주 관광일자리 워라밸 환경개선 지원",
+    desc: "유연근무 및 근로환경 개선 연계를 통한 고용안정 및 신규 채용 활성화 지원사업",
+    amount: "월 최대 150만원",
+    label: "인센티브 / 인당 10만원 워라밸 활동비",
+    content: {
+      "사업내용": "대체인력 활용과 워라밸 기반 근로환경 개선을 통해 고용안정과 일자리창출을 동시에 강화하는 제주형 고용모델 구축",
+      "지원대상": [
+        "[기업] 단시간근로 또는 유연화 제도를 시행하고자 하는 제주 관광관련 기업",
+        "[근로자] 해당기업에 재직중인 근로자"
+      ],
+      "지원내용": [
+        "[기업] 유연화제도 참여 근로자 수에 따라 인센티브 월 최대 150만원 (최대 5개월)",
+        "[기업] 대체인력 인건비 지원 1인 당 60만원 (최대 5개월)",
+        "[근로자] 단시간근로 또는 유연화 제도 적용 시 워라밸 활동비 지원 1인 당 10만원 (최대 5개월)"
+      ]
+    },
+    org: "제주여성인력개발센터", team: "", tel: "064-753-8090"
+  },
+  {
+    id: 12, cat: "edu", catName: "교육훈련",
+    title: "제주 관광테크 인재 양성",
+    desc: "제주 관광산업 디지털·AI 기반 실무형 인재양성 및 재직자 역량강화 지원사업",
+    amount: "무상 교육",
+    label: "구직자 인재양성 + 재직자 역량강화",
+    content: {
+      "사업내용": "관광 디지털·AI 인재양성과 재직자 역량강화를 통해 취업확대와 기업 경쟁력 제고를 도모하고, 산업전반의 디지털전환 확산으로 관광산업 고도화 및 지속가능한 생태계 조성",
+      "지원대상": [
+        "[인재양성] 관광산업 및 디지털·AI 분야 취업을 희망하는 자",
+        "[역량강화] 관광 관련 기업 재직자로서 AI·디지털 기술의 업무역량 강화를 희망하는 자"
+      ],
+      "지원내용": [
+        "구직자 및 재직자 대상 디지털·AI 관련 교육지원",
+        "인재양성 : 관광 디지털·AI 실무 중심 교육 프로그램 및 취업매칭 지원",
+        "역량강화 : AI·디지털 기술 최신 트렌드 및 생성형 AI, 데이터 활용 등 특강 프로그램 지원"
+      ]
+    },
+    org: "(사)벤처기업협회 제주지회", team: "기업성장지원팀", tel: "064-725-4443"
+  }
+];
+
+// ========== 렌더링 ==========
+const grid = document.getElementById('cardGrid');
+const resultCount = document.getElementById('resultCount');
+
+function renderCards(filter = 'all') {
+  const filtered = filter === 'all' ? programs : programs.filter(p => p.cat === filter);
+  grid.innerHTML = filtered.map((p, i) => `
+    <article class="card" data-cat="${p.cat}" data-id="${p.id}" style="animation-delay: ${i * 0.05}s">
+      <div class="card-head">
+        <span class="card-tag">${p.catName}</span>
+        <span class="card-no">No. ${String(p.id).padStart(2,'0')}</span>
+      </div>
+      <h3 class="card-title">${p.title}</h3>
+      <p class="card-desc">${p.desc}</p>
+      <div class="card-highlight">
+        <span class="amt">${p.amount}</span>
+        <span class="label">${p.label}</span>
+      </div>
+      <div class="card-foot">
+        <span class="org">${p.org}</span>
+        <span class="more">자세히 보기</span>
+      </div>
+    </article>
+  `).join('');
+  resultCount.textContent = `총 ${filtered.length}개 사업`;
+
+  document.querySelectorAll('.card').forEach(c => {
+    c.addEventListener('click', () => openModal(parseInt(c.dataset.id)));
+  });
+}
+
+// ========== 필터 ==========
+document.getElementById('filterTabs').addEventListener('click', (e) => {
+  if (!e.target.classList.contains('tab')) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  e.target.classList.add('active');
+  renderCards(e.target.dataset.filter);
+});
+
+// ========== 모달 ==========
+const modal = document.getElementById('modal');
+const modalContent = document.getElementById('modalContent');
+
+function openModal(id) {
+  const p = programs.find(x => x.id === id);
+  if (!p) return;
+
+  modalContent.dataset.cat = p.cat;
+  document.getElementById('mTag').textContent = p.catName;
+  document.getElementById('mTag').className = 'card-tag';
+  document.getElementById('mTitle').textContent = p.title;
+
+  let bodyHTML = '';
+  for (const [key, val] of Object.entries(p.content)) {
+    bodyHTML += `<div class="modal-section"><span class="lbl">${key}</span>`;
+    if (Array.isArray(val)) {
+      bodyHTML += '<ul>' + val.map(v => `<li>${v}</li>`).join('') + '</ul>';
+    } else {
+      bodyHTML += `<p>${val}</p>`;
+    }
+    bodyHTML += '</div>';
+  }
+  // 카드 태그 색상 적용
+  const tagEl = document.getElementById('mTag');
+  const colors = {
+    corp: ['var(--c-corp-bg)', 'var(--c-corp)'],
+    job: ['var(--c-job-bg)', 'var(--c-job)'],
+    incentive: ['var(--c-incentive-bg)', 'var(--c-incentive)'],
+    edu: ['var(--c-edu-bg)', 'var(--c-edu)']
+  };
+  tagEl.style.background = colors[p.cat][0];
+  tagEl.style.color = colors[p.cat][1];
+
+  bodyHTML += `
+    <div class="modal-contact">
+      <div>
+        <div class="org-name">${p.org}${p.team ? ' · ' + p.team : ''}</div>
+      </div>
+      <div class="tel">${p.tel}</div>
+    </div>
+  `;
+  document.getElementById('mBody').innerHTML = bodyHTML;
+
+  modal.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  modal.classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
+modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+// 초기 렌더링
+renderCards();
+
+// iframe 임베드용: 부모에게 높이 전달 (선택사항)
+if (window.parent !== window) {
+  const sendHeight = () => {
+    window.parent.postMessage({ type: 'jeju-iframe-height', height: document.body.scrollHeight }, '*');
+  };
+  window.addEventListener('load', sendHeight);
+  window.addEventListener('resize', sendHeight);
+  new ResizeObserver(sendHeight).observe(document.body);
+}
+</script>
+</body>
+</html>
