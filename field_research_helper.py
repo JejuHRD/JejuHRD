@@ -74,10 +74,16 @@ def _resolve_subfield(cache, field, title):
     
     field_research.json에서 title_keywords를 가진 엔트리 중
     parent_field가 일치하고 title에 키워드가 포함된 것을 찾습니다.
+    
+    매칭 정책 (v2):
+      · 제목과 키워드 모두 공백·괄호 제거 후 비교하여
+        "에너지 관리", "냉동 공조" 같은 공백 변형도 자동 매칭
+      · 원본 제목에 대한 매칭도 함께 시도하여 기존 동작 보존
     """
     if not title:
         return None
     title_upper = title.upper()
+    title_normalized = title_upper.replace(" ", "").replace("(", "").replace(")", "")
     for key, data in cache.items():
         if key.startswith("_"):
             continue
@@ -87,7 +93,9 @@ def _resolve_subfield(cache, field, title):
         keywords = data.get("title_keywords", [])
         if parent == field and keywords:
             for kw in keywords:
-                if kw.upper() in title_upper:
+                kw_upper = kw.upper()
+                kw_normalized = kw_upper.replace(" ", "")
+                if (kw_upper in title_upper) or (kw_normalized in title_normalized):
                     return data
     return None
 
