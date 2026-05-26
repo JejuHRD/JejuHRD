@@ -1,6 +1,6 @@
 {
-  "updated": "2026-05-26 11:57",
-  "count": 7,
+  "updated": "2026-05-26 15:49",
+  "count": 8,
   "data": [
     {
       "address": "제주 서귀포시",
@@ -49,6 +49,14 @@
       "traStartDate": "2026-06-22",
       "traEndDate": "2026-07-10",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001303135&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500037083746"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "주식회사제주중장비학원",
+      "title": "(산대특)제주물류실무인력(지게차)양성과정",
+      "traStartDate": "2026-07-14",
+      "traEndDate": "2026-08-14",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001300784&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500046937135"
     },
     {
       "address": "제주 제주시",
