@@ -107,7 +107,7 @@
   "AIG20253001129433_4_2026-05-26_2026-07-07": {
     "title": "(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정",
     "period": "2026.05.26 ~ 2026.07.07",
-    "generated_at": "2026-05-26T02:51:03.688777",
+    "generated_at": "2026-05-26T13:59:24.828142",
     "files": {
       "cardnews": [
         "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_1_cover.png",
@@ -117,6 +117,36 @@
       "blog_txt": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__blog_naver.txt",
       "instagram_caption": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__instagram_caption.txt",
       "posting_guide": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__posting_guide.txt"
+    }
+  },
+  "AIG20263001300784_2_2026-07-14_2026-08-14": {
+    "title": "(산대특)제주물류실무인력(지게차)양성과정",
+    "period": "2026.07.14 ~ 2026.08.14",
+    "generated_at": "2026-05-26T13:59:30.073157",
+    "files": {
+      "cardnews": [
+        "output/(산대특)제주물류실무인력(지게차)양성과정_v2_1_cover.png",
+        "output/(산대특)제주물류실무인력(지게차)양성과정_v2_2_detail.png",
+        "output/(산대특)제주물류실무인력(지게차)양성과정_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)제주물류실무인력(지게차)양성과정_blog_naver.txt",
+      "instagram_caption": "output/(산대특)제주물류실무인력(지게차)양성과정_instagram_caption.txt",
+      "posting_guide": "output/(산대특)제주물류실무인력(지게차)양성과정_posting_guide.txt"
+    }
+  },
+  "AIG20263001301005_1_2026-08-24_2026-09-15": {
+    "title": "(산대특)기계설비유지관리자 (에너지 관리)양성",
+    "period": "2026.08.24 ~ 2026.09.15",
+    "generated_at": "2026-05-26T13:59:41.650920",
+    "files": {
+      "cardnews": [
+        "output/(산대특)기계설비유지관리자_(에너지_관리)양성_v2_1_cover.png",
+        "output/(산대특)기계설비유지관리자_(에너지_관리)양성_v2_2_detail.png",
+        "output/(산대특)기계설비유지관리자_(에너지_관리)양성_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)기계설비유지관리자_(에너지_관리)양성_blog_naver.txt",
+      "instagram_caption": "output/(산대특)기계설비유지관리자_(에너지_관리)양성_instagram_caption.txt",
+      "posting_guide": "output/(산대특)기계설비유지관리자_(에너지_관리)양성_posting_guide.txt"
     }
   }
 }
