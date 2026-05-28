@@ -1,6 +1,6 @@
 {
-  "updated": "2026-05-28 15:55",
-  "count": 7,
+  "updated": "2026-05-28 19:56",
+  "count": 8,
   "data": [
     {
       "address": "제주 제주시",
@@ -41,6 +41,14 @@
       "traStartDate": "2026-06-22",
       "traEndDate": "2026-07-10",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001303135&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500037083746"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "(주)제주직업전문학교",
+      "title": "(산대특) CAD설계 및 블렌더를 활용한 3D모델링 기초 양성",
+      "traStartDate": "2026-07-04",
+      "traEndDate": "2026-11-15",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001294040&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500036189345"
     },
     {
       "address": "제주 제주시",
