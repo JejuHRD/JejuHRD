@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-02 08:49",
-  "count": 8,
+  "updated": "2026-06-02 17:27",
+  "count": 12,
   "data": [
     {
       "address": "제주 제주시",
@@ -59,12 +59,44 @@
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001300784&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500046937135"
     },
     {
+      "address": "제주 서귀포시",
+      "subTitle": "드론항공평생교육원",
+      "title": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정",
+      "traStartDate": "2026-07-27",
+      "traEndDate": "2026-08-26",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001247924&tracseTme=3&crseTracseSe=C0061&trainstCstmrId=500035584309"
+    },
+    {
       "address": "제주 제주시",
       "subTitle": "제주건축기술학원",
       "title": "(산대특)기계설비유지관리자 (에너지 관리)양성",
       "traStartDate": "2026-08-24",
       "traEndDate": "2026-09-15",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001301005&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500020038195"
+    },
+    {
+      "address": "제주 서귀포시",
+      "subTitle": "드론항공평생교육원",
+      "title": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정",
+      "traStartDate": "2026-08-31",
+      "traEndDate": "2026-10-02",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001247924&tracseTme=4&crseTracseSe=C0061&trainstCstmrId=500035584309"
+    },
+    {
+      "address": "제주 서귀포시",
+      "subTitle": "드론항공평생교육원",
+      "title": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정",
+      "traStartDate": "2026-10-05",
+      "traEndDate": "2026-11-04",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001247924&tracseTme=5&crseTracseSe=C0061&trainstCstmrId=500035584309"
+    },
+    {
+      "address": "제주 서귀포시",
+      "subTitle": "드론항공평생교육원",
+      "title": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정",
+      "traStartDate": "2026-11-09",
+      "traEndDate": "2026-12-09",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001247924&tracseTme=6&crseTracseSe=C0061&trainstCstmrId=500035584309"
     }
   ]
 }
