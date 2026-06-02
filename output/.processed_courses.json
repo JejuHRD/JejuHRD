@@ -119,19 +119,34 @@
       "posting_guide": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_posting_guide.txt"
     }
   },
-  "AIG20263001304174_1_2026-06-01_2026-08-13": {
-    "title": "건축CAD + AI융합설계",
-    "period": "2026.06.01 ~ 2026.08.13",
-    "generated_at": "2026-06-01T03:41:30.678009",
+  "AIG20263001247924_2_3_4_5_6_2026-06-18_2026-07-16": {
+    "title": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정",
+    "period": "1회: 2026.06.18 ~ 2026.07.16 | 2회: 2026.07.27 ~ 2026.08.26 | 3회: 2026.08.31 ~ 2026.10.02 | 4회: 2026.10.05 ~ 2026.11.04 | 5회: 2026.11.09 ~ 2026.12.09",
+    "generated_at": "2026-06-02T03:38:24.201104",
     "files": {
       "cardnews": [
-        "output/건축CAD_+_AI융합설계_v2_1_cover.png",
-        "output/건축CAD_+_AI융합설계_v2_2_detail.png",
-        "output/건축CAD_+_AI융합설계_v2_3_howto.png"
+        "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_v2_1_cover.png",
+        "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_v2_2_detail.png",
+        "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_v2_3_howto.png"
       ],
-      "blog_txt": "output/건축CAD_+_AI융합설계_blog_naver.txt",
-      "instagram_caption": "output/건축CAD_+_AI융합설계_instagram_caption.txt",
-      "posting_guide": "output/건축CAD_+_AI융합설계_posting_guide.txt"
+      "blog_txt": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_blog_naver.txt",
+      "instagram_caption": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_instagram_caption.txt",
+      "posting_guide": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_posting_guide.txt"
+    }
+  },
+  "AIG20253001129433_5_2026-07-13_2026-08-25": {
+    "title": "(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정",
+    "period": "2026.07.13 ~ 2026.08.25",
+    "generated_at": "2026-06-02T03:38:30.894737",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_1_cover.png",
+        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_2_detail.png",
+        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__blog_naver.txt",
+      "instagram_caption": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__instagram_caption.txt",
+      "posting_guide": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__posting_guide.txt"
     }
   }
 }
