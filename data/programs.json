@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-06 09:04",
+  "updated": "2026-06-06 13:35",
   "count": 12,
   "data": [
     {
@@ -9,14 +9,6 @@
       "traStartDate": "2026-06-09",
       "traEndDate": "2026-08-03",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001301001&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500020051252"
-    },
-    {
-      "address": "제주 제주시",
-      "subTitle": "주식회사 제원직업전문학교",
-      "title": "(산대특) AI 마케팅 자동화 실무 향상과정 : ChatGPT & Gemini 활용",
-      "traStartDate": "2026-06-15",
-      "traEndDate": "2026-07-23",
-      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001301492&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500020051252"
     },
     {
       "address": "제주 서귀포시",
@@ -33,6 +25,14 @@
       "traStartDate": "2026-06-22",
       "traEndDate": "2026-07-10",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001303135&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500037083746"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "주식회사 제원직업전문학교",
+      "title": "(산대특) AI 마케팅 자동화 실무 향상과정 : ChatGPT & Gemini 활용",
+      "traStartDate": "2026-06-29",
+      "traEndDate": "2026-08-03",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001301492&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500020051252"
     },
     {
       "address": "제주 제주시",
