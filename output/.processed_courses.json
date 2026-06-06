@@ -148,5 +148,20 @@
       "instagram_caption": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__instagram_caption.txt",
       "posting_guide": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__posting_guide.txt"
     }
+  },
+  "AIG20263001301492_1_2026-06-29_2026-08-03": {
+    "title": "(산대특) AI 마케팅 자동화 실무 향상과정 : ChatGPT & Gemini 활용",
+    "period": "2026.06.29 ~ 2026.08.03",
+    "generated_at": "2026-06-06T02:50:01.626808",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_v2_1_cover.png",
+        "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_v2_2_detail.png",
+        "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_blog_naver.txt",
+      "instagram_caption": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_instagram_caption.txt",
+      "posting_guide": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_posting_guide.txt"
+    }
   }
 }
