@@ -89,21 +89,6 @@
       "posting_guide": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__posting_guide.txt"
     }
   },
-  "AIG20263001301492_1_2026-06-29_2026-08-03": {
-    "title": "(산대특) AI 마케팅 자동화 실무 향상과정 : ChatGPT & Gemini 활용",
-    "period": "2026.06.29 ~ 2026.08.03",
-    "generated_at": "2026-06-06T02:50:01.626808",
-    "files": {
-      "cardnews": [
-        "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_v2_1_cover.png",
-        "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_v2_2_detail.png",
-        "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_v2_3_howto.png"
-      ],
-      "blog_txt": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_blog_naver.txt",
-      "instagram_caption": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_instagram_caption.txt",
-      "posting_guide": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_posting_guide.txt"
-    }
-  },
   "AIG20263001247924_3_4_5_6_2026-07-27_2026-08-26": {
     "title": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정",
     "period": "1회: 2026.07.27 ~ 2026.08.26 | 2회: 2026.08.31 ~ 2026.10.02 | 3회: 2026.10.05 ~ 2026.11.04 | 4회: 2026.11.09 ~ 2026.12.09",
@@ -119,10 +104,10 @@
       "posting_guide": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_posting_guide.txt"
     }
   },
-  "AIG20263001301492_1_2026-06-29_2026-08-04": {
+  "AIG20263001301492_1_2_2026-06-29_2026-08-04": {
     "title": "(산대특) AI 마케팅 자동화 실무 향상과정 : ChatGPT & Gemini 활용",
-    "period": "2026.06.29 ~ 2026.08.04",
-    "generated_at": "2026-06-24T02:54:20.186062",
+    "period": "1회: 2026.06.29 ~ 2026.08.04 | 2회: 2026.08.05 ~ 2026.09.08",
+    "generated_at": "2026-06-29T03:34:24.928684",
     "files": {
       "cardnews": [
         "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_v2_1_cover.png",
@@ -132,6 +117,21 @@
       "blog_txt": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_blog_naver.txt",
       "instagram_caption": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_instagram_caption.txt",
       "posting_guide": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_posting_guide.txt"
+    }
+  },
+  "AIG20263001301001_2_2026-08-04_2026-09-30": {
+    "title": "(산대특) AI 유튜브 크리에이터 향상과정 : 분석·제작·성장 올인원 패키지",
+    "period": "2026.08.04 ~ 2026.09.30",
+    "generated_at": "2026-06-29T03:34:31.492809",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_v2_1_cover.png",
+        "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_v2_2_detail.png",
+        "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_blog_naver.txt",
+      "instagram_caption": "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_instagram_caption.txt",
+      "posting_guide": "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_posting_guide.txt"
     }
   }
 }
