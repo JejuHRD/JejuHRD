@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-29 07:59",
-  "count": 9,
+  "updated": "2026-06-29 09:16",
+  "count": 11,
   "data": [
     {
       "address": "제주 제주시",
@@ -41,6 +41,22 @@
       "traStartDate": "2026-07-27",
       "traEndDate": "2026-08-26",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001247924&tracseTme=3&crseTracseSe=C0061&trainstCstmrId=500035584309"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "주식회사 제원직업전문학교",
+      "title": "(산대특) AI 유튜브 크리에이터 향상과정 : 분석·제작·성장 올인원 패키지",
+      "traStartDate": "2026-08-04",
+      "traEndDate": "2026-09-30",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001301001&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500020051252"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "주식회사 제원직업전문학교",
+      "title": "(산대특) AI 마케팅 자동화 실무 향상과정 : ChatGPT & Gemini 활용",
+      "traStartDate": "2026-08-05",
+      "traEndDate": "2026-09-08",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001301492&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500020051252"
     },
     {
       "address": "제주 제주시",
