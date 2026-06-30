@@ -1,15 +1,7 @@
 {
-  "updated": "2026-06-30 13:43",
+  "updated": "2026-06-30 17:28",
   "count": 9,
   "data": [
-    {
-      "address": "제주 제주시",
-      "subTitle": "(주)제주직업전문학교",
-      "title": "(산대특) CAD설계 및 블렌더를 활용한 3D모델링 기초 양성",
-      "traStartDate": "2026-07-04",
-      "traEndDate": "2026-11-15",
-      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001294040&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500036189345"
-    },
     {
       "address": "제주 서귀포시",
       "subTitle": "중앙컴퓨터직업전문학원",
@@ -57,6 +49,14 @@
       "traStartDate": "2026-08-31",
       "traEndDate": "2026-10-02",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001247924&tracseTme=4&crseTracseSe=C0061&trainstCstmrId=500035584309"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "(주)제주직업전문학교",
+      "title": "(산대특) CAD설계 및 블렌더를 활용한 3D모델링 기초 양성",
+      "traStartDate": "2026-09-07",
+      "traEndDate": "2026-12-24",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001294040&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500036189345"
     },
     {
       "address": "제주 서귀포시",
