@@ -163,5 +163,35 @@
       "instagram_caption": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_instagram_caption.txt",
       "posting_guide": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_posting_guide.txt"
     }
+  },
+  "AIG20253001129433_5_2026-07-20_2026-09-01": {
+    "title": "(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정",
+    "period": "2026.07.20 ~ 2026.09.01",
+    "generated_at": "2026-07-08T02:24:52.810505",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_1_cover.png",
+        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_2_detail.png",
+        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__blog_naver.txt",
+      "instagram_caption": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__instagram_caption.txt",
+      "posting_guide": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__posting_guide.txt"
+    }
+  },
+  "AIG20263001301492_2_2026-08-18_2026-09-18": {
+    "title": "(산대특) AI 마케팅 자동화 실무 향상과정 : ChatGPT & Gemini 활용",
+    "period": "2026.08.18 ~ 2026.09.18",
+    "generated_at": "2026-07-08T02:24:59.917790",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_v2_1_cover.png",
+        "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_v2_2_detail.png",
+        "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_blog_naver.txt",
+      "instagram_caption": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_instagram_caption.txt",
+      "posting_guide": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_posting_guide.txt"
+    }
   }
 }
