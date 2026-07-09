@@ -71,6 +71,132 @@ def _get_field_visual_guide(clean_title, training_goal=""):
         "이커머스", "쇼핑몰", "스마트스토어", "온라인판매", "오픈마켓", "셀러", "온라인 판매"
     ])
 
+    # ── 신규 분야 플래그 (v11) ──
+    # 제과제빵/디저트
+    has_bakery = any(k in haystack for k in [
+        "제과", "제빵", "디저트", "베이커리", "파티시에", "페이스트리", "케이크", "호텔디저트"
+    ])
+    # 드론 정비 (조종·촬영·배송과 구분)
+    has_maintenance = any(k in haystack for k in [
+        "정비", "유지보수", "전후점검", "점검", "수리"
+    ])
+    # AI 커머스 (브랜드 기획 + 판매페이지 제작)
+    has_detailpage = any(k in haystack for k in [
+        "판매페이지", "판매 페이지", "상세페이지", "상세 페이지", "상품기획", "브랜드 상품기획"
+    ])
+    # 디지털콘텐츠 (Canva·Figma 기반 비디자이너 콘텐츠 제작)
+    has_digital_content = any(k in haystack for k in [
+        "디지털콘텐츠", "디지털 콘텐츠", "칸바", "캔바", "카드뉴스", "ai worker", "ai워커"
+    ]) or 'canva' in eng_tokens
+    # 관광 데이터 분석·시각화
+    has_tourism_data = (
+        any(k in haystack for k in ["관광데이터", "관광 데이터", "관광빅데이터"])
+        or (
+            any(k in haystack for k in ["데이터", "빅데이터"])
+            and any(k in haystack for k in ["관광", "시각화", "대시보드"])
+        )
+    )
+
+    # ──────────────────────────────────────────────────────────────────
+    # 신규 분야 (v11) — 기존 복합 매칭보다 먼저 평가
+    # 이유: "드론+정비"는 has_drone 단독 분기(촬영용 드론)에 흡수되면 안 되고,
+    #       "AI+상세페이지"는 AI 워크스테이션 분기로 빠지면 안 됩니다.
+    # ──────────────────────────────────────────────────────────────────
+
+    # 드론 + 정비/유지보수/전후점검 → 정비 워크벤치 (촬영·배송 드론과 구분)
+    if has_drone and has_maintenance:
+        return {
+            "subject": (
+                "A drone maintenance workbench viewed from a slight overhead angle — "
+                "a partially disassembled quadcopter drone resting at the center with "
+                "its top shell removed, exposing the flight controller board and motor "
+                "wiring. Around it, laid out in a neat row: four detached propellers, "
+                "two spare brushless motors, a small ESC board, a LiPo battery pack, "
+                "precision screwdrivers, hex keys, and a digital multimeter. Clean "
+                "anti-static mat surface, even neutral workshop lighting."
+            ),
+            "human_policy": "no people visible — tools and components only",
+            "monitor_content": "",
+        }
+
+    # 제과제빵 / 호텔디저트 → 완성 디저트 + 페이스트리 도구
+    if has_bakery:
+        return {
+            "subject": (
+                "A hotel pastry station on a polished white marble countertop: three "
+                "elegantly plated desserts in the foreground (a glossy mousse entremet "
+                "with mirror glaze, a fruit tart with neat concentric slices, a small "
+                "choux pastry), a piping bag with a star tip, a fine-mesh sieve dusted "
+                "with powdered sugar, and a stainless steel offset spatula. Soft warm "
+                "window light rakes across the glossy glaze surfaces."
+            ),
+            "human_policy": "no people visible — no hands, no chef in frame",
+            "monitor_content": "",
+        }
+
+    # AI + 상세페이지/상품기획 → 브랜드 상품 촬영 + 판매페이지 레이아웃
+    if has_detailpage or (has_ai and has_ecommerce):
+        return {
+            "subject": (
+                "A product branding workspace: a small cosmetic bottle and a kraft "
+                "paper package box arranged on a seamless white sweep with a softbox "
+                "light at the edge of frame. Beside them a laptop displays a vertical "
+                "product detail page layout. A color swatch card and a stylus rest on "
+                "the desk. Clean commercial studio aesthetic, bright even lighting."
+            ),
+            "human_policy": "no people visible",
+            "monitor_content": (
+                "The laptop shows a vertical e-commerce detail page layout: a large "
+                "hero product image block at the top, followed by alternating "
+                "rectangular image blocks and grey placeholder text bars, a specification "
+                "table rendered as a simple grid of empty cells, and a solid-color "
+                "call-to-action button bar near the bottom. NO readable text, NO product "
+                "names, NO prices — only the visual structure of a sales page."
+            ),
+        }
+
+    # 디지털콘텐츠 (Canva·Figma·ChatGPT 기반) → 카드뉴스 레이아웃 + 태블릿
+    if has_digital_content:
+        return {
+            "subject": (
+                "A bright content-creation desk in light wood: a laptop displaying a "
+                "card-news layout grid, a graphics tablet with a stylus resting on it, "
+                "a small stack of colorful sticky notes, and a coffee cup at the edge. "
+                "Clean minimal aesthetic, abundant natural daylight, soft shadows."
+            ),
+            "human_policy": "no people visible",
+            "monitor_content": (
+                "The laptop shows a design-tool canvas: a 2x3 grid of square card "
+                "templates, each card composed of a solid color block, a simple "
+                "geometric icon shape, and two grey placeholder text bars of differing "
+                "widths. A narrow left sidebar shows small template thumbnails as plain "
+                "rectangles. Alignment guide lines in a light accent color cross the "
+                "canvas. NO readable text, NO menu labels, NO logos."
+            ),
+        }
+
+    # 관광 데이터 분석·시각화 → 지도 기반 대시보드
+    if has_tourism_data:
+        return {
+            "subject": (
+                "A data analyst's desk with two monitors: the primary shows a "
+                "map-based tourism dashboard, the secondary shows trend charts. A "
+                "spiral notebook with hand-drawn chart sketches and a pen lie on the "
+                "desk beside a ceramic mug. Calm workspace, balanced daylight with "
+                "cool screen glow."
+            ),
+            "human_policy": "no people visible",
+            "monitor_content": (
+                "PRIMARY monitor: an island-shaped map outline overlaid with a warm-to-cool "
+                "heatmap of visitor density, scattered circular markers of varying size, "
+                "and thin curved flow lines connecting them. A vertical legend rendered as "
+                "a smooth color gradient bar. SECONDARY monitor: a dashboard of three "
+                "panels — a line chart trending upward, a grouped bar chart, and a donut "
+                "chart — plus four small KPI tiles as plain rectangles. NO text, NO numbers, "
+                "NO axis labels, NO place names — only the visual language of data analytics."
+            ),
+        }
+
     # ──────────────────────────────────────────────────────────────────
     # 복합 매칭 (가장 구체적 우선)
     # ──────────────────────────────────────────────────────────────────

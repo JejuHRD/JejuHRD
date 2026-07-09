@@ -107,7 +107,13 @@ def get_step3_text(course_data):
 
 
 def get_benefits_detail_lines(course_data):
-    """블로그용 혜택 상세 설명 라인"""
+    """블로그용 혜택 상세 설명 라인 (혜택의 '단일 출처')
+
+    중복 제거 정책 (v2):
+      · 자부담률·훈련장려금·특별훈련수당 언급은 **이 함수에서만** 합니다.
+      · get_cost_info_text()는 금액(원 단위)만 다루고 혜택을 재언급하지 않습니다.
+      · _build_recommend_section()도 장려금 문구를 반복하지 않습니다.
+    """
     ctype = get_course_type(course_data)
     hours = get_total_hours(course_data)
 
@@ -122,28 +128,27 @@ def get_benefits_detail_lines(course_data):
         lines.append(f"- 총 {hours}시간 단기과정이라 훈련장려금은 없지만, 자부담 10%로 부담 없이 참여할 수 있어요")
         lines.append("  ※ 동일 훈련과정 재참여는 불가하며, 다른 단기과정은 횟수 제한 없이 수강 가능")
 
-    lines.append("- 자세한 내용은 고용24에서 확인해주세요")
     return lines
 
 
 def get_cost_info_text(course_data):
-    """블로그 인포박스용 비용 안내 텍스트"""
+    """블로그 인포박스용 비용 안내 텍스트 (금액 정보 전용)
+
+    중복 제거 정책 (v2):
+      혜택 설명(자부담률·장려금·수당)은 get_benefits_detail_lines()가 전담합니다.
+      이 함수는 실제 금액(수강비/자부담금)만 안내하며,
+      금액 데이터가 없으면 짧은 안내 한 줄만 반환합니다.
+    """
     self_cost = course_data.get("selfCost", "")
     course_cost = course_data.get("courseCost", "")
-    ctype = get_course_type(course_data)
 
-    parts = ["이 과정은 최초 참여 시 **자부담 10%**만 내면 돼요."]
-
+    parts = []
     if self_cost and course_cost:
-        parts.append(f"수강비 {course_cost} 중 자부담금은 **{self_cost}**이며, 나머지는 국비로 지원됩니다.")
+        parts.append(f"수강비 {course_cost} 중 실제 내는 돈은 **{self_cost}**이에요. 나머지는 국비로 지원됩니다.")
+    elif self_cost:
+        parts.append(f"실제 내는 자부담금은 **{self_cost}**이에요.")
+    else:
+        parts.append("정확한 자부담 금액은 과정별로 달라요.")
 
-    if ctype == "long":
-        parts.append("350시간 이상 장기과정이라 **훈련장려금 + 특별훈련수당 월 최대 40만원**까지 받을 수 있어요!")
-    elif ctype == "general":
-        parts.append("140시간 이상 과정이라 **훈련장려금 월 최대 20만원**도 받을 수 있어요!")
-    elif ctype == "short":
-        parts.append("단기과정이라 훈련장려금은 없지만, 자부담 10%로 부담 없이 참여할 수 있어요!")
-        parts.append("※ 동일 훈련과정 재참여는 불가하며, 다른 단기과정은 횟수 제한 없이 수강 가능합니다.")
-
-    parts.append("자세한 자부담 금액은 고용24에서 확인해주세요!")
+    parts.append("금액은 고용24에서 최종 확인해주세요!")
     return "\n".join(parts)

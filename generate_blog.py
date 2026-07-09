@@ -86,23 +86,24 @@ def generate_blog_post(course_data, output_dir="output"):
     # 해시태그에서 마크다운 볼드(**) 제거
     hashtags = hashtags_raw.replace("**", "")
 
-    # ── 훈련장려금 관련 문구 (140시간 이상일 때만) ──
+    # ── STEP3 문구 (중복 제거 v2: 금액은 '혜택' 섹션이 전담) ──
     if ctype in ("general", "long"):
-        allowance_step3 = "열심히 다니면 (출석 80% 이상) 매달 훈련장려금이 들어와요."
+        allowance_step3 = "출석률(80% 이상)만 지키면 훈련장려금이 매달 들어와요. 위에서 안내한 금액 그대로예요."
     else:
-        allowance_step3 = "자부담 10%로 부담 없이 새로운 기술을 배울 수 있어요."
+        allowance_step3 = "부담 없는 자부담으로 새로운 기술을 배울 수 있어요."
 
-    # ── SEO 키워드 자연 삽입 섹션 ──
-    seo_section = _build_seo_section(course_data, field, year)
+    # ── '왜 배워야 할까요?' 섹션 (산업동향 + 훈련필요성) ──
+    seo_section = _build_seo_section(course_data, field, year).strip()
 
     # ── 누구에게 추천하나요 섹션 ──
-    recommend_section = _build_recommend_section(field, ctype)
+    recommend_section = _build_recommend_section(field, ctype).strip()
 
     # ── 공감형 도입부에서 마크다운 볼드(**) 제거 ──
     empathy_clean = empathy_intro.replace("**", "")
 
     # ── 구조 다양화를 위한 해시 (과정별 미세 변형) ──
     title_hash = abs(hash(title))
+    sec_intro = get_varied_section_title("intro", title_hash + 1)
     sec_overview = get_varied_section_title("overview", title_hash)
     sec_benefits = get_varied_section_title("benefits", title_hash)
     sec_curriculum = get_varied_section_title("curriculum", title_hash + 2)
@@ -117,10 +118,17 @@ def generate_blog_post(course_data, output_dir="output"):
 
 [이미지 삽입] 직접 촬영한 대표 이미지 또는 카드뉴스 커버 (1번)
 
-[✍️ 직접 작성] 아래 공감형 도입부를 참고하되, 반드시 본인의 말로 고쳐 쓰세요.
+[소제목] {sec_intro}
+
+[✍️ 직접 작성] 아래 도입부를 참고하되, 반드시 본인의 말로 고쳐 쓰세요.
 예시: "제주에서 살면서 늘 느끼는 건데, 수도권에 비해 교육 기회가 정말 적잖아요..."
+→ 이 구간은 '공감과 문제의식'만 다룹니다. 산업 통계·수치는 다음 섹션에서 다루니 여기서 미리 쓰지 마세요.
 
 {empathy_clean}
+
+[구분선]
+
+{seo_section}
 
 [구분선]
 
@@ -133,18 +141,14 @@ def generate_blog_post(course_data, output_dir="output"):
 👥 모집 인원: {capacity}
 🎯 수강 자격: {target}
 
-[이미지 삽입] 교육기관 외관/내부 또는 카드뉴스 상세 이미지 (2번)
-
 [구분선]
 
 [소제목] {sec_benefits}
 
 {benefit_text}
 
-💰 비용이 궁금하시죠?
+💰 실제로 얼마를 내나요?
 {cost_info}
-
-{seo_section}
 
 [구분선]
 
@@ -153,6 +157,8 @@ def generate_blog_post(course_data, output_dir="output"):
 [구분선]
 
 [소제목] {sec_curriculum}
+
+[이미지 삽입] 카드뉴스 커리큘럼 이미지 (2번) — 이 소제목 바로 아래에 배치하세요
 
 {outcome if outcome else "상세 커리큘럼은 고용24에서 확인해주세요."}
 
@@ -337,6 +343,11 @@ def _build_work_guide(blog_title, char_count=0, keyword_report=""):
 def _get_seo_section_title(field, year):
     """목차에 표시할 SEO 섹션 제목을 반환합니다."""
     titles = {
+        "제과제빵": f"왜 지금 AI 활용 디저트를 배워야 할까요?",
+        "드론정비": f"왜 지금 드론 정비를 배워야 할까요?",
+        "AI커머스": f"왜 지금 AI 판매페이지를 배워야 할까요?",
+        "디지털콘텐츠": f"왜 지금 AI 디지털콘텐츠를 배워야 할까요?",
+        "관광데이터": f"왜 지금 관광 데이터 분석을 배워야 할까요?",
         "AI": f"왜 지금 AI를 배워야 할까요?",
         "영상": f"왜 지금 영상 제작을 배워야 할까요?",
         "디자인": f"왜 지금 디자인을 배워야 할까요?",
@@ -356,20 +367,32 @@ def _get_seo_section_title(field, year):
 
 def _build_seo_section(course_data, field, year):
     """
-    SEO 키워드를 자연스럽게 녹인 추가 섹션을 생성합니다.
-    
-    v4 개선: field_research.json 캐시가 있으면 연구 기반 데이터 우선 사용.
-    title 키워드로 서브필드(예: "드론영상")를 자동 매칭합니다.
+    '왜 OOO를 배워야 할까요?' 섹션을 생성합니다.
+
+    v5 개선 (분량 확대 + 도입부와 역할 분리):
+      · 도입부(들어가며)는 공감·문제의식만 담당
+      · 이 섹션은 [산업 동향] + [훈련 필요성] 두 블록으로 구성해 분량을 확대
+      · training_need_body가 있으면 소제목을 나눠 두 번째 블록으로 붙입니다.
     """
     title = course_data.get("title", "")
-    
+
     # 1순위: field_research.json 캐시에서 연구 기반 섹션 로드
     try:
-        from field_research_helper import get_seo_section
+        from field_research_helper import get_seo_section, get_training_need
         cached_section = get_seo_section(field, year, title=title)
         if cached_section:
             section_title = _get_seo_section_title(field, year)
-            return f"\n[소제목] {section_title}\n\n{cached_section}\n"
+            block = f"\n[소제목] {section_title}\n\n{cached_section}\n"
+
+            # 훈련 필요성 블록 (있는 분야만) — 섹션 분량 확대
+            need = get_training_need(field, year, title=title)
+            if need:
+                block += (
+                    f"\n[소제목] 그래서 왜 이 훈련일까요?\n\n{need}\n"
+                    f"\n[✍️ 직접 작성] 위 내용 중 본인이 실제로 겪은 경험이나 주변 사례를 1~2문장 덧붙이면 "
+                    f"체류시간과 신뢰도가 함께 올라갑니다.\n"
+                )
+            return block
     except ImportError:
         pass
 
@@ -484,6 +507,36 @@ def _build_recommend_section(field, ctype):
             "중대재해처벌법 대응이 필요한 사업주·관리자",
             "건설·제조·서비스업에서 안전관리 업무를 맡게 된 분",
         ],
+        "제과제빵": [
+            "호텔·리조트 F&B나 베이커리에서 일하고 계신 재직자",
+            "카페를 운영하며 디저트로 차별화하고 싶은 분",
+            "제과기능사·제빵기능사 실기를 제대로 준비하고 싶은 분",
+            "제주 특산물을 활용한 디저트 브랜드를 만들고 싶은 분",
+        ],
+        "드론정비": [
+            "드론 조종 자격은 있지만 정비 역량을 더하고 싶은 분",
+            "공공기관·지자체에서 드론 운용·점검을 담당하는 재직자",
+            "드론 촬영·방제 현장에서 기체 관리를 맡고 계신 분",
+            "드론 제작·활용업체 A/S 직무로 취업을 준비하시는 분",
+        ],
+        "AI커머스": [
+            "제주 특산품을 판매하지만 상세페이지가 늘 아쉬운 농가·소상공인",
+            "나만의 브랜드를 만들어 온라인으로 팔고 싶은 분",
+            "상세페이지 외주 비용을 줄이고 직접 제작하고 싶은 분",
+            "이커머스 콘텐츠 기획자로 커리어를 넓히고 싶은 분",
+        ],
+        "디지털콘텐츠": [
+            "디자이너는 아니지만 회사에서 디자인 업무를 맡게 된 분",
+            "SNS·홍보 콘텐츠를 직접 만들어야 하는 마케팅 담당자",
+            "AI 도구를 쓰고는 있지만 결과물이 늘 어정쩡한 분",
+            "제주에서 UI/UX·디지털디자인 입문 과정을 찾고 계셨던 분",
+        ],
+        "관광데이터": [
+            "관광사업체에서 데이터를 근거로 의사결정하고 싶은 재직자",
+            "코딩을 몰라도 데이터 분석을 시작하고 싶은 분",
+            "제주 관광 데이터로 실무 포트폴리오를 만들고 싶은 분",
+            "공공기관·지자체에서 데이터 업무를 맡게 된 분",
+        ],
     }
 
     recommends = field_recommends.get(field, [
@@ -497,10 +550,12 @@ def _build_recommend_section(field, ctype):
     for r in recommends:
         section += f"✅ {r}\n"
 
+    # 중복 제거 (v2): 훈련장려금·수당 금액은 '이런 혜택이 있어요' 섹션이 전담합니다.
+    # 여기서는 금액을 반복하지 않고 과정 성격만 한 줄로 덧붙입니다.
     if ctype == "long":
-        section += "\n350시간 이상 장기과정이라 훈련장려금 + 특별훈련수당(월 최대 40만원)도 받을 수 있어서, 배우면서 생활비 부담도 줄일 수 있어요."
+        section += "\n장기과정이라 기초부터 실무 포트폴리오까지 차근차근 쌓을 수 있어요."
     elif ctype == "general":
-        section += "\n140시간 이상 과정이라 훈련장려금(월 최대 20만원)도 받을 수 있어서, 배우면서 생활비 부담도 줄일 수 있어요."
+        section += "\n실습 비중이 높은 구성이라 배운 걸 바로 현장에 적용해볼 수 있어요."
     else:
         section += "\n단기 과정이라 빠르게 핵심만 배울 수 있어요. 바쁜 분들에게 딱 맞는 구성이에요."
 

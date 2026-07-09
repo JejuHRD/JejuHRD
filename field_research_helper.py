@@ -2,7 +2,10 @@
 분야별 리서치 캐시 헬퍼 - field_research.json에서 최신 연구 데이터를 로드합니다.
 
 사용법:
-  from field_research_helper import get_field_research, get_empathy_hooks, get_seo_section
+  from field_research_helper import (
+      get_field_research, get_empathy_hooks, get_seo_section,
+      get_intro_context, get_training_need,
+  )
 
   # 분야별 전체 연구 데이터 가져오기
   data = get_field_research("이커머스")
@@ -122,6 +125,38 @@ def get_seo_section(field, year=None, title=None):
     if data and "seo_section_body" in data:
         body = data["seo_section_body"]
         return body.replace("{year}", str(year))
+    return None
+
+
+def get_intro_context(field, year=None, title=None):
+    """
+    도입부(들어가며) 확장 단락을 반환합니다.
+
+    공감형 훅(empathy_hooks) 뒤에 이어붙일 맥락 단락으로,
+    '왜 이 과정이 필요한가'를 독자 관점에서 풀어씁니다.
+    데이터·수치 나열은 SEO 섹션(seo_section_body)이 담당하므로
+    여기서는 중복을 피하고 문제의식 중심으로 서술합니다.
+    """
+    if year is None:
+        year = datetime.now().year
+    data = get_field_research(field, title)
+    if data and "intro_context" in data:
+        return data["intro_context"].replace("{year}", str(year))
+    return None
+
+
+def get_training_need(field, year=None, title=None):
+    """
+    '왜 배워야 할까요?' 섹션의 두 번째 블록(훈련 필요성)을 반환합니다.
+
+    seo_section_body가 산업 동향을 다룬다면,
+    training_need_body는 '그래서 왜 이 훈련인가'를 다룹니다.
+    """
+    if year is None:
+        year = datetime.now().year
+    data = get_field_research(field, title)
+    if data and "training_need_body" in data:
+        return data["training_need_body"].replace("{year}", str(year))
     return None
 
 

@@ -20,22 +20,49 @@ from datetime import datetime, timedelta
 # [아이디어 7] NCS 코드 기반 분야 감지
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+# NCS 8자리 세분류 정확매칭 (최우선 조회)
+# 배경: 4자리 접두사만으로는 세분류를 구분할 수 없어 오분류가 발생했습니다.
+#   예) 20010105(빅데이터분석) → "2001" 매칭 → "코딩"으로 잘못 분류
+# 8자리 코드가 명확한 과정은 여기에 등록해 최우선으로 잡습니다.
+NCS_CODE_EXACT = {
+    "21020101": "제과제빵",     # 제과
+    "21020102": "제과제빵",     # 제빵
+    "09040103": "드론정비",     # 소형무인기 전후점검
+    "20010105": "데이터",       # 빅데이터분석 (← 기존에 "코딩"으로 오분류)
+}
+
 NCS_FIELD_MAP = {
     "08": "디자인",       # 문화/예술/디자인/방송
     "20": "코딩",         # 정보통신
     "02": "마케팅",       # 경영/회계/사무
     "10": "이커머스",     # 영업판매 → 이커머스로 변경
+    "21": "제과제빵",     # 식품가공
     "0802": "디자인",     # 디자인
     "0803": "영상",       # 방송
     "0801": "콘텐츠",     # 문화콘텐츠
+    "0904": "드론정비",   # 무인기 운용·정비
     "2001": "코딩",       # 정보기술
     "2002": "데이터",     # 통신기술
+    "2102": "제과제빵",   # 제과·제빵
     "24": "산업안전",     # 안전관리
     "1001": "이커머스",   # 유통/판매
+    "1003": "이커머스",   # 전자상거래
     "0201": "마케팅",     # 경영기획 (마케팅 유지)
 }
 
+# 세부 키워드: 8자리(세분류) → 6자리(소분류) 순으로 조회합니다.
+# 기존에는 6자리만 조회해 8자리 코드에서 오작동했습니다.
+#   예) 08020204[:6] = "080202" → "UX디자인" (실제는 디지털디자인)
+#       20010105[:6] = "200101" → "SW개발"   (실제는 빅데이터분석)
 NCS_SUB_KEYWORDS = {
+    # ── 8자리 세분류 (정확매칭 우선) ──
+    "21020101": "제과",
+    "21020102": "제빵",
+    "09040103": "소형무인기 전후점검",
+    "10030102": "전자상거래",
+    "08020204": "디지털디자인",
+    "20010105": "빅데이터분석",
+    # ── 6자리 소분류 ──
     "080301": "영상촬영",
     "080302": "영상편집",
     "080201": "시각디자인",
@@ -50,14 +77,28 @@ NCS_SUB_KEYWORDS = {
 
 
 def _detect_field_by_ncs(ncs_cd):
-    """NCS 코드에서 분야를 감지합니다."""
+    """NCS 코드에서 분야를 감지합니다.
+
+    조회 순서 (v5): 8자리 정확매칭 → 6자리 → 4자리 → 2자리
+      · 8자리 세분류가 등록되어 있으면 최우선으로 사용합니다.
+      · 세부 키워드(sub_keyword)도 8자리 → 6자리 순으로 조회합니다.
+    """
     if not ncs_cd or len(str(ncs_cd).strip()) < 2:
         return None, None
     ncs_cd = str(ncs_cd).strip()
+
+    # 세부 키워드: 8자리 우선, 없으면 6자리
     sub_keyword = None
-    if len(ncs_cd) >= 6:
+    if len(ncs_cd) >= 8:
+        sub_keyword = NCS_SUB_KEYWORDS.get(ncs_cd[:8])
+    if sub_keyword is None and len(ncs_cd) >= 6:
         sub_keyword = NCS_SUB_KEYWORDS.get(ncs_cd[:6])
-    for length in (4, 2):
+
+    # 분야: 8자리 정확매칭 최우선
+    if len(ncs_cd) >= 8 and ncs_cd[:8] in NCS_CODE_EXACT:
+        return NCS_CODE_EXACT[ncs_cd[:8]], sub_keyword
+
+    for length in (6, 4, 2):
         prefix = ncs_cd[:length]
         if prefix in NCS_FIELD_MAP:
             return NCS_FIELD_MAP[prefix], sub_keyword
@@ -70,7 +111,12 @@ def _detect_field_by_ncs(ncs_cd):
 
 TITLE_FIELD_KEYWORDS = {
     "AI": ["AI", "인공지능", "챗GPT", "CHATGPT", "머신러닝", "딥러닝", "생성형"],
+    "드론정비": ["드론정비", "드론 정비", "무인기정비", "전후점검", "드론유지보수", "드론 유지보수", "소형무인기", "드론정비자격"],
     "드론": ["드론배송", "드론물류", "드론관제", "드론택배", "UTM", "자율비행", "배송드론"],
+    "제과제빵": ["호텔디저트", "제과제빵", "제과", "제빵", "디저트", "베이커리", "파티시에", "페이스트리"],
+    "관광데이터": ["관광데이터", "관광 데이터", "관광빅데이터", "데이터분석·시각화", "데이터 분석·시각화", "관광데이터분석", "데이터시각화"],
+    "AI커머스": ["판매페이지", "판매 페이지", "상세페이지", "상세 페이지", "브랜드상품기획", "브랜드 상품기획", "상품기획", "AI커머스", "나만의브랜드"],
+    "디지털콘텐츠": ["디지털콘텐츠", "디지털 콘텐츠", "CANVA", "칸바", "캔바", "AI WORKER", "AI워커", "AIWORKER"],
     "영상": ["영상", "비디오", "유튜브", "숏폼", "프리미어", "에프터이펙트", "촬영", "릴스"],
     "건축AI": ["AI융합설계", "AI건축", "AI설계", "AI렌더링", "Midjourney건축", "건축AI", "CAD+AI", "건축CAD+AI", "AI융합", "생성형AI설계"],
     "건축/설계": ["건축", "설계", "CAD", "BIM", "Revit", "AutoCAD", "인테리어", "실내건축", "실내디자인", "SketchUp", "스케치업", "3DS MAX", "리모델링"],
@@ -111,7 +157,15 @@ def detect_course_field(title, ncs_cd=None):
         return (kw_upper in title_upper) or (kw_normalized in title_normalized)
 
     # 1단계: 고유 복합 키워드 우선 체크 (NCS 오분류 방지)
-    _priority_fields = ["드론", "건축AI", "건축/설계", "물류/운송", "조경", "에너지/시설관리"]
+    # ⚠️ 순서 중요:
+    #   · "드론정비"는 "드론"보다 앞 — 뒤에 두면 정비 과정이 드론(배송)으로 흡수됨
+    #   · "제과제빵"·"관광데이터"·"AI커머스"·"디지털콘텐츠"는 "AI"보다 앞
+    #     (제목에 'AI 활용'이 붙는 과정이 전부 AI 분야로 흡수되는 것을 방지)
+    _priority_fields = [
+        "드론정비", "드론",
+        "제과제빵", "관광데이터", "AI커머스", "디지털콘텐츠",
+        "건축AI", "건축/설계", "물류/운송", "조경", "에너지/시설관리",
+    ]
     for field in _priority_fields:
         if field in TITLE_FIELD_KEYWORDS:
             for kw in TITLE_FIELD_KEYWORDS[field]:
@@ -187,6 +241,11 @@ FIELD_DEFAULT_SCENES = {
     "드론": "a drone delivery operation center with monitors showing flight paths, a delivery drone on launchpad, coastal island landscape in background",
     "조경": "a landscaping professional planting trees in a beautiful garden with stone walls, Jeju volcanic rock, and subtropical plants under clear sky",
     "에너지/시설관리": "a facility management technician inspecting a boiler system in a hotel mechanical room, gauges and pipes visible, professional lighting",
+    "제과제빵": "a professional hotel pastry kitchen with plated desserts on marble counter, piping bags and tart rings, warm ambient lighting",
+    "드론정비": "a drone maintenance workbench with a partially disassembled drone, propellers, motors, ESC boards and precision tools laid out neatly",
+    "AI커머스": "a product branding workspace with a laptop showing a product detail page layout, product samples and packaging mockups on the desk",
+    "디지털콘텐츠": "a content creator workstation with a laptop showing a card-news layout grid and a graphics tablet, bright natural daylight",
+    "관광데이터": "a data analyst workspace with dual monitors showing a map-based tourism dashboard and trend charts, notebook and coffee on desk",
     "default": "a bright modern classroom with laptops, students engaged in learning, natural light through large windows",
 }
 
@@ -219,6 +278,36 @@ def _get_sora_scenes(goal_keywords, field, ncs_sub=None):
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 VISUAL_MOOD = {
+    "제과제빵": {
+        "palette": "warm cream (#F5E6D3) and caramel brown (#8B5E34) with soft rose accent (#E8A0A0)",
+        "mood": "warm, appetizing, artisanal",
+        "lighting": "soft warm window light with gentle highlights on glossy dessert surfaces",
+        "texture": "marble countertop, powdered sugar dusting, glossy glaze, matte parchment",
+    },
+    "드론정비": {
+        "palette": "industrial slate grey (#4A5259) and safety orange (#FF7A00) with cool steel blue (#7FA8C9)",
+        "mood": "precise, technical, hands-on",
+        "lighting": "even neutral workshop lighting with crisp shadows on tools",
+        "texture": "brushed aluminum, carbon fiber weave, anodized bolts, rubberized grips",
+    },
+    "AI커머스": {
+        "palette": "clean white (#FFFFFF) and deep indigo (#2B3A67) with vivid coral CTA accent (#FF5A5F)",
+        "mood": "commercial, polished, conversion-focused",
+        "lighting": "bright softbox product lighting with clean seamless backdrop",
+        "texture": "glossy packaging, seamless paper sweep, card-style UI panels",
+    },
+    "디지털콘텐츠": {
+        "palette": "bright canvas white (#FAFAFA) and vibrant violet (#7C4DFF) with mint accent (#4DD0B1)",
+        "mood": "playful, approachable, creative",
+        "lighting": "bright even daylight, minimal shadows",
+        "texture": "flat vector shapes, rounded card layouts, subtle drop shadows, grid guides",
+    },
+    "관광데이터": {
+        "palette": "deep ocean teal (#0F5257) and sand beige (#E8DCC8) with data-viz coral (#FF6B6B)",
+        "mood": "analytical, insightful, calm",
+        "lighting": "cool balanced screen glow with soft daylight fill",
+        "texture": "map contour lines, heatmap gradients, chart grid overlays",
+    },
     "AI": {
         "palette": "neon blue (#00D4FF) and dark navy (#0A1628) with electric purple accents (#7B61FF)",
         "mood": "futuristic, high-tech, sleek",
@@ -496,6 +585,16 @@ KEYWORD_MAP = {
                 "라이브커머스교육", "상세페이지제작"],
     "산업안전": ["산업안전교육", "안전관리자교육", "산업안전기사",
                 "중대재해처벌법교육", "위험성평가교육"],
+    "제과제빵": ["제과제빵교육", "제과기능사", "제빵기능사", "호텔디저트",
+                "베이커리창업", "AI메뉴개발"],
+    "드론정비": ["드론정비교육", "드론유지보수", "소형무인기전후점검",
+                "드론정비사", "드론점검"],
+    "AI커머스": ["AI상세페이지", "브랜드상품기획", "판매페이지제작",
+                "AI커머스교육", "1인브랜드창업"],
+    "디지털콘텐츠": ["디지털콘텐츠제작", "캔바교육", "피그마교육",
+                   "AI콘텐츠제작", "카드뉴스제작"],
+    "관광데이터": ["관광데이터분석", "빅데이터분석기사", "데이터시각화",
+                 "제주관광빅데이터", "파이썬데이터분석"],
 }
 
 COMMON_SEARCH_KEYWORDS = [
@@ -670,8 +769,27 @@ def generate_seo_title(course_data):
         "출판": "출판편집", "콘텐츠": "콘텐츠제작", "마케팅": "디지털마케팅",
         "데이터": "데이터분석", "코딩": "코딩", "멀티미디어": "멀티미디어",
         "이커머스": "스마트스토어", "산업안전": "산업안전",
+        # ── 신규 5개 분야 ──
+        "제과제빵": "AI호텔디저트", "드론정비": "드론정비",
+        "AI커머스": "AI판매페이지", "디지털콘텐츠": "AI디지털콘텐츠",
+        "관광데이터": "관광데이터분석",
     }
     short = field_short.get(field, "직업훈련")
+
+    # 분야 제목 고정 (도구명 조합 로직 우회)
+    # 배경: 제목에 "AI"가 들어간 신규 과정이 TOOL_KEYWORDS의 "AI"에 먼저 걸려
+    #       "제주 AI 국비지원 2026"처럼 분야가 사라지는 문제가 있었습니다.
+    #       아래 분야는 축약명을 그대로 제목 키워드로 확정합니다.
+    FIELD_TITLE_OVERRIDE = {
+        "제과제빵", "드론정비", "AI커머스", "디지털콘텐츠", "관광데이터",
+    }
+    if field in FIELD_TITLE_OVERRIDE:
+        benefit_tag_map = {"long": "장려금+수당", "general": "장려금지원"}
+        benefit_tag = benefit_tag_map.get(ctype, "국비지원")
+        seo_title = f"제주 {short} {benefit_tag} {year}"
+        if len(seo_title) > 25:
+            seo_title = f"제주 {short} 국비 {year}"
+        return seo_title
 
     # 핵심 키워드 조합
     # - 도구명이 분야와 관련 있으면 조합 (AI + 영상편집 → AI영상편집)
@@ -750,23 +868,46 @@ def generate_empathy_intro(course_data):
         intros = EMPATHY_INTROS.get(field, EMPATHY_INTROS["default"])
         intro = random.choice(intros)
 
-    # 과정 데이터 기반 추가 후킹 문장 (2번째 문단)
+    # ── 확장 단락 1: 분야별 맥락 (intro_context) ──
+    # '왜 배워야 할까요?' 섹션과 역할을 분리합니다.
+    #   · 도입부(여기): 독자의 문제의식·상황 공감 (수치 최소화)
+    #   · SEO 섹션: 산업 동향 수치와 훈련 필요성 논거
+    context_para = ""
+    try:
+        from field_research_helper import get_intro_context
+        context_para = get_intro_context(field, title=title) or ""
+    except ImportError:
+        pass
+
+    if context_para:
+        intro += f"\n\n{context_para}"
+
+    # ── 확장 단락 2: 과정 데이터 기반 후킹 ──
     data_hook = ""
     if self_cost and self_cost != "0":
         data_hook = f"자부담 {self_cost}이면 시작할 수 있어요."
     elif ctype == "long" and hours > 0:
         months = max(1, round(hours / 160))
-        data_hook = f"{months}개월 과정인데, 매달 최대 40만원까지 받으면서 배울 수 있어요."
+        data_hook = f"{months}개월 과정인데, 배우는 동안 훈련장려금과 특별훈련수당도 함께 받을 수 있고요."
     elif ctype == "general" and hours > 0:
-        data_hook = f"총 {hours}시간 과정이고, 매달 최대 20만원 훈련장려금도 받을 수 있어요."
+        data_hook = f"총 {hours}시간 과정이고, 출석률만 지키면 훈련장려금도 함께 받을 수 있어요."
 
     if data_hook:
         intro += f"\n\n{data_hook}"
 
-    # SEO: 첫 200자 안에 "제주"와 "국비" 키워드가 없으면 보강
+    # ── 확장 단락 3: 본문으로 넘어가는 브릿지 ──
+    # 도입부와 '왜 배워야 할까요?' 섹션 사이의 경계를 명확히 합니다.
+    bridges = [
+        "아래에서는 이 과정이 왜 지금 필요한지, 무엇을 배우고 어떻게 신청하는지 하나씩 정리했어요.",
+        "이 글에서는 산업 현황부터 커리큘럼, 신청 방법까지 순서대로 짚어볼게요.",
+        "그래서 이 과정이 어떤 배경에서 만들어졌는지, 실제로 무엇을 배우는지 차근차근 살펴보려고 해요.",
+    ]
+    intro += f"\n\n{bridges[abs(hash(title)) % len(bridges)]}"
+
+    # SEO: 첫 200자 안에 "제주" 키워드가 없으면 보강
     first_200 = intro[:200]
     if "제주" not in first_200:
-        intro += "\n\n제주에서 진행되는 이 과정, 지금 바로 알아보세요."
+        intro = "제주에서 진행되는 국비지원 특화훈련 소식이에요.\n\n" + intro
 
     return intro
 
@@ -802,6 +943,11 @@ def generate_blog_hashtags(course_data):
         "드론": ["#드론배송", "#드론물류교육", "#UTM관제", "#자율비행", "#K드론배송", "#제주드론"],
         "조경": ["#조경기능사", "#조경교육", "#정원도시제주", "#그린키퍼", "#골프장취업", "#제주조경"],
         "에너지/시설관리": ["#에너지관리기능사", "#보일러자격증", "#시설관리취업", "#호텔시설관리", "#냉동공조", "#제주시설관리"],
+        "제과제빵": ["#제과기능사", "#제빵기능사", "#호텔디저트", "#베이커리창업", "#AI메뉴개발", "#제주제과제빵"],
+        "드론정비": ["#드론정비", "#드론유지보수", "#소형무인기전후점검", "#드론정비사", "#드론점검", "#제주드론정비"],
+        "AI커머스": ["#AI상세페이지", "#브랜드상품기획", "#판매페이지제작", "#1인브랜드창업", "#AI커머스", "#제주특산품브랜딩"],
+        "디지털콘텐츠": ["#디지털콘텐츠제작", "#캔바교육", "#피그마교육", "#AI콘텐츠제작", "#AI워커", "#제주디지털콘텐츠"],
+        "관광데이터": ["#관광데이터분석", "#빅데이터분석", "#데이터시각화", "#제주관광빅데이터", "#파이썬교육", "#제주데이터분석"],
         "default": ["#직업훈련", "#스킬업", "#자기계발", "#커리어전환", "#제주디지털전환"],
     }
     specific = field_tags.get(field, field_tags["default"])
@@ -851,6 +997,11 @@ def generate_instagram_hashtags(course_data):
         "드론": ["#드론배송", "#드론물류", "#자율비행"],
         "조경": ["#조경기능사", "#정원도시", "#제주조경"],
         "에너지/시설관리": ["#에너지관리기능사", "#시설관리", "#보일러"],
+        "제과제빵": ["#호텔디저트", "#제과제빵", "#베이커리창업"],
+        "드론정비": ["#드론정비", "#드론유지보수", "#전후점검"],
+        "AI커머스": ["#AI상세페이지", "#브랜드기획", "#1인브랜드"],
+        "디지털콘텐츠": ["#디지털콘텐츠", "#캔바", "#AI워커"],
+        "관광데이터": ["#관광데이터분석", "#데이터시각화", "#빅데이터"],
         "default": ["#스킬업", "#자기계발"],
     }
     specific = field_tags.get(field, field_tags["default"])
@@ -896,6 +1047,8 @@ def generate_instagram_caption(course_data):
         "멀티미디어": "🖥️", "콘텐츠": "📱", "마케팅": "📊",
         "데이터": "📈", "코딩": "💻",
         "이커머스": "🛒", "산업안전": "🦺",
+        "제과제빵": "🧁", "드론정비": "🛠️", "AI커머스": "🛍️",
+        "디지털콘텐츠": "🖌️", "관광데이터": "📊",
     }
     emoji = field_emoji.get(field, "📌")
     hook = _generate_dynamic_hook(title, field)
@@ -1011,6 +1164,26 @@ def _goal_to_actions_kr(training_goal):
 
 # 과정 키워드 → (배경, 복장) 매핑 (seg1 전용)
 FIELD_SETTING = {
+    "제과제빵": (
+        "a professional pastry kitchen with a marble worktop, stand mixer, tart rings, and plated desserts on a nearby pass counter",
+        "wearing a white chef jacket, apron, and a cap, with a piping bag in hand",
+    ),
+    "호텔디저트": (
+        "a hotel pastry section with a marble counter, glass dessert display, and a plating station under warm pendant lights",
+        "wearing a white chef jacket with rolled sleeves and an apron, holding a plating spoon",
+    ),
+    "AI커머스": (
+        "a small product studio corner with a seamless white backdrop, softbox light, product samples, and a laptop on the workbench",
+        "wearing a casual knit sweater, seated with a laptop and a product sample on the table",
+    ),
+    "디지털콘텐츠": (
+        "a bright co-working desk with a laptop, graphics tablet, and colorful sticky notes on a light wood surface",
+        "wearing a relaxed collared shirt, holding a stylus over a graphics tablet",
+    ),
+    "관광데이터": (
+        "a quiet analytics workspace with dual monitors showing a map dashboard and trend charts, a notebook and coffee cup on the desk",
+        "wearing a neat cardigan over a shirt, seated upright with a pen in hand",
+    ),
     "드론정비": (
         "an outdoor drone test field with workbenches, spare parts, and a landed drone on the ground",
         "wearing a hard hat, work coveralls, and holding a toolkit",
@@ -1114,6 +1287,26 @@ def _get_setting(title):
 
 # 과정 키워드 → 영문 행동 묘사 (seg2, seg3)
 FIELD_ACTIONS_EN = {
+    "제과제빵": (
+        "pipes cream onto a dessert plate with steady hands, shaping a neat rosette",
+        "dusts a finished tart with powdered sugar and inspects the plating angle",
+    ),
+    "호텔디저트": (
+        "arranges plated desserts on a marble pass counter, adjusting garnish placement",
+        "reviews a seasonal dessert menu draft on a tablet beside the plating station",
+    ),
+    "AI커머스": (
+        "arranges a product sample under softbox lighting and captures a reference shot",
+        "reviews an AI-generated product detail page layout on a laptop screen",
+    ),
+    "디지털콘텐츠": (
+        "sketches a card-news layout on a graphics tablet while glancing at the laptop",
+        "reviews generated design variations on screen and refines the color palette",
+    ),
+    "관광데이터": (
+        "explores a map-based tourism dashboard on screen, filtering visitor data",
+        "annotates a trend chart in a notebook while comparing two monitors",
+    ),
     "드론정비": (
         "inspects and repairs drone components, checking propellers and rotors with tools",
         "tests the repaired drone, reviewing maintenance checklist on a tablet",
@@ -1624,10 +1817,11 @@ CLOSING_PATTERNS = [
 ]
 
 SECTION_TITLE_VARIANTS = {
+    "intro": ["들어가며", "이야기를 시작하며", "먼저 드리고 싶은 이야기"],
     "overview": ["한눈에 보기", "과정 요약 정보", "핵심 정보 한눈에"],
     "benefits": ["이런 혜택이 있어요", "혜택 총정리", "받을 수 있는 혜택은?"],
     "recommend": ["이런 분에게 추천해요", "이런 분이라면 꼭 들어보세요", "나한테 맞는 과정일까?"],
-    "curriculum": ["어떤 것들을 배우나요", "커리큘럼 미리보기", "무엇을 배울 수 있나요"],
+    "curriculum": ["무엇을 배울 수 있나요", "어떤 것들을 배우나요", "커리큘럼 미리보기"],
     "apply": ["이렇게 신청하세요", "신청 방법 3단계", "신청은 이렇게!"],
 }
 
