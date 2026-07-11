@@ -460,7 +460,15 @@
       max-height: 50vh;
       display: none;
     }
-    .sidebar.show { display: flex; }
+    .sidebar.show {
+      display: flex;
+      flex: 1;
+      max-height: none;
+    }
+    /* 목록을 열면 지도를 숨겨 목록이 화면을 꽉 채우도록 */
+    .sidebar.show ~ .map-container { display: none; }
+    /* 하단 고정 버튼에 마지막 카드가 가리지 않도록 여백 */
+    .sidebar.show .card-list { padding-bottom: 80px; }
     .map-container {
       flex: 1;
       min-height: 350px;
@@ -988,7 +996,12 @@ function toggleSidebar() {
   const sidebar = document.getElementById('sidebar');
   const btn = document.getElementById('mobileToggle');
   sidebar.classList.toggle('show');
-  btn.textContent = sidebar.classList.contains('show') ? '🗺️ 지도 보기' : '📋 기관 목록 보기';
+  const showing = sidebar.classList.contains('show');
+  btn.textContent = showing ? '🗺️ 지도 보기' : '📋 기관 목록 보기';
+  // 목록을 닫고 지도로 돌아올 때, 숨겨져 있던 지도의 타일을 다시 계산
+  if (!showing) {
+    setTimeout(() => map.invalidateSize(), 50);
+  }
 }
 
 // ── Init ──
