@@ -957,8 +957,23 @@ function renderCards(filter = 'all', search = '') {
     card.addEventListener('click', () => {
       document.querySelectorAll('.inst-card').forEach(c => c.classList.remove('active'));
       card.classList.add('active');
-      map.flyTo([inst.lat, inst.lng], 14, { duration: 0.8 });
-      setTimeout(() => markers[inst.id].openPopup(), 800);
+
+      const isMobile = window.matchMedia('(max-width: 768px)').matches;
+      if (isMobile) {
+        // 모바일: 목록을 닫아 지도를 보여준 뒤 해당 기관으로 이동
+        const sidebar = document.getElementById('sidebar');
+        const btn = document.getElementById('mobileToggle');
+        sidebar.classList.remove('show');
+        btn.textContent = '📋 기관 목록 보기';
+        setTimeout(() => {
+          map.invalidateSize();
+          map.flyTo([inst.lat, inst.lng], 14, { duration: 0.8 });
+          setTimeout(() => markers[inst.id].openPopup(), 800);
+        }, 60);
+      } else {
+        map.flyTo([inst.lat, inst.lng], 14, { duration: 0.8 });
+        setTimeout(() => markers[inst.id].openPopup(), 800);
+      }
     });
 
     cardList.appendChild(card);
