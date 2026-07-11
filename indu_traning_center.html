@@ -30,6 +30,9 @@
     --c-geonchuk: #34495E;
     --c-jejuvs: #3498DB;
     --c-neungryeok: #C0392B;
+    --c-skyfarm: #F1C40F;
+    --c-hanla-bakery: #E84393;
+    --c-weniv: #6C5CE7;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -558,6 +561,9 @@
         <button class="filter-btn" data-filter="조경시공">조경</button>
         <button class="filter-btn" data-filter="실내디자인">실내디자인</button>
         <button class="filter-btn" data-filter="건축설계">건축설계</button>
+        <button class="filter-btn" data-filter="제과제빵">제과제빵</button>
+        <button class="filter-btn" data-filter="디지털디자인">디지털디자인</button>
+        <button class="filter-btn" data-filter="빅데이터분석">빅데이터</button>
       </div>
     </div>
     <div class="card-list" id="cardList"></div>
@@ -604,6 +610,18 @@
         <div class="legend-dot" style="background:var(--c-neungryeok)"></div>
         <span class="legend-label">제주직업능력개발학원</span>
       </div>
+      <div class="legend-item" data-inst="skyfarm">
+        <div class="legend-dot" style="background:var(--c-skyfarm)"></div>
+        <span class="legend-label">스카이팜에듀교육원</span>
+      </div>
+      <div class="legend-item" data-inst="hanla-bakery">
+        <div class="legend-dot" style="background:var(--c-hanla-bakery)"></div>
+        <span class="legend-label">한라제과제빵학원</span>
+      </div>
+      <div class="legend-item" data-inst="weniv">
+        <div class="legend-dot" style="background:var(--c-weniv)"></div>
+        <span class="legend-label">주식회사 위니브</span>
+      </div>
     </div>
   </div>
 </div>
@@ -638,10 +656,10 @@ const institutions = [
     website: null,
     courses: ['(산대특) 드론정비자격 취득을 위한 유지보수 실무자 향상과정'],
     field: '소형무인기운용조종',
-    color: '#3498DB',
+    color: '#F1C40F',
     lat: 33.5547,
     lng: 126.8078,
-    hidden: true
+    hidden: false
   },
   {
     id: 'dronebus',
@@ -678,7 +696,10 @@ const institutions = [
     address: '제주특별자치도 서귀포시 태평로 446 2층',
     phone: '064-762-0377',
     website: null,
-    courses: ['(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정'],
+    courses: [
+      '(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정',
+      '(산대특) AI로 만드는 나만의 브랜드 상품기획과 판매페이지 향상과정'
+    ],
     field: '전자상거래',
     color: '#F39C12',
     lat: 33.2461,
@@ -752,6 +773,36 @@ const institutions = [
     color: '#C0392B',
     lat: 33.5028261598067,
     lng: 126.527309742383,
+    hidden: false
+  },
+  {
+    id: 'hanla-bakery',
+    name: '한라제과제빵학원',
+    address: '제주특별자치도 제주시 동광로 31',
+    phone: '064-722-7779',
+    website: null,
+    courses: ['(산대특) AI활용 호텔디저트메뉴개발 실무자 향상과정'],
+    field: '제과제빵',
+    color: '#E84393',
+    lat: 33.5023887462579,
+    lng: 126.532070344042,
+    hidden: false
+  },
+  {
+    id: 'weniv',
+    name: '주식회사 위니브',
+    address: '제주특별자치도 제주시 구산로 58 2층',
+    phone: '070-8656-2949',
+    website: 'https://weniv.co.kr/',
+    courses: [
+      '(산대특) [AI Worker] AI를 활용한 디지털콘텐츠 제작 향상과정(Figma, Canva, ChatGPT)',
+      '(산대특) AI를 활용한 제주 관광 데이터 분석·시각화 향상과정'
+    ],
+    field: '디지털디자인',
+    fields: ['디지털디자인', '빅데이터분석'],
+    color: '#6C5CE7',
+    lat: 33.4844828083181,
+    lng: 126.541033848174,
     hidden: false
   }
 ];
