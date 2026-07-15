@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-16 06:57",
+  "updated": "2026-07-16 08:00",
   "count": 12,
   "data": [
     {
@@ -35,20 +35,20 @@
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001247924&tracseTme=3&crseTracseSe=C0061&trainstCstmrId=500035584309"
     },
     {
-      "address": "제주 제주시",
-      "subTitle": "주식회사 제원직업전문학교",
-      "title": "(산대특) AI 유튜브 크리에이터 향상과정 : 분석·제작·성장 올인원 패키지",
-      "traStartDate": "2026-08-04",
-      "traEndDate": "2026-09-30",
-      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001301001&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500020051252"
-    },
-    {
       "address": "제주 서귀포시",
       "subTitle": "중앙컴퓨터직업전문학원",
       "title": "[산대특]AI로 만드는 나만의 브랜드 상품기획과 판매페이지 향상 과정",
       "traStartDate": "2026-08-04",
       "traEndDate": "2026-09-23",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001383439&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500020018203"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "주식회사 제원직업전문학교",
+      "title": "(산대특) AI 유튜브 크리에이터 향상과정 : 분석·제작·성장 올인원 패키지",
+      "traStartDate": "2026-08-04",
+      "traEndDate": "2026-09-30",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001301001&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500020051252"
     },
     {
       "address": "제주 제주시",
