@@ -208,5 +208,20 @@
       "instagram_caption": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__instagram_caption.txt",
       "posting_guide": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__posting_guide.txt"
     }
+  },
+  "AIG20263001383439_1_2026-08-04_2026-09-23": {
+    "title": "[산대특]AI로 만드는 나만의 브랜드 상품기획과 판매페이지 향상 과정",
+    "period": "2026.08.04 ~ 2026.09.23",
+    "generated_at": "2026-07-16T02:14:33.478106",
+    "files": {
+      "cardnews": [
+        "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_v2_1_cover.png",
+        "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_v2_2_detail.png",
+        "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_v2_3_howto.png"
+      ],
+      "blog_txt": "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_blog_naver.txt",
+      "instagram_caption": "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_instagram_caption.txt",
+      "posting_guide": "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_posting_guide.txt"
+    }
   }
 }
