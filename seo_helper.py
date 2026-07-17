@@ -730,6 +730,69 @@ def extract_seo_keywords(course_data):
     return sorted(keywords)
 
 
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 도입부 ↔ SEO 섹션 중복 방지 (v5)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# 수치 토큰 패턴: 숫자 + (단위)
+_NUM_TOKEN_RE = re.compile(
+    r'[0-9]+(?:[.,][0-9]+)*\s*(?:%|배|만|억|조|시간|분|초|건|개|년|월|일|p|가구|곳|명|위|㎢|km)?'
+)
+
+
+def extract_number_tokens(text):
+    """텍스트에서 수치 토큰 집합을 추출합니다.
+
+    도입부와 SEO 섹션이 같은 통계를 반복하는지 판정하는 데 사용합니다.
+    """
+    if not text:
+        return set()
+    return {t.strip() for t in _NUM_TOKEN_RE.findall(text) if t.strip()}
+
+
+def _pick_non_overlapping_hook(hooks, seo_body):
+    """SEO 섹션과 수치가 겹치지 않는 도입부 훅을 우선 선택합니다.
+
+    선택 기준 (우선순위):
+      1) SEO 섹션과 중복되는 수치 토큰이 가장 적은 훅
+      2) 동점이면 수치 자체가 가장 적은 훅 (= 장면형에 가까움)
+      3) 그래도 동점이면 무작위
+
+    field_research.json의 훅이 아직 장면형으로 정리되지 않은 분야에서도
+    중복을 자동으로 최소화하는 안전장치입니다.
+    """
+    if not hooks:
+        return None
+    if not seo_body:
+        return random.choice(hooks)
+
+    seo_nums = extract_number_tokens(seo_body)
+    scored = []
+    for h in hooks:
+        h_nums = extract_number_tokens(h)
+        scored.append((len(h_nums & seo_nums), len(h_nums), h))
+
+    min_overlap = min(s[0] for s in scored)
+    best = [s for s in scored if s[0] == min_overlap]
+    min_nums = min(s[1] for s in best)
+    finalists = [s[2] for s in best if s[1] == min_nums]
+    return random.choice(finalists)
+
+
+def get_overlap_report(intro_text, seo_text):
+    """도입부와 SEO 섹션의 수치 중복을 진단해 리포트 문자열을 반환합니다.
+
+    작업 가이드 상단에 출력해 발행 전 육안 검수를 돕습니다.
+    """
+    dup = sorted(extract_number_tokens(intro_text) & extract_number_tokens(seo_text))
+    if not dup:
+        return "  ✅ 도입부 ↔ '왜 배워야 할까요?' 수치 중복 없음"
+    return (
+        f"  ⚠️ 도입부와 '왜 배워야 할까요?'에 같은 수치가 반복됩니다: {', '.join(dup[:6])}\n"
+        f"     → 도입부에서 해당 수치를 빼고 장면·경험 위주로 고쳐 쓰세요."
+    )
+
+
 def generate_seo_title(course_data):
     """
     네이버 블로그 SEO에 최적화된 제목을 생성합니다.
@@ -769,6 +832,8 @@ def generate_seo_title(course_data):
         "출판": "출판편집", "콘텐츠": "콘텐츠제작", "마케팅": "디지털마케팅",
         "데이터": "데이터분석", "코딩": "코딩", "멀티미디어": "멀티미디어",
         "이커머스": "스마트스토어", "산업안전": "산업안전",
+        # ── 건축 계열 (제목이 'AI'로 뭉개지는 문제 방지) ──
+        "건축AI": "건축CAD+AI", "건축/설계": "건축설계",
         # ── 신규 5개 분야 ──
         "제과제빵": "AI호텔디저트", "드론정비": "드론정비",
         "AI커머스": "AI판매페이지", "디지털콘텐츠": "AI디지털콘텐츠",
@@ -781,6 +846,7 @@ def generate_seo_title(course_data):
     #       "제주 AI 국비지원 2026"처럼 분야가 사라지는 문제가 있었습니다.
     #       아래 분야는 축약명을 그대로 제목 키워드로 확정합니다.
     FIELD_TITLE_OVERRIDE = {
+        "건축AI",
         "제과제빵", "드론정비", "AI커머스", "디지털콘텐츠", "관광데이터",
     }
     if field in FIELD_TITLE_OVERRIDE:
@@ -856,11 +922,13 @@ def generate_empathy_intro(course_data):
     self_cost = course_data.get("selfCost", "")
 
     # 1순위: field_research.json 캐시에서 연구 기반 도입부 로드
+    # v5: SEO 섹션과 수치가 겹치지 않는 훅을 우선 선택 (중복 방지)
     try:
-        from field_research_helper import get_empathy_hooks
+        from field_research_helper import get_empathy_hooks, get_seo_section
         cached_hooks = get_empathy_hooks(field, title=title)
         if cached_hooks:
-            intro = random.choice(cached_hooks)
+            seo_body = get_seo_section(field, title=title) or ""
+            intro = _pick_non_overlapping_hook(cached_hooks, seo_body)
         else:
             intros = EMPATHY_INTROS.get(field, EMPATHY_INTROS["default"])
             intro = random.choice(intros)
@@ -869,9 +937,9 @@ def generate_empathy_intro(course_data):
         intro = random.choice(intros)
 
     # ── 확장 단락 1: 분야별 맥락 (intro_context) ──
-    # '왜 배워야 할까요?' 섹션과 역할을 분리합니다.
-    #   · 도입부(여기): 독자의 문제의식·상황 공감 (수치 최소화)
-    #   · SEO 섹션: 산업 동향 수치와 훈련 필요성 논거
+    # 도입부와 'SEO 섹션'의 역할을 분리합니다.
+    #   · 도입부(여기): 독자의 상황·문제의식에 공감 — 산업 통계·기관명 금지
+    #   · SEO 섹션: 산업 동향 수치와 훈련 필요성 논거 전담
     context_para = ""
     try:
         from field_research_helper import get_intro_context
@@ -882,21 +950,9 @@ def generate_empathy_intro(course_data):
     if context_para:
         intro += f"\n\n{context_para}"
 
-    # ── 확장 단락 2: 과정 데이터 기반 후킹 ──
-    data_hook = ""
-    if self_cost and self_cost != "0":
-        data_hook = f"자부담 {self_cost}이면 시작할 수 있어요."
-    elif ctype == "long" and hours > 0:
-        months = max(1, round(hours / 160))
-        data_hook = f"{months}개월 과정인데, 배우는 동안 훈련장려금과 특별훈련수당도 함께 받을 수 있고요."
-    elif ctype == "general" and hours > 0:
-        data_hook = f"총 {hours}시간 과정이고, 출석률만 지키면 훈련장려금도 함께 받을 수 있어요."
-
-    if data_hook:
-        intro += f"\n\n{data_hook}"
-
-    # ── 확장 단락 3: 본문으로 넘어가는 브릿지 ──
-    # 도입부와 '왜 배워야 할까요?' 섹션 사이의 경계를 명확히 합니다.
+    # ── 확장 단락 2: 본문으로 넘어가는 브릿지 ──
+    # v5: 자부담 금액·장려금 언급은 '이런 혜택이 있어요' 섹션이 전담하므로
+    #     도입부에서 제거했습니다 (몰입 저해 + 혜택 섹션과 중복).
     bridges = [
         "아래에서는 이 과정이 왜 지금 필요한지, 무엇을 배우고 어떻게 신청하는지 하나씩 정리했어요.",
         "이 글에서는 산업 현황부터 커리큘럼, 신청 방법까지 순서대로 짚어볼게요.",

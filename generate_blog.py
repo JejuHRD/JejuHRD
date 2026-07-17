@@ -35,6 +35,7 @@ from seo_helper import (
     get_varied_closing,
     estimate_char_count,
     get_keyword_density_report,
+    get_overlap_report,
 )
 
 
@@ -110,6 +111,10 @@ def generate_blog_post(course_data, output_dir="output"):
     sec_apply = get_varied_section_title("apply", title_hash + 3)
     closing = get_varied_closing(title_hash)
 
+    # ── 무엇을 배울 수 있나요 섹션 (v5: 훈련목표 × 리서치 자체 해설) ──
+    # sec_curriculum이 정의된 뒤에 호출해야 합니다.
+    curriculum_section = _build_curriculum_section(course_data, field, sec_curriculum).strip()
+
     # ════════════════════════════════════════
     #  스마트에디터용 본문 텍스트 생성 (SEO v4)
     # ════════════════════════════════════════
@@ -156,14 +161,7 @@ def generate_blog_post(course_data, output_dir="output"):
 
 [구분선]
 
-[소제목] {sec_curriculum}
-
-[이미지 삽입] 카드뉴스 커리큘럼 이미지 (2번) — 이 소제목 바로 아래에 배치하세요
-
-{outcome if outcome else "상세 커리큘럼은 고용24에서 확인해주세요."}
-
-[✍️ 직접 작성] 커리큘럼에 대한 본인의 생각이나 기대를 1~2문장 추가하세요.
-예시: "개인적으로 이 과정에서 가장 기대되는 건 ○○ 파트예요. 실무에서 바로 쓸 수 있거든요."
+{curriculum_section}
 
 [구분선]
 
@@ -224,7 +222,10 @@ STEP 3. 배우면서 혜택도 받기
     )
 
     # ── 작업 가이드 (파일 상단에 추가) ──
-    work_guide = _build_work_guide(blog_title, char_count, keyword_report)
+    # ── 도입부 ↔ SEO 섹션 중복 진단 (v5) ──
+    overlap_report = get_overlap_report(empathy_clean, seo_section)
+
+    work_guide = _build_work_guide(blog_title, char_count, keyword_report, overlap_report)
 
     final_content = work_guide + "\n" + post_content
 
@@ -261,7 +262,7 @@ STEP 3. 배우면서 혜택도 받기
     return filepath, None
 
 
-def _build_work_guide(blog_title, char_count=0, keyword_report=""):
+def _build_work_guide(blog_title, char_count=0, keyword_report="", overlap_report=""):
     """
     파일 상단에 포함할 스마트에디터 작업 가이드 (SEO v4).
     인간화 편집 체크리스트, 키워드 밀도 리포트, 저품질 방지 가이드 포함.
@@ -302,6 +303,16 @@ def _build_work_guide(blog_title, char_count=0, keyword_report=""):
 
 📊 키워드 밀도 (본문 5~6회가 안전선):
 {keyword_report if keyword_report else "  (생성 후 자동 측정됩니다)"}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔁 도입부 ↔ '왜 배워야 할까요?' 중복 진단
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+{overlap_report if overlap_report else "  (측정 생략)"}
+
+  ※ 역할 분리 원칙
+     · 들어가며      → 독자의 상황·경험에 공감 (수치·기관명 금지)
+     · 왜 배워야 할까요 → 산업 통계·정책·기업사례로 근거 제시
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⛔ 저품질 방지 주의사항
@@ -465,6 +476,135 @@ def _build_seo_section(course_data, field, year):
 """)
 
 
+def _build_goal_explanation(training_goal, field, title):
+    """훈련목표 원문에서 키워드를 뽑아 리서치 기반 자체 해설을 생성합니다.
+
+    동작 (v5):
+      1) field_research.json의 skill_explanations에서 키워드를 매칭
+         (긴 키워드 우선 — "상세페이지"가 "페이지"보다 먼저 잡히도록)
+      2) 최대 3개까지 해설을 이어붙임
+      3) 매칭이 없으면 key_skills 기반 일반 해설로 폴백
+
+    Work24에서 파싱한 trainingGoal은 행정 문구라 딱딱합니다.
+    이 함수가 그 원문을 독자 언어로 풀어주는 역할을 합니다.
+    """
+    if not training_goal:
+        return ""
+
+    haystack = training_goal.upper().replace(" ", "")
+
+    try:
+        from field_research_helper import get_skill_explanations, get_education_trends
+    except ImportError:
+        return ""
+
+    expl_map = get_skill_explanations(field, title=title) or {}
+
+    matched = []
+    # 긴 키워드 우선 매칭 (부분 문자열 충돌 방지)
+    for kw in sorted(expl_map.keys(), key=len, reverse=True):
+        if kw.upper().replace(" ", "") in haystack:
+            # 이미 채택된 해설과 중복이면 건너뜀
+            if expl_map[kw] not in matched:
+                matched.append(expl_map[kw])
+        if len(matched) >= 3:
+            break
+
+    if matched:
+        return "\n\n".join(matched)
+
+    # 폴백: key_skills 상위 3개로 일반 해설 구성
+    skills = get_education_trends(field, "key_skills", title=title)
+    if skills:
+        top = "、 ".join(skills[:3])
+        return (
+            f"훈련목표를 실무 언어로 옮기면 이런 뜻이에요. "
+            f"이 과정에서는 {top} 같은 내용을 다루게 되고, "
+            f"수업이 끝나면 각 항목을 직접 해봤다고 말할 수 있는 상태가 목표입니다."
+        )
+    return ""
+
+
+def _build_curriculum_section(course_data, field, sec_title):
+    """'무엇을 배울 수 있나요' 섹션을 생성합니다 (v5 신설).
+
+    구조:
+      [소제목] 무엇을 배울 수 있나요
+      [이미지] 카드뉴스 2번          ← 소제목 바로 아래 인접 배치
+      ▸ 기관이 밝힌 훈련목표          ← Work24 파싱 원문 (그대로 인용)
+      ▸ 풀어서 설명하면 이런 거예요    ← 훈련목표 키워드 × 리서치 자체 해설
+      ▸ 구체적으로 배우는 것들        ← key_skills (훈련목표와 겹치는 항목 상단 정렬)
+      ▸ 수료 후 이런 길이 열려요      ← career_paths
+      certification_note
+    """
+    title = course_data.get("title", "")
+    goal = (course_data.get("trainingGoal", "") or "").strip()
+    outcome = (course_data.get("outcome", "") or "").strip()
+
+    block = f"[소제목] {sec_title}\n\n"
+    block += "[이미지 삽입] 카드뉴스 커리큘럼 이미지 (2번) — 이 소제목 바로 아래에 배치하세요\n\n"
+
+    # ── ① 기관이 밝힌 훈련목표 (원문 유지) ──
+    if goal:
+        block += "▸ 기관이 밝힌 훈련목표\n\n"
+        block += f"> {goal}\n\n"
+    elif outcome:
+        block += f"{outcome}\n\n"
+
+    # ── ② 자체 해설 (훈련목표 × 리서치 연계) ──
+    explanation = _build_goal_explanation(goal or outcome, field, title)
+    if explanation:
+        block += "▸ 풀어서 설명하면 이런 거예요\n\n"
+        block += f"{explanation}\n\n"
+
+    try:
+        from field_research_helper import get_education_trends
+    except ImportError:
+        get_education_trends = None
+
+    if get_education_trends:
+        # ── ③ 구체적으로 배우는 것들 ──
+        skills = get_education_trends(field, "key_skills", title=title)
+        if skills:
+            hay = (goal + " " + outcome).upper().replace(" ", "")
+            # 훈련목표에 언급된 스킬을 상단으로 끌어올림
+            hit = [s for s in skills if any(
+                tok and tok.upper() in hay
+                for tok in re.split(r'[\s·,()]+', s) if len(tok) >= 2
+            )]
+            rest = [s for s in skills if s not in hit]
+            ordered = (hit + rest)[:7]
+            block += "▸ 구체적으로 배우는 것들\n\n"
+            for s in ordered:
+                mark = "✔" if s in hit else "·"
+                block += f"{mark} {s}\n"
+            if hit:
+                block += "\n(✔ 표시는 이 과정의 훈련목표에 직접 명시된 항목이에요)\n"
+            block += "\n"
+
+        # ── ④ 수료 후 진로 ──
+        paths = get_education_trends(field, "career_paths", title=title)
+        if paths:
+            block += "▸ 수료 후 이런 길이 열려요\n\n"
+            for p in paths[:6]:
+                block += f"→ {p}\n"
+            block += "\n"
+
+        # ── ⑤ 자격 관련 메모 ──
+        note = get_education_trends(field, "certification_note", title=title)
+        if note:
+            block += f"💡 {note}\n\n"
+
+    if not goal and not outcome and not explanation:
+        block += "상세 커리큘럼은 고용24에서 확인해주세요.\n\n"
+
+    block += (
+        "[✍️ 직접 작성] 커리큘럼에 대한 본인의 생각이나 기대를 1~2문장 추가하세요.\n"
+        "예시: \"개인적으로 이 과정에서 가장 기대되는 건 ○○ 파트예요. 실무에서 바로 쓸 수 있거든요.\""
+    )
+    return block
+
+
 def _build_recommend_section(field, ctype):
     """
     '이런 분에게 추천해요' 섹션을 생성합니다.
@@ -506,6 +646,18 @@ def _build_recommend_section(field, ctype):
             "안전관리자로 취업·이직을 준비하시는 분",
             "중대재해처벌법 대응이 필요한 사업주·관리자",
             "건설·제조·서비스업에서 안전관리 업무를 맡게 된 분",
+        ],
+        "건축AI": [
+            "AutoCAD는 익숙한데 AI 도구는 손도 못 대본 건축 실무자",
+            "시안 뽑는 시간을 줄여 야근을 덜고 싶은 설계사",
+            "건축주 설득용 렌더링을 빠르게 만들고 싶은 분",
+            "리모델링·빈집재생 설계로 방향을 넓히려는 분",
+        ],
+        "건축/설계": [
+            "도면을 읽고 그릴 줄 아는 기본기를 갖추고 싶은 분",
+            "인테리어·실내건축 분야로 전직을 준비하시는 분",
+            "현장에서 도면 때문에 답답했던 시공·감리 실무자",
+            "공공공사 BIM 의무화에 대비하려는 분",
         ],
         "제과제빵": [
             "호텔·리조트 F&B나 베이커리에서 일하고 계신 재직자",

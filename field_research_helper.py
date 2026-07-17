@@ -160,6 +160,39 @@ def get_training_need(field, year=None, title=None):
     return None
 
 
+def get_skill_explanations(field, title=None):
+    """
+    훈련목표 키워드 → 해설 문장 매핑을 반환합니다.
+
+    generate_blog._build_goal_explanation()이 이 딕셔너리를 사용해
+    Work24에서 파싱한 trainingGoal 원문에 자체 해설을 붙입니다.
+
+    Returns:
+        dict {키워드: 해설문장} 또는 None
+    """
+    data = get_field_research(field, title)
+    if data and "skill_explanations" in data:
+        return data["skill_explanations"]
+    return None
+
+
+def get_education_trends(field, key=None, title=None):
+    """
+    분야별 교육 트렌드를 반환합니다.
+
+    Args:
+        field: 분야명
+        key: "key_skills" | "career_paths" | "certification_note" (None이면 전체)
+        title: 서브필드 매칭용 과정 제목
+    """
+    data = get_field_research(field, title)
+    if not data or "education_trends" not in data:
+        return None
+    if key:
+        return data["education_trends"].get(key)
+    return data["education_trends"]
+
+
 def get_instagram_keyword_sentence(field, year=None, title=None):
     """
     인스타그램 캡션에 삽입할 키워드 문장을 반환합니다.
