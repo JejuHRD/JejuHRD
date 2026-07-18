@@ -48,6 +48,46 @@ def save_processed_ids(processed):
         json.dump(processed, f, ensure_ascii=False, indent=2)
 
 
+def _processed_files_exist(record):
+    """처리 기록(record)의 산출물 파일이 실제로 모두 존재하는지 확인합니다.
+
+    배경: processed_courses.json에 '완료'로 기록됐더라도, 실제 output 폴더의
+    파일이 유실되면(파일명 트렁케이션 충돌, 카드뉴스 생성 실패, 커밋 누락 등)
+    이후 실행에서 키만 보고 스킵해 영영 재생성되지 않는 문제가 있었습니다.
+
+    이 함수는 기록된 핵심 산출물(블로그 txt, 카드뉴스)의 실존 여부를 검사해,
+    하나라도 없으면 False를 반환합니다 → 호출부에서 '재생성 대상'으로 처리.
+
+    Returns:
+        bool: 핵심 산출물이 모두 존재하면 True
+    """
+    if not isinstance(record, dict):
+        return False
+    files = record.get("files")
+    if not isinstance(files, dict):
+        return False
+
+    # 검사 대상: 블로그(필수) + 카드뉴스(있으면 전부)
+    targets = []
+    blog = files.get("blog_txt")
+    if blog:
+        targets.append(blog)
+    else:
+        # 블로그 경로 자체가 기록 안 됐으면 불완전
+        return False
+
+    cardnews = files.get("cardnews")
+    if isinstance(cardnews, list):
+        targets.extend(cardnews)
+    elif cardnews:
+        targets.append(cardnews)
+
+    for path in targets:
+        if not path or not os.path.exists(path):
+            return False
+    return True
+
+
 def make_course_key(course):
     """
     과정의 고유 키를 생성합니다.
@@ -572,6 +612,16 @@ def generate_content_for_course(course, output_dir):
     else:
         cardnews_paths = generate_cardnews(course, output_dir)
 
+    # 카드뉴스 생성 결과 검증 (부분 실패 조기 감지)
+    # 배경: 이미지 생성 실패·API rate limit 시 빈 리스트/부분 결과가 반환돼도
+    # 이후 '완료'로 기록되던 문제 → 실제 파일 존재를 확인해 경고를 남깁니다.
+    if cardnews_paths:
+        missing = [p for p in cardnews_paths if not (p and os.path.exists(p))]
+        if missing:
+            print(f"  ⚠️ 카드뉴스 {len(missing)}/{len(cardnews_paths)}개 파일 누락 — 재실행 시 재생성 대상이 됩니다")
+    else:
+        print(f"  ⚠️ 카드뉴스가 생성되지 않았습니다 (API 키/네트워크 확인 필요)")
+
     # 블로그 포스트 생성 (인스타 캡션, 게시 가이드도 함께 생성됨)
     blog_txt, _ = generate_blog_post(course, output_dir)
 
@@ -604,13 +654,21 @@ def run_pipeline(courses):
     processed = load_processed_ids()
 
     # ── 먼저 새 과정이 있는지 확인 ──
+    # v2: '완료' 기록이 있어도 실제 산출물 파일이 유실됐으면 재생성 대상으로 처리
     new_courses = []
     skip_count = 0
+    regen_count = 0
     for course in courses:
         course_key = make_course_key(course)
         if course_key in processed:
-            print(f"  ⏭️  이미 처리됨: {course['title'][:40]} ({course.get('period', '')})")
-            skip_count += 1
+            # 기록은 있으나 실제 파일이 없으면 → 재생성
+            if not _processed_files_exist(processed[course_key]):
+                print(f"  🔁 산출물 유실 감지 → 재생성: {course['title'][:40]} ({course.get('period', '')})")
+                new_courses.append((course, course_key))
+                regen_count += 1
+            else:
+                print(f"  ⏭️  이미 처리됨: {course['title'][:40]} ({course.get('period', '')})")
+                skip_count += 1
         else:
             new_courses.append((course, course_key))
 
@@ -619,8 +677,11 @@ def run_pipeline(courses):
         print(f"  💰 카드뉴스·이미지 생성 건너뜀 (API 비용 절감)")
         return
 
-    print(f"\n  📊 전체 {len(courses)}건 중 신규 {len(new_courses)}건, 중복 {skip_count}건")
-    print(f"  🎨 신규 {len(new_courses)}건에 대해 콘텐츠 생성 시작\n")
+    if regen_count:
+        print(f"\n  📊 전체 {len(courses)}건 중 신규 {len(new_courses) - regen_count}건, 재생성 {regen_count}건, 중복 {skip_count}건")
+    else:
+        print(f"\n  📊 전체 {len(courses)}건 중 신규 {len(new_courses)}건, 중복 {skip_count}건")
+    print(f"  🎨 {len(new_courses)}건에 대해 콘텐츠 생성 시작\n")
 
     # ── 신규 과정만 콘텐츠 생성 ──
     new_count = 0
