@@ -119,21 +119,6 @@
       "posting_guide": "output/(산대특)기계설비유지관리자_(에너지_관리)양성_posting_guide.txt"
     }
   },
-  "AIG20253001129433_5_2026-07-20_2026-09-01": {
-    "title": "(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정",
-    "period": "2026.07.20 ~ 2026.09.01",
-    "generated_at": "2026-07-08T02:24:52.810505",
-    "files": {
-      "cardnews": [
-        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_1_cover.png",
-        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_2_detail.png",
-        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_3_howto.png"
-      ],
-      "blog_txt": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__blog_naver.txt",
-      "instagram_caption": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__instagram_caption.txt",
-      "posting_guide": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__posting_guide.txt"
-    }
-  },
   "AIG20263001301492_2_2026-08-18_2026-09-18": {
     "title": "(산대특) AI 마케팅 자동화 실무 향상과정 : ChatGPT & Gemini 활용",
     "period": "2026.08.18 ~ 2026.09.18",
@@ -147,21 +132,6 @@
       "blog_txt": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_blog_naver.txt",
       "instagram_caption": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_instagram_caption.txt",
       "posting_guide": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_posting_guide.txt"
-    }
-  },
-  "AIG20263001384394_1_2026-07-20_2026-07-31": {
-    "title": "(산대특)드론정비자격 취득을 위한 유지보수 실무자 향상과정",
-    "period": "2026.07.20 ~ 2026.07.31",
-    "generated_at": "2026-07-10T02:40:35.591872",
-    "files": {
-      "cardnews": [
-        "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_v2_1_cover.png",
-        "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_v2_2_detail.png",
-        "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_v2_3_howto.png"
-      ],
-      "blog_txt": "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_blog_naver.txt",
-      "instagram_caption": "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_instagram_caption.txt",
-      "posting_guide": "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_posting_guide.txt"
     }
   },
   "AIG20263001383616_1_2026-07-21_2026-08-13": {
@@ -182,7 +152,7 @@
   "AIG20253001129433_5_2026-07-27_2026-09-08": {
     "title": "(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정",
     "period": "2026.07.27 ~ 2026.09.08",
-    "generated_at": "2026-07-14T02:08:03.546181",
+    "generated_at": "2026-07-20T02:59:26.805271",
     "files": {
       "cardnews": [
         "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_1_cover.png",
@@ -237,6 +207,21 @@
       "blog_txt": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_blog_naver.txt",
       "instagram_caption": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_instagram_caption.txt",
       "posting_guide": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_posting_guide.txt"
+    }
+  },
+  "AIG20263001384394_1_2026-07-20_2026-07-31": {
+    "title": "(산대특)드론정비자격 취득을 위한 유지보수 실무자 향상과정",
+    "period": "2026.07.20 ~ 2026.07.31",
+    "generated_at": "2026-07-20T02:59:19.555418",
+    "files": {
+      "cardnews": [
+        "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_v2_1_cover.png",
+        "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_v2_2_detail.png",
+        "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_blog_naver.txt",
+      "instagram_caption": "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_instagram_caption.txt",
+      "posting_guide": "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_posting_guide.txt"
     }
   }
 }
