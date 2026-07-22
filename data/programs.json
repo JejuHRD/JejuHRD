@@ -1,6 +1,6 @@
 {
-  "updated": "2026-07-22 09:57",
-  "count": 11,
+  "updated": "2026-07-22 13:18",
+  "count": 13,
   "data": [
     {
       "address": "제주 서귀포시",
@@ -49,6 +49,22 @@
       "traStartDate": "2026-08-18",
       "traEndDate": "2026-09-18",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001301492&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500020051252"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "한라제과제빵학원",
+      "title": "(산대특) AI활용 호텔디저트 메뉴개발 실무자 향상과정",
+      "traStartDate": "2026-08-19",
+      "traEndDate": "2026-10-02",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001383616&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500038917060"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "한라제과제빵학원",
+      "title": "(산대특) AI활용 호텔디저트 메뉴개발 실무자 향상과정",
+      "traStartDate": "2026-08-24",
+      "traEndDate": "2026-10-13",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001383616&tracseTme=3&crseTracseSe=C0061&trainstCstmrId=500038917060"
     },
     {
       "address": "제주 서귀포시",
