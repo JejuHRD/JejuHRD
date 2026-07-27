@@ -134,21 +134,6 @@
       "posting_guide": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_posting_guide.txt"
     }
   },
-  "AIG20253001129433_5_2026-07-27_2026-09-08": {
-    "title": "(산대특) 스마트스토어 마케팅 전략수립 및 홍보콘텐츠 제작 향상과정",
-    "period": "2026.07.27 ~ 2026.09.08",
-    "generated_at": "2026-07-20T02:59:26.805271",
-    "files": {
-      "cardnews": [
-        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_1_cover.png",
-        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_2_detail.png",
-        "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__v2_3_howto.png"
-      ],
-      "blog_txt": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__blog_naver.txt",
-      "instagram_caption": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__instagram_caption.txt",
-      "posting_guide": "output/(산대특)_스마트스토어_마케팅_전략수립_및_홍보콘텐츠__posting_guide.txt"
-    }
-  },
   "AIG20263001383439_1_2026-08-04_2026-09-23": {
     "title": "[산대특]AI로 만드는 나만의 브랜드 상품기획과 판매페이지 향상 과정",
     "period": "2026.08.04 ~ 2026.09.23",
@@ -222,6 +207,21 @@
       "blog_txt": "output/(산대특)_AI활용_호텔디저트_메뉴개발_실무자_향상과정_blog_naver.txt",
       "instagram_caption": "output/(산대특)_AI활용_호텔디저트_메뉴개발_실무자_향상과정_instagram_caption.txt",
       "posting_guide": "output/(산대특)_AI활용_호텔디저트_메뉴개발_실무자_향상과정_posting_guide.txt"
+    }
+  },
+  "AIG20263001301001_2_2026-08-12_2026-10-12": {
+    "title": "(산대특) AI 유튜브 크리에이터 향상과정 : 분석·제작·성장 올인원 패키지",
+    "period": "2026.08.12 ~ 2026.10.12",
+    "generated_at": "2026-07-27T02:36:27.387406",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_v2_1_cover.png",
+        "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_v2_2_detail.png",
+        "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_blog_naver.txt",
+      "instagram_caption": "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_instagram_caption.txt",
+      "posting_guide": "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_posting_guide.txt"
     }
   }
 }
