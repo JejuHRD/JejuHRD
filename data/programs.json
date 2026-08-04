@@ -1,6 +1,6 @@
 {
-  "updated": "2026-08-04 12:46",
-  "count": 12,
+  "updated": "2026-08-04 18:19",
+  "count": 13,
   "data": [
     {
       "address": "제주 서귀포시",
@@ -81,6 +81,14 @@
       "traStartDate": "2026-09-07",
       "traEndDate": "2026-12-24",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001294040&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500036189345"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "스카이팜에듀교육원",
+      "title": "(산대특)드론정비자격 취득을 위한 유지보수 실무자 향상과정",
+      "traStartDate": "2026-10-01",
+      "traEndDate": "2026-10-16",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001384394&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500041625803"
     },
     {
       "address": "제주 서귀포시",
