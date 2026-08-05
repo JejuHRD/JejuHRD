@@ -74,21 +74,6 @@
       "posting_guide": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_posting_guide.txt"
     }
   },
-  "AIG20263001301492_2_2026-08-05_2026-09-08": {
-    "title": "(산대특) AI 마케팅 자동화 실무 향상과정 : ChatGPT & Gemini 활용",
-    "period": "2026.08.05 ~ 2026.09.08",
-    "generated_at": "2026-07-02T02:55:09.153090",
-    "files": {
-      "cardnews": [
-        "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_v2_1_cover.png",
-        "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_v2_2_detail.png",
-        "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_v2_3_howto.png"
-      ],
-      "blog_txt": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_blog_naver.txt",
-      "instagram_caption": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_instagram_caption.txt",
-      "posting_guide": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_posting_guide.txt"
-    }
-  },
   "AIG20263001301005_1_2026-08-17_2026-09-09": {
     "title": "(산대특)기계설비유지관리자 (에너지 관리)양성",
     "period": "2026.08.17 ~ 2026.09.09",
@@ -107,7 +92,7 @@
   "AIG20263001301492_2_2026-08-18_2026-09-18": {
     "title": "(산대특) AI 마케팅 자동화 실무 향상과정 : ChatGPT & Gemini 활용",
     "period": "2026.08.18 ~ 2026.09.18",
-    "generated_at": "2026-07-08T02:24:59.917790",
+    "generated_at": "2026-08-05T02:08:47.212868",
     "files": {
       "cardnews": [
         "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_v2_1_cover.png",
@@ -222,6 +207,21 @@
       "blog_txt": "output/(산대특)제주물류실무인력(지게차)양성과정_blog_naver.txt",
       "instagram_caption": "output/(산대특)제주물류실무인력(지게차)양성과정_instagram_caption.txt",
       "posting_guide": "output/(산대특)제주물류실무인력(지게차)양성과정_posting_guide.txt"
+    }
+  },
+  "AIG20263001384394_2_2026-10-01_2026-10-16": {
+    "title": "(산대특)드론정비자격 취득을 위한 유지보수 실무자 향상과정",
+    "period": "2026.10.01 ~ 2026.10.16",
+    "generated_at": "2026-08-05T02:08:54.935571",
+    "files": {
+      "cardnews": [
+        "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_v2_1_cover.png",
+        "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_v2_2_detail.png",
+        "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_blog_naver.txt",
+      "instagram_caption": "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_instagram_caption.txt",
+      "posting_guide": "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_posting_guide.txt"
     }
   }
 }
