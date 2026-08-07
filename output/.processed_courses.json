@@ -223,5 +223,35 @@
       "instagram_caption": "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_instagram_caption.txt",
       "posting_guide": "output/(산대특)드론정비자격_취득을_위한_유지보수_실무자_향상_posting_guide.txt"
     }
+  },
+  "AIG20263001383439_1_2026-08-18_2026-10-08": {
+    "title": "[산대특]AI로 만드는 나만의 브랜드 상품기획과 판매페이지 향상 과정",
+    "period": "2026.08.18 ~ 2026.10.08",
+    "generated_at": "2026-08-07T02:30:13.419509",
+    "files": {
+      "cardnews": [
+        "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_v2_1_cover.png",
+        "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_v2_2_detail.png",
+        "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_v2_3_howto.png"
+      ],
+      "blog_txt": "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_blog_naver.txt",
+      "instagram_caption": "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_instagram_caption.txt",
+      "posting_guide": "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_posting_guide.txt"
+    }
+  },
+  "AIG20263001301492_2_2026-08-18_2026-09-21": {
+    "title": "(산대특) AI 마케팅 자동화 실무 향상과정 : ChatGPT & Gemini 활용",
+    "period": "2026.08.18 ~ 2026.09.21",
+    "generated_at": "2026-08-07T02:30:22.232497",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_v2_1_cover.png",
+        "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_v2_2_detail.png",
+        "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_blog_naver.txt",
+      "instagram_caption": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_instagram_caption.txt",
+      "posting_guide": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_posting_guide.txt"
+    }
   }
 }
