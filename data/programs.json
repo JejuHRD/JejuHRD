@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-13 14:16",
+  "updated": "2026-08-13 15:55",
   "count": 12,
   "data": [
     {
@@ -19,14 +19,6 @@
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001301492&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500020051252"
     },
     {
-      "address": "제주 서귀포시",
-      "subTitle": "중앙컴퓨터직업전문학원",
-      "title": "[산대특]AI로 만드는 나만의 브랜드 상품기획과 판매페이지 향상 과정",
-      "traStartDate": "2026-08-18",
-      "traEndDate": "2026-10-08",
-      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001383439&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500020018203"
-    },
-    {
       "address": "제주 제주시",
       "subTitle": "한라제과제빵학원",
       "title": "(산대특) AI활용 호텔디저트 메뉴개발 실무자 향상과정",
@@ -41,6 +33,14 @@
       "traStartDate": "2026-08-24",
       "traEndDate": "2026-09-28",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001300784&tracseTme=3&crseTracseSe=C0061&trainstCstmrId=500046937135"
+    },
+    {
+      "address": "제주 서귀포시",
+      "subTitle": "중앙컴퓨터직업전문학원",
+      "title": "[산대특]AI로 만드는 나만의 브랜드 상품기획과 판매페이지 향상 과정",
+      "traStartDate": "2026-08-24",
+      "traEndDate": "2026-10-15",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001383439&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500020018203"
     },
     {
       "address": "제주 제주시",
