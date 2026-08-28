@@ -833,11 +833,58 @@ const map = L.map('map', {
 
 L.control.zoom({ position: 'topright' }).addTo(map);
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
-  subdomains: 'abcd',
-  maxZoom: 19
-}).addTo(map);
+// ── Base Tile Layer ──
+// CARTO 베이스맵(basemaps.cartocdn.com)은 이제 API 키가 있어야 정상 타일을 주고,
+// 키가 없으면 'API KEY REQUIRED' 워터마크 이미지를 내려준다.
+// → 키가 필요 없는 제공처로 교체하고, 실패 시 다음 제공처로 자동 전환한다.
+const TILE_PROVIDERS = [
+  {
+    name: 'OpenStreetMap',
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    options: {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }
+  },
+  {
+    // 밝은 회색(미니멀) 스타일 – 라벨 레이어는 아래 labelUrl 로 덧씌운다
+    name: 'Esri Light Gray',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    labelUrl: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+    options: {
+      attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+      maxZoom: 19,
+      maxNativeZoom: 16
+    }
+  }
+];
+
+let baseLayer = null;
+let labelLayer = null;
+
+function useTileProvider(index) {
+  const provider = TILE_PROVIDERS[index];
+  if (!provider) return;
+
+  if (baseLayer) map.removeLayer(baseLayer);
+  if (labelLayer) { map.removeLayer(labelLayer); labelLayer = null; }
+
+  baseLayer = L.tileLayer(provider.url, provider.options).addTo(map);
+  if (provider.labelUrl) {
+    labelLayer = L.tileLayer(provider.labelUrl, provider.options).addTo(map);
+  }
+
+  // 타일이 반복적으로 실패하면 다음 제공처로 전환
+  let errorCount = 0;
+  baseLayer.on('tileerror', () => {
+    if (++errorCount > 4 && TILE_PROVIDERS[index + 1]) {
+      baseLayer.off('tileerror');
+      useTileProvider(index + 1);
+    }
+  });
+}
+
+useTileProvider(0);
 
 // ── Custom Marker Icon ──
 function createIcon(color) {
