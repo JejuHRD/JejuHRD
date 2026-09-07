@@ -1,6 +1,6 @@
 {
-  "updated": "2026-09-07 15:25",
-  "count": 11,
+  "updated": "2026-09-07 21:54",
+  "count": 12,
   "data": [
     {
       "address": "제주 제주시",
@@ -49,6 +49,14 @@
       "traStartDate": "2026-10-12",
       "traEndDate": "2027-01-26",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001294040&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500036189345"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "주식회사위니브(WENIVCorp.)",
+      "title": "(산대특) AI를 활용한 제주 관광 데이터 분석ㆍ시각화 향상 과정",
+      "traStartDate": "2026-10-12",
+      "traEndDate": "2026-11-06",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001383701&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500045157828"
     },
     {
       "address": "제주 제주시",
