@@ -179,21 +179,6 @@
       "posting_guide": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_posting_guide.txt"
     }
   },
-  "AIG20263001294040_2_2026-10-12_2027-01-26": {
-    "title": "(산대특) CAD설계 및 블렌더를 활용한 3D모델링 기초 양성",
-    "period": "2026.10.12 ~ 2027.01.26",
-    "generated_at": "2026-09-07T02:43:12.236153",
-    "files": {
-      "cardnews": [
-        "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_v2_1_cover.png",
-        "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_v2_2_detail.png",
-        "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_v2_3_howto.png"
-      ],
-      "blog_txt": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_blog_naver.txt",
-      "instagram_caption": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_instagram_caption.txt",
-      "posting_guide": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_posting_guide.txt"
-    }
-  },
   "AIG20263001383439_2_2026-10-19_2026-12-04": {
     "title": "[산대특]AI로 만드는 나만의 브랜드 상품기획과 판매페이지 향상 과정",
     "period": "2026.10.19 ~ 2026.12.04",
@@ -207,21 +192,6 @@
       "blog_txt": "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_blog_naver.txt",
       "instagram_caption": "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_instagram_caption.txt",
       "posting_guide": "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_posting_guide.txt"
-    }
-  },
-  "AIG20263001383701_1_2026-10-12_2026-11-06": {
-    "title": "(산대특) AI를 활용한 제주 관광 데이터 분석ㆍ시각화 향상 과정",
-    "period": "2026.10.12 ~ 2026.11.06",
-    "generated_at": "2026-09-08T02:55:01.456525",
-    "files": {
-      "cardnews": [
-        "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_v2_1_cover.png",
-        "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_v2_2_detail.png",
-        "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_v2_3_howto.png"
-      ],
-      "blog_txt": "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_blog_naver.txt",
-      "instagram_caption": "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_instagram_caption.txt",
-      "posting_guide": "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_posting_guide.txt"
     }
   },
   "AIG20263001383616_4_5_2026-10-12_2026-11-06": {
@@ -297,6 +267,66 @@
       "blog_txt": "output/[AI_Worker]_AI를_활용한_디지털_콘텐츠_제작_blog_naver.txt",
       "instagram_caption": "output/[AI_Worker]_AI를_활용한_디지털_콘텐츠_제작_instagram_caption.txt",
       "posting_guide": "output/[AI_Worker]_AI를_활용한_디지털_콘텐츠_제작_posting_guide.txt"
+    }
+  },
+  "AIG20263001383701_1_2026-10-12_2026-11-06": {
+    "title": "(산대특) AI를 활용한 제주 관광 데이터 분석ㆍ시각화 향상 과정",
+    "period": "2026.10.12 ~ 2026.11.06",
+    "generated_at": "2026-10-12T04:09:02.085810",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_v2_1_cover.png",
+        "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_v2_2_detail.png",
+        "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_blog_naver.txt",
+      "instagram_caption": "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_instagram_caption.txt",
+      "posting_guide": "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_posting_guide.txt"
+    }
+  },
+  "AIG20263001294040_2_2026-10-12_2027-01-26": {
+    "title": "(산대특) CAD설계 및 블렌더를 활용한 3D모델링 기초 양성",
+    "period": "2026.10.12 ~ 2027.01.26",
+    "generated_at": "2026-10-12T04:09:07.822079",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_v2_1_cover.png",
+        "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_v2_2_detail.png",
+        "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_blog_naver.txt",
+      "instagram_caption": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_instagram_caption.txt",
+      "posting_guide": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_posting_guide.txt"
+    }
+  },
+  "AIG20263001383439_2_2026-11-02_2026-12-18": {
+    "title": "[산대특]AI로 만드는 나만의 브랜드 상품기획과 판매페이지 향상 과정",
+    "period": "2026.11.02 ~ 2026.12.18",
+    "generated_at": "2026-10-12T04:09:14.287981",
+    "files": {
+      "cardnews": [
+        "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_v2_1_cover.png",
+        "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_v2_2_detail.png",
+        "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_v2_3_howto.png"
+      ],
+      "blog_txt": "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_blog_naver.txt",
+      "instagram_caption": "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_instagram_caption.txt",
+      "posting_guide": "output/[산대특]AI로_만드는_나만의_브랜드_상품기획과_판매페_posting_guide.txt"
+    }
+  },
+  "AIG20263001247924_5_6_2026-11-09_2026-12-09": {
+    "title": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정",
+    "period": "1회: 2026.11.09 ~ 2026.12.09 | 2회: 2026.11.12 ~ 2026.12.12",
+    "generated_at": "2026-10-12T04:09:20.018919",
+    "files": {
+      "cardnews": [
+        "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_v2_1_cover.png",
+        "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_v2_2_detail.png",
+        "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_v2_3_howto.png"
+      ],
+      "blog_txt": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_blog_naver.txt",
+      "instagram_caption": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_instagram_caption.txt",
+      "posting_guide": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_posting_guide.txt"
     }
   }
 }
