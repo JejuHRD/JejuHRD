@@ -104,21 +104,6 @@
       "posting_guide": "output/(산대특)_AI_마케팅_자동화_실무_향상과정___Cha_posting_guide.txt"
     }
   },
-  "AIG20263001301001_3_2026-10-13_2026-12-07": {
-    "title": "(산대특) AI 유튜브 크리에이터 향상과정 : 분석·제작·성장 올인원 패키지",
-    "period": "2026.10.13 ~ 2026.12.07",
-    "generated_at": "2026-08-18T01:01:13.779535",
-    "files": {
-      "cardnews": [
-        "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_v2_1_cover.png",
-        "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_v2_2_detail.png",
-        "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_v2_3_howto.png"
-      ],
-      "blog_txt": "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_blog_naver.txt",
-      "instagram_caption": "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_instagram_caption.txt",
-      "posting_guide": "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_posting_guide.txt"
-    }
-  },
   "AIG20263001383616_3_4_2026-08-31_2026-10-07": {
     "title": "(산대특) AI활용 호텔디저트 메뉴개발 실무자 향상과정",
     "period": "1회: 2026.08.31 ~ 2026.10.07 | 2회: 2026.09.30 ~ 2026.11.06",
@@ -242,7 +227,7 @@
   "AIG20263001301001_3_2026-10-26_2026-12-17": {
     "title": "(산대특) AI 유튜브 크리에이터 향상과정 : 분석·제작·성장 올인원 패키지",
     "period": "2026.10.26 ~ 2026.12.17",
-    "generated_at": "2026-10-05T03:53:26.194646",
+    "generated_at": "2026-10-13T05:18:24.568320",
     "files": {
       "cardnews": [
         "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_v2_1_cover.png",
@@ -267,36 +252,6 @@
       "blog_txt": "output/[AI_Worker]_AI를_활용한_디지털_콘텐츠_제작_blog_naver.txt",
       "instagram_caption": "output/[AI_Worker]_AI를_활용한_디지털_콘텐츠_제작_instagram_caption.txt",
       "posting_guide": "output/[AI_Worker]_AI를_활용한_디지털_콘텐츠_제작_posting_guide.txt"
-    }
-  },
-  "AIG20263001383701_1_2026-10-12_2026-11-06": {
-    "title": "(산대특) AI를 활용한 제주 관광 데이터 분석ㆍ시각화 향상 과정",
-    "period": "2026.10.12 ~ 2026.11.06",
-    "generated_at": "2026-10-12T04:09:02.085810",
-    "files": {
-      "cardnews": [
-        "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_v2_1_cover.png",
-        "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_v2_2_detail.png",
-        "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_v2_3_howto.png"
-      ],
-      "blog_txt": "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_blog_naver.txt",
-      "instagram_caption": "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_instagram_caption.txt",
-      "posting_guide": "output/(산대특)_AI를_활용한_제주_관광_데이터_분석ㆍ시각화_posting_guide.txt"
-    }
-  },
-  "AIG20263001294040_2_2026-10-12_2027-01-26": {
-    "title": "(산대특) CAD설계 및 블렌더를 활용한 3D모델링 기초 양성",
-    "period": "2026.10.12 ~ 2027.01.26",
-    "generated_at": "2026-10-12T04:09:07.822079",
-    "files": {
-      "cardnews": [
-        "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_v2_1_cover.png",
-        "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_v2_2_detail.png",
-        "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_v2_3_howto.png"
-      ],
-      "blog_txt": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_blog_naver.txt",
-      "instagram_caption": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_instagram_caption.txt",
-      "posting_guide": "output/(산대특)_CAD설계_및_블렌더를_활용한_3D모델링_기_posting_guide.txt"
     }
   },
   "AIG20263001383439_2_2026-11-02_2026-12-18": {
@@ -327,6 +282,21 @@
       "blog_txt": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_blog_naver.txt",
       "instagram_caption": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_instagram_caption.txt",
       "posting_guide": "output/드론을_활용한_제주관광영상콘텐츠제작_실무자양성과정_posting_guide.txt"
+    }
+  },
+  "AIG20263001383616_4_2026-10-26_2026-11-20": {
+    "title": "(산대특) AI활용 호텔디저트 메뉴개발 실무자 향상과정",
+    "period": "2026.10.26 ~ 2026.11.20",
+    "generated_at": "2026-10-13T05:18:16.924989",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_AI활용_호텔디저트_메뉴개발_실무자_향상과정_v2_1_cover.png",
+        "output/(산대특)_AI활용_호텔디저트_메뉴개발_실무자_향상과정_v2_2_detail.png",
+        "output/(산대특)_AI활용_호텔디저트_메뉴개발_실무자_향상과정_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_AI활용_호텔디저트_메뉴개발_실무자_향상과정_blog_naver.txt",
+      "instagram_caption": "output/(산대특)_AI활용_호텔디저트_메뉴개발_실무자_향상과정_instagram_caption.txt",
+      "posting_guide": "output/(산대특)_AI활용_호텔디저트_메뉴개발_실무자_향상과정_posting_guide.txt"
     }
   }
 }
