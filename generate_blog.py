@@ -38,6 +38,13 @@ from seo_helper import (
     get_overlap_report,
 )
 
+try:
+    from seo_helper import get_display_label
+except ImportError:
+    # seo_helper.py가 구버전으로 남아 있어도 파이프라인이 멈추지 않도록 (라벨 없이 동작)
+    def get_display_label(field, title):
+        return field
+
 
 def generate_blog_post(course_data, output_dir="output"):
     """
@@ -48,6 +55,13 @@ def generate_blog_post(course_data, output_dir="output"):
         (blog_txt_path, None) - HTML은 더 이상 생성하지 않으므로 None 반환
     """
     os.makedirs(output_dir, exist_ok=True)
+
+    # v6: '왜 지금' 버전 판정이 이번 호출의 output_dir을 보도록 (직전 블로그 파일 위치)
+    try:
+        from field_research_helper import set_output_dir
+        set_output_dir(output_dir)
+    except ImportError:
+        pass
 
     title = course_data["title"]
     institution = course_data.get("institution", "")
@@ -93,11 +107,15 @@ def generate_blog_post(course_data, output_dir="output"):
     else:
         allowance_step3 = "부담 없는 자부담으로 새로운 기술을 배울 수 있어요."
 
+    # ── 표시 라벨 (v6): 같은 리서치 데이터라도 제목·소제목·추천 대상은 과정에 맞게 ──
+    #   예) AI 유튜브 크리에이터 → 데이터는 '마케팅', 표시는 'AI유튜브'
+    label = get_display_label(field, title)
+
     # ── '왜 배워야 할까요?' 섹션 (산업동향 + 훈련필요성) ──
-    seo_section = _build_seo_section(course_data, field, year).strip()
+    seo_section = _build_seo_section(course_data, field, year, label).strip()
 
     # ── 누구에게 추천하나요 섹션 ──
-    recommend_section = _build_recommend_section(field, ctype).strip()
+    recommend_section = _build_recommend_section(field, ctype, label).strip()
 
     # ── 공감형 도입부에서 마크다운 볼드(**) 제거 ──
     empathy_clean = empathy_intro.replace("**", "")
@@ -225,7 +243,12 @@ STEP 3. 배우면서 혜택도 받기
     # ── 도입부 ↔ SEO 섹션 중복 진단 (v5) ──
     overlap_report = get_overlap_report(empathy_clean, seo_section)
 
-    work_guide = _build_work_guide(blog_title, char_count, keyword_report, overlap_report)
+    # ── '왜 지금' 섹션 버전 (v6): 재생성 때마다 바뀌는 본문 버전을 작업 가이드에 기록 ──
+    #   이 표식은 다음 생성 때 '직전 버전'을 판정하는 근거로도 쓰입니다 (지우지 마세요).
+    variant_report = _build_variant_report(field, title)
+
+    work_guide = _build_work_guide(blog_title, char_count, keyword_report, overlap_report,
+                                   variant_report)
 
     final_content = work_guide + "\n" + post_content
 
@@ -262,10 +285,36 @@ STEP 3. 배우면서 혜택도 받기
     return filepath, None
 
 
-def _build_work_guide(blog_title, char_count=0, keyword_report="", overlap_report=""):
+def _build_variant_report(field, title):
+    """작업 가이드용 '왜 지금' 섹션 버전 안내 (v6).
+
+    첫 줄의 표식(🔄 '왜 지금' 섹션 버전 i/n …)은 field_research_helper가
+    다음 생성 때 직전 버전을 읽는 근거이므로 형식을 바꾸지 마세요.
+    """
+    try:
+        from field_research_helper import get_variant_info
+    except ImportError:
+        return "  (버전 정보 없음 — field_research_helper 구버전)"
+    info = get_variant_info(field, title)
+    if not info:
+        return "  (이 분야는 리서치 데이터가 없어 기본 문구를 사용합니다)"
+    lines = [f"  {info['marker']}"]
+    if info["total"] > 1:
+        nxt = info["index"] % info["total"] + 1
+        lines.append(f"  → 같은 과정이 다시 생성되면 버전 {nxt}/{info['total']}로 자동 교체돼요.")
+        lines.append("  → '들어가며' 맥락 단락·'왜 지금' 본문·인스타 키워드 문장이 같은 버전으로 바뀝니다.")
+    else:
+        lines.append("  → 이 분야는 아직 대체 버전이 없어 재생성해도 '왜 지금' 본문이 같아요.")
+        lines.append("    발행 전 지난 글과 겹치는 문단은 직접 고쳐 쓰세요.")
+    return "\n".join(lines)
+
+
+def _build_work_guide(blog_title, char_count=0, keyword_report="", overlap_report="",
+                      variant_report=""):
     """
     파일 상단에 포함할 스마트에디터 작업 가이드 (SEO v4).
     인간화 편집 체크리스트, 키워드 밀도 리포트, 저품질 방지 가이드 포함.
+    v6: '왜 지금' 섹션 버전 안내(variant_report) 추가.
     """
     return f"""{'=' * 60}
 📋 네이버 블로그 포스팅 작업 가이드 (SEO v4)
@@ -315,6 +364,12 @@ def _build_work_guide(blog_title, char_count=0, keyword_report="", overlap_repor
      · 왜 배워야 할까요 → 산업 통계·정책·기업사례로 근거 제시
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 '왜 지금' 섹션 버전
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+{variant_report if variant_report else "  (버전 정보 없음)"}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⛔ 저품질 방지 주의사항
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -351,8 +406,20 @@ def _build_work_guide(blog_title, char_count=0, keyword_report="", overlap_repor
 """
 
 
-def _get_seo_section_title(field, year):
-    """목차에 표시할 SEO 섹션 제목을 반환합니다."""
+def _get_seo_section_title(field, year, label=None):
+    """목차에 표시할 SEO 섹션 제목을 반환합니다.
+
+    v6: 표시 라벨(AI유튜브·드론영상·드론배송)이 있으면 라벨 제목을 먼저 씁니다.
+    """
+    label_titles = {
+        "AI유튜브": "왜 지금 AI 유튜브를 배워야 할까요?",
+        "유튜브": "왜 지금 유튜브를 배워야 할까요?",
+        "AI마케팅": "왜 지금 AI 마케팅 자동화를 배워야 할까요?",
+        "드론영상": "왜 지금 드론 영상을 배워야 할까요?",
+        "드론배송": "왜 지금 드론 배송 운영을 배워야 할까요?",
+    }
+    if label and label in label_titles:
+        return label_titles[label]
     titles = {
         "제과제빵": f"왜 지금 AI 활용 디저트를 배워야 할까요?",
         "드론정비": f"왜 지금 드론 정비를 배워야 할까요?",
@@ -365,7 +432,7 @@ def _get_seo_section_title(field, year):
         "출판": f"왜 지금 출판 제작을 배워야 할까요?",
         "이커머스": f"왜 지금 온라인 판매를 배워야 할까요?",
         "산업안전": f"왜 지금 산업안전을 배워야 할까요?",
-        "마케팅": f"왜 지금 마케팅 전략을 배워야 할까요?",
+        "마케팅": f"왜 지금 AI 마케팅을 배워야 할까요?",
         "물류/운송": f"왜 지금 지게차 자격증을 따야 할까요?",
         "건축/설계": f"왜 지금 건축설계·디자인을 배워야 할까요?",
         "건축AI": f"왜 지금 건축CAD+AI를 배워야 할까요?",
@@ -376,7 +443,7 @@ def _get_seo_section_title(field, year):
     return titles.get(field, "왜 이 과정을 추천할까요?")
 
 
-def _build_seo_section(course_data, field, year):
+def _build_seo_section(course_data, field, year, label=None):
     """
     '왜 OOO를 배워야 할까요?' 섹션을 생성합니다.
 
@@ -384,6 +451,7 @@ def _build_seo_section(course_data, field, year):
       · 도입부(들어가며)는 공감·문제의식만 담당
       · 이 섹션은 [산업 동향] + [훈련 필요성] 두 블록으로 구성해 분량을 확대
       · training_need_body가 있으면 소제목을 나눠 두 번째 블록으로 붙입니다.
+    v6: 본문은 field_research_helper가 고른 '이번 차례 버전'을 씁니다 (재생성 시 자동 교체).
     """
     title = course_data.get("title", "")
 
@@ -392,7 +460,7 @@ def _build_seo_section(course_data, field, year):
         from field_research_helper import get_seo_section, get_training_need
         cached_section = get_seo_section(field, year, title=title)
         if cached_section:
-            section_title = _get_seo_section_title(field, year)
+            section_title = _get_seo_section_title(field, year, label)
             block = f"\n[소제목] {section_title}\n\n{cached_section}\n"
 
             # 훈련 필요성 블록 (있는 분야만) — 섹션 분량 확대
@@ -412,29 +480,29 @@ def _build_seo_section(course_data, field, year):
         "AI": f"""
 [소제목] 왜 지금 AI를 배워야 할까요?
 
-제주특별자치도는 'AI·디지털 대전환 로드맵'을 발표하고, {year}년 정보화사업에 918억 원(208개 사업)을 편성했어요. ETRI·네이버클라우드와 함께 제주 특화 AI를 공동 개발하고 있고, 소상공인 디지털 전환 패키지, 제주농업 디지털 전환 플랫폼 등 AI 관련 투자가 쏟아지고 있습니다.
+제주도는 2026년 AI·디지털 분야에 1,015억 원을 투입하기로 했어요. 도민과 소상공인이 AI를 써 볼 수 있도록 디지털배움터의 AI 전환 교육도 함께 추진하고 있고요.
 
-이미 제주관광공사는 AI 챗봇으로 24시간 종합관광 안내를 운영하고, 54종 빅데이터 기반 관광 혼잡도 분석 서비스로 UNWTO 스마트관광 우수사례에 선정될 만큼 앞서가고 있어요. 관광·서비스업이 주력인 제주에서 AI를 활용할 줄 아는 인재에 대한 수요는 계속 늘어날 수밖에 없습니다.
+일하는 방식도 이미 바뀌고 있어요. 한국은행이 취업자를 조사했더니 51.8%가 업무에 생성형 AI를 써 본 적이 있었지만, 정기적으로 활용하는 비율은 17.1%였어요(2025년 조사). 써 본 사람은 많아도 업무에 제대로 붙여 쓰는 사람은 아직 많지 않다는 뜻이에요.
 
-전국적으로 AI 개발자 부족률이 57.6%에 달하고, 기업 69%가 채용 시 AI 역량을 고려한다는 조사 결과가 있어요. 정부도 5년간 100만 명 AI 교육을 목표로 대규모 투자를 진행하고 있고요. 이 과정은 단순 도구 사용법이 아닌, 기획부터 실무 적용까지 체계적으로 배울 수 있어요. 제주에서 국비지원으로 AI를 배울 수 있는 기회는 많지 않으니 꼭 확인해보세요.
+정부도 5년간 100만 명 이상에게 AI 직업능력개발을 지원하겠다는 계획을 내놨어요(고용노동부, 2025년 12월). 도구 사용법을 아는 것과 내 업무에 붙여 쓰는 것은 다른 문제라, 국비지원 과정으로 내 일에 맞는 활용법을 익혀 두면 출발선이 달라집니다.
 """,
         "영상": f"""
 [소제목] 왜 지금 영상 제작을 배워야 할까요?
 
-한국의 숏폼 콘텐츠 이용률이 70.7%까지 치솟았어요. 전년 대비 16.4%p나 급증한 수치이고, 스마트폰으로 주 5일 이상 숏폼을 소비하는 비율도 41.8%로 1위입니다. 크리에이터 산업 규모는 5.5조 원을 넘어섰고, 광고·마케팅·커머스 분야 사업체는 전년 대비 197.7%나 폭증했어요.
+가게 홍보도, 회사 소식도, 여행지 소개도 이제 짧은 영상으로 먼저 전해지는 경우가 많아요. 영상 한 편을 직접 기획하고 편집할 수 있으면 외주를 기다리지 않고 필요한 때 바로 콘텐츠를 낼 수 있죠.
 
-그런데 크리에이터 지역 분포를 보면, 제주는 강원과 합산해도 겨우 1.7%에 불과합니다. 수도권에 73% 이상이 집중되어 있는 거죠. 이건 역으로 제주에서 영상 제작을 배우면 경쟁이 적고 기회가 많다는 뜻이에요.
+제주를 담은 영상 수요도 분명해요. 제주특별자치도관광협회는 2026년 도외 유튜버가 제주에 머물며 영상을 만들도록 팀당 100만~200만 원 지원에 나섰어요. 밖에서 사람을 불러 찍을 만큼 제주 영상이 필요하다는 뜻이고, 제주에 사는 사람은 그 풍경을 언제든 다시 찍을 수 있어요.
 
-제주는 콘텐츠진흥원이 121억 원을 투자하고, 98억 원 규모 콘텐츠기업지원센터를 추진 중이에요. 전국 최대 드론특별자유화구역(1,283km²)이 있어서 드론 영상 촬영·실습 환경도 전국 최고 수준이고요. 관광 홍보영상, 소상공인 숏폼, 지역 브랜딩 콘텐츠 등 제주만의 영상 수요가 풍부합니다.
+제주는 콘텐츠기업지원센터 조성을 추진하는 등 콘텐츠 산업 지원을 넓히고 있고, 드론특별자유화구역도 운영하고 있어요. 관광 홍보영상, 소상공인 숏폼, 지역 브랜딩 콘텐츠 등 제주만의 영상 수요도 꾸준합니다.
 """,
         "디자인": f"""
 [소제목] 왜 지금 디자인을 배워야 할까요?
 
-글로벌 UI/UX 디자인 시장이 매년 32%씩 성장하고 있어요. {year}년 19.8억 달러에서 2031년 116.6억 달러까지 커질 전망입니다. 피그마(Figma)가 시장 점유율 40%를 차지하고 Fortune 500 기업 95%가 사용할 만큼 디자인 도구의 표준이 되었어요.
+디자인은 이제 디자인 회사만의 일이 아니에요. 한국디자인진흥원 '2025 디자인산업통계'(2024년 기준)에 따르면 국내 디자인 인력 29만 8,144명 가운데 88.4%가 디자인 전문회사가 아니라 디자인을 활용하는 일반 기업에 속해 있어요. 프리랜서 디자이너도 5만 3,219명으로 1년 새 8.5% 늘었고요.
 
-제주에서는 '로컬 힙' 트렌드와 함께 카페·숙박·특산품의 브랜딩 수요가 폭발적으로 늘고 있어요. 이니스프리, 삼다수, 오설록, 제주맥주 같은 성공 사례가 쌓이면서, 중소 사업자들도 체계적인 브랜딩에 관심을 갖게 된 거죠. 감귤·한라봉·녹차·오메기떡 같은 특산품의 프리미엄 패키지 디자인 수요도 증가하고 있고요.
+제주에도 카페·숙박·특산품처럼 브랜드와 패키지가 곧 경쟁력인 업종이 많아요. 감귤·한라봉·녹차 같은 특산품도 어떻게 보여 주느냐에 따라 전혀 다르게 팔리죠.
 
-하지만 제주 현지 디자인 업체는 대부분 5인 미만의 극소규모예요. 디자인 인력이 구조적으로 부족한 상황이라, 디자인을 배우면 제주에서 바로 일할 수 있는 기회가 많습니다. 이 과정에서는 피그마 같은 현업 필수 도구부터 실무 포트폴리오 완성까지 체계적으로 배울 수 있어요.
+디자인 도구를 다룰 줄 아는 데서 그치지 않고, 내 작업을 결과물로 보여 줄 수 있는 사람이 결국 일을 맡게 돼요. 국비지원 과정으로 그 첫 결과물을 만들어 보세요.
 """,
         "출판": f"""
 [소제목] 왜 지금 출판 제작을 배워야 할까요?
@@ -452,7 +520,7 @@ def _build_seo_section(course_data, field, year):
 
 제주는 이 흐름의 최대 수혜 지역이에요. 감귤·한라봉·천혜향·녹차·해산물 등 온라인 직거래가 활발하고, 이제주몰·삼다몰 같은 공식 플랫폼과 개별 농가 스마트스토어가 공존하는 다층 판매 구조가 이미 형성되어 있어요. 제주 레몬 농가는 생산량의 1/3을 온라인으로 판매해서 도매상 대비 수익률을 대폭 높인 사례도 있습니다.
 
-제주도는 전국 최초로 크리에이터 전담부서를 신설하고 50억 원 규모의 크리에이터 전용펀드를 조성했어요. 라이브커머스 시장이 3.5조 원으로 성장하고, 숏폼 커머스가 대세가 된 지금, 온라인 판매 스킬은 제주에서 가장 실용적인 무기가 됩니다.
+제주도는 로컬크리에이터 육성 조례를 만들고 지역 브랜드 지원을 넓히고 있어요. 라이브커머스와 숏폼 커머스가 커지는 지금, 온라인 판매 스킬은 제주에서 가장 실용적인 무기가 됩니다.
 """,
         "산업안전": f"""
 [소제목] 왜 지금 산업안전을 배워야 할까요?
@@ -468,7 +536,7 @@ def _build_seo_section(course_data, field, year):
     return sections.get(field, f"""
 [소제목] 왜 이 과정을 추천할까요?
 
-{year}년, 제주도는 AI·디지털 대전환에 918억 원을 투자하고, 콘텐츠진흥원 121억 원, 소상공인 디지털 전환 패키지 등 역대급 투자를 진행하고 있어요. 기술 변화가 빠르게 진행되면서 새로운 역량을 갖춘 인재에 대한 수요가 높아지고 있습니다.
+기술이 바뀌는 속도가 빨라지면서, 일하면서 새 역량을 더하는 사람과 그렇지 않은 사람의 차이가 커지고 있어요. 제주도도 2026년 AI·디지털 분야에 1,015억 원을 투입하는 등 지역 산업의 디지털 전환을 지원하고 있습니다.
 
 이 과정은 제주 지역의 산업 수요에 맞춰 기획되었고, 내일배움카드로 자부담 10%만 내고 체계적으로 배울 수 있어요. 새로운 도전을 준비하고 계시다면 이 기회를 활용해보세요.
 
@@ -516,13 +584,121 @@ def _build_goal_explanation(training_goal, field, title):
     # 폴백: key_skills 상위 3개로 일반 해설 구성
     skills = get_education_trends(field, "key_skills", title=title)
     if skills:
-        top = "、 ".join(skills[:3])
+        # v8: 훈련목표에 없는 스킬을 '이 과정에서 다룬다'고 단정하지 않도록 분야 일반 설명으로
+        top = ", ".join(skills[:3])
         return (
-            f"훈련목표를 실무 언어로 옮기면 이런 뜻이에요. "
-            f"이 과정에서는 {top} 같은 내용을 다루게 되고, "
-            f"수업이 끝나면 각 항목을 직접 해봤다고 말할 수 있는 상태가 목표입니다."
+            f"훈련목표를 실무 언어로 옮기면, 배운 내용을 실제 업무에 바로 써 볼 수 있는 상태가 "
+            f"목표라는 뜻이에요. 이 분야 현장에서는 {top} 같은 역량이 함께 쓰여요."
         )
     return ""
+
+
+# 훈련목표 대조에서 제외할 범용 단어 (이 단어만 겹쳐서는 '직접 명시'로 보지 않음)
+#   v8: 관련·위한·대한·필요·통한·따른 추가 — "배송 운영 관련 실무"의 '관련'이
+#       "드론 관련 법규·특구 제도"에 ✔를 붙이던 문제
+_GENERIC_SKILL_TOKENS = {"AI", "제작", "작성", "기획", "활용", "실무", "기초", "기본",
+                         "이해", "실습", "능력", "역량", "수행", "방법", "도구", "교육",
+                         "제주", "생성형", "개발", "관리", "운영", "기반",
+                         "관련", "위한", "대한", "필요", "통한", "따른"}
+
+_SKILL_SPLIT_RE = r"[\s·,()'\"‘’“”/]+"
+
+
+def _strip_particle(tok):
+    """조사 떼기 — 단, 남는 말이 한 글자면 원래 낱말(경로·결과·효과·자료 등)이므로 그대로 둠."""
+    stem = re.sub(r"(으로|에서|과|와|을|를|의|로|및|에)$", "", tok)
+    return stem if len(stem) >= 2 else tok
+
+
+def _raw_skill_tokens(skill):
+    toks = []
+    for tok in re.split(_SKILL_SPLIT_RE, skill):
+        tok = _strip_particle(tok)
+        if len(tok) >= 2 and tok.upper() not in _GENERIC_SKILL_TOKENS:
+            toks.append(tok)
+    return toks
+
+
+def _compact(text):
+    """비교용으로 글자·숫자만 남깁니다 (공백·가운뎃점·쉼표·기호 제거, 대문자)."""
+    return re.sub(r"[^0-9A-Za-z가-힣]", "", text or "").upper()
+
+
+def _phrase_hay(text):
+    """훈련목표를 앞 두 낱말 대조용으로 압축합니다.
+    낱말마다 조사를 떼고 붙인 것까지 함께 둬서 "영상을 편집하여"도 '영상 편집'으로 잡힙니다."""
+    words = re.split(_SKILL_SPLIT_RE, text or "")
+    return _compact(text) + " " + _compact("".join(_strip_particle(w) for w in words))
+
+
+def _skill_head_phrase(skill, title_c=""):
+    """스킬 문장의 앞 두 낱말을 붙인 말 (예: '조경 설계 도면 읽기' → '조경설계').
+    두 낱말이 모두 범용어('AI 활용', '생성형 AI' 등)이거나 과정명에 이미 든 말
+    (예: 호텔디저트 과정의 '호텔 디저트')이면 근거가 못 되므로 빈 문자열."""
+    words = [w for w in (_strip_particle(t) for t in re.split(_SKILL_SPLIT_RE, skill)) if len(w) >= 2]
+    if len(words) < 2:
+        return ""
+    a, b = words[0].upper(), words[1].upper()
+
+    def weak(w):
+        return w in _GENERIC_SKILL_TOKENS or (title_c and _compact(w) in title_c)
+
+    if weak(a) and weak(b):
+        return ""
+    return _compact(a + b)
+
+
+def _common_skill_tokens(skills):
+    """그 분야 스킬 3개 이상에 공통으로 나오는 단어 (예: 조경 분야의 '조경').
+    이런 단어 하나만 훈련목표와 겹쳐서는 '직접 명시'로 보지 않습니다."""
+    from collections import Counter
+    cnt = Counter(t.upper() for s in skills for t in set(_raw_skill_tokens(s)))
+    return {t for t, n in cnt.items() if n >= 3}
+
+
+def _skill_tokens(skill, common=frozenset()):
+    """핵심 스킬 문장을 훈련목표 대조용 단어로 쪼갭니다 (조사 제거·범용어·분야 공통어 제외)."""
+    return [t for t in _raw_skill_tokens(skill) if t.upper() not in common]
+
+
+# v7: 훈련목표에 흔히 들어가는 넓은 단어 — 이 단어 '하나만' 겹쳐서는 ✔하지 않음
+#     (예: 목표의 "마케팅 콘텐츠"가 "유튜브·숏폼 채널 기획과 콘텐츠 캘린더"에 ✔를 붙이던 문제)
+_BROAD_SKILL_TOKENS = {"광고", "콘텐츠", "자동화", "생성", "영상", "마케팅", "데이터", "분석",
+                       "고객", "성과", "채널", "디자인", "판매", "상품", "업무", "서비스",
+                       "전략", "설계", "시스템", "프로그램", "기술", "규정", "편집", "촬영",
+                       "절차", "SNS"}
+
+
+def _course_broad_tokens(skills, title):
+    """넓은 단어 + 과정명에 이미 들어 있는 단어(예: 드론배송 과정의 '드론').
+    과정명 단어는 훈련목표에도 거의 늘 나오므로 그 단어 하나만으로는 ✔하지 않습니다."""
+    title_hay = (title or "").upper().replace(" ", "")
+    in_title = {t.upper() for s in skills for t in _raw_skill_tokens(s) if t.upper() in title_hay}
+    return _BROAD_SKILL_TOKENS | in_title
+
+
+def _skill_hit(skill, hay, common=frozenset(), broad=None, hay_compact=None, title_c=""):
+    """스킬이 훈련목표에 '직접 명시'됐는지 판단합니다.
+    ✔ 조건 (하나라도 맞으면):
+      ① 스킬의 앞 두 낱말이 붙은 그대로 훈련목표에 있음 — 조사는 무시
+         (예: '광고 성과' → "광고 성과를 분석", '영상 편집' → "영상을 편집하여")
+      ② 넓지 않은 단어(랜딩페이지·송출·응대 등)가 하나라도 겹침
+      ③ 스킬의 단어가 모두 겹침 (단어가 하나뿐이면 그 단어가 넓은 단어가 아닐 때만)
+    v8: 넓은 단어 두 개가 훈련목표의 서로 다른 곳에 따로 나오는 것만으로는 ✔하지 않습니다
+        (예: 목표의 "광고 문구"와 "성과 분석"이 '네이버·카카오… 광고 설정과 성과 해석'에 ✔를 붙이던 문제)."""
+    broad = _BROAD_SKILL_TOKENS if broad is None else broad
+    if hay_compact is None:
+        hay_compact = _phrase_hay(hay)
+    phrase = _skill_head_phrase(skill, title_c)
+    if phrase and phrase in hay_compact:
+        return True
+    toks = {t.upper() for t in _skill_tokens(skill, common)}
+    matched = {t for t in toks if t in hay}
+    if not matched:
+        return False
+    if matched == toks and (len(toks) >= 2 or not (toks & _BROAD_SKILL_TOKENS)):
+        return True
+    return any(t not in broad for t in matched)
 
 
 def _build_curriculum_section(course_data, field, sec_title):
@@ -533,7 +709,9 @@ def _build_curriculum_section(course_data, field, sec_title):
       [이미지] 카드뉴스 2번          ← 소제목 바로 아래 인접 배치
       ▸ 기관이 밝힌 훈련목표          ← Work24 파싱 원문 (그대로 인용)
       ▸ 풀어서 설명하면 이런 거예요    ← 훈련목표 키워드 × 리서치 자체 해설
-      ▸ 구체적으로 배우는 것들        ← key_skills (훈련목표와 겹치는 항목 상단 정렬)
+      ▸ 구체적으로 배우는 것들        ← key_skills 중 훈련목표에 직접 명시된 항목(✔)
+      ▸ 이 분야에서 함께 알아 두면 좋은 역량 ← 나머지 key_skills(·)
+        (✔가 하나도 없으면 '이 분야에서 주로 다루는 역량' 한 묶음으로)
       ▸ 수료 후 이런 길이 열려요      ← career_paths
       certification_note
     """
@@ -568,19 +746,37 @@ def _build_curriculum_section(course_data, field, sec_title):
         if skills:
             hay = (goal + " " + outcome).upper().replace(" ", "")
             # 훈련목표에 언급된 스킬을 상단으로 끌어올림
-            hit = [s for s in skills if any(
-                tok and tok.upper() in hay
-                for tok in re.split(r'[\s·,()]+', s) if len(tok) >= 2
-            )]
+            # v6: 'AI'·'제작'처럼 어디에나 있는 단어 하나로 ✔가 붙어
+            #     훈련목표에 없는 항목까지 '직접 명시'로 표시되던 문제 수정
+            #     (조사 '과/와/을/를…'도 떼고 비교 → "송출과"가 "송출"로 잡힘)
+            common = _common_skill_tokens(skills)
+            broad = _course_broad_tokens(skills, title)
+            hay_compact = _phrase_hay(goal + " " + outcome)
+            title_c = _compact(title)
+            hit = [s for s in skills if _skill_hit(s, hay, common, broad, hay_compact, title_c)]
             rest = [s for s in skills if s not in hit]
+            # 나머지는 과정명 단어가 든 항목을 앞으로 (예: 마케팅 데이터를 함께 쓰는 AI 유튜브 과정은 유튜브 항목부터)
+            rest.sort(key=lambda s: not any(t.upper() in title_c for t in _raw_skill_tokens(s)))
             ordered = (hit + rest)[:7]
-            block += "▸ 구체적으로 배우는 것들\n\n"
-            for s in ordered:
-                mark = "✔" if s in hit else "·"
-                block += f"{mark} {s}\n"
-            if hit:
-                block += "\n(✔ 표시는 이 과정의 훈련목표에 직접 명시된 항목이에요)\n"
-            block += "\n"
+            shown_hit = [s for s in ordered if s in hit]
+            shown_rest = [s for s in ordered if s not in hit]
+            # v8: 훈련목표에 없는 항목(·)이 '구체적으로 배우는 것들' 아래에 함께 나가
+            #     과정에서 다루지 않을 수도 있는 내용까지 배우는 것처럼 읽히던 문제 → 묶음 분리
+            if shown_hit:
+                block += "▸ 구체적으로 배우는 것들\n\n"
+                for s in shown_hit:
+                    block += f"✔ {s}\n"
+                block += "\n(✔ 표시는 이 과정의 훈련목표에 직접 명시된 항목이에요)\n\n"
+                if shown_rest:
+                    block += "▸ 이 분야에서 함께 알아 두면 좋은 역량\n\n"
+                    for s in shown_rest:
+                        block += f"· {s}\n"
+                    block += "\n"
+            else:
+                block += "▸ 이 분야에서 주로 다루는 역량\n\n"
+                for s in shown_rest:
+                    block += f"· {s}\n"
+                block += "\n(실제 수업 내용은 고용24 과정 상세에서 확인해 주세요)\n\n"
 
         # ── ④ 수료 후 진로 ──
         paths = get_education_trends(field, "career_paths", title=title)
@@ -605,10 +801,12 @@ def _build_curriculum_section(course_data, field, sec_title):
     return block
 
 
-def _build_recommend_section(field, ctype):
+def _build_recommend_section(field, ctype, label=None):
     """
     '이런 분에게 추천해요' 섹션을 생성합니다.
     체류 시간 증가 + 독자 공감 유도.
+    v6: 표시 라벨 우선 + 누락 분야(마케팅·조경·드론·에너지·물류) 추가
+        — 기존엔 기본 문구("새로운 분야에 도전하고 싶은 분" 등)로 빠졌음
     """
     field_recommends = {
         "AI": [
@@ -689,9 +887,79 @@ def _build_recommend_section(field, ctype):
             "제주 관광 데이터로 실무 포트폴리오를 만들고 싶은 분",
             "공공기관·지자체에서 데이터 업무를 맡게 된 분",
         ],
+        # ── v6 추가 ──
+        "마케팅": [
+            "광고·SNS 운영을 혼자 맡아 매일 시간에 쫓기는 마케팅 담당자",
+            "ChatGPT·Gemini를 써 봤지만 업무에 제대로 붙이지 못한 분",
+            "반복되는 콘텐츠 작성·보고서 정리를 자동화하고 싶은 소상공인·실무자",
+            "데이터를 보고 광고 예산을 판단하는 힘을 기르고 싶은 분",
+        ],
+        "AI유튜브": [
+            "유튜브 채널을 열었지만 기획과 꾸준한 업로드가 막막한 분",
+            "가게·브랜드 홍보를 위해 직접 영상 채널을 운영하고 싶은 소상공인",
+            "AI 도구로 대본·썸네일·편집 시간을 줄이고 싶은 분",
+            "조회수·구독 데이터를 읽고 채널 성장 전략을 세우고 싶은 분",
+        ],
+        "조경": [
+            "정원·녹지 관리 현장으로 취업을 준비하시는 분",
+            "호텔·골프장·리조트 등 조경 관리 직무에 관심 있는 분",
+            "정원 가꾸기를 취미에서 직업으로 넓혀 보고 싶은 분",
+            "전직을 앞두고 현장에서 바로 쓰는 기술을 찾는 분",
+        ],
+        "조경기능사": [
+            "조경기능사 필기·실기를 체계적으로 준비하고 싶은 분",
+            "호텔·골프장·리조트 등 조경 관리 현장으로 취업을 준비하시는 분",
+            "정원 가꾸기를 취미에서 직업으로 넓혀 보고 싶은 분",
+            "전직을 앞두고 현장에서 바로 쓰는 기술 자격을 찾는 분",
+        ],
+        "드론": [
+            "드론 조종 자격은 있지만 배송·물류 운영 경험을 더하고 싶은 분",
+            "물류·유통 현장에서 새로운 배송 방식을 준비하는 재직자",
+            "비행 계획·관제 등 드론 운영 직무로 취업을 준비하시는 분",
+            "드론 산업으로 진로를 넓히려는 분",
+        ],
+        "드론영상": [
+            "드론으로 제주 풍경을 담고 싶었지만 촬영·편집이 막막했던 분",
+            "숙소·카페·관광지 홍보 영상을 직접 만들고 싶은 소상공인",
+            "영상 제작 프리랜서로 일감을 넓히고 싶은 분",
+            "드론 자격을 딴 뒤 실제로 활용할 분야를 찾고 계신 분",
+        ],
+        "에너지/시설관리": [
+            "호텔·리조트·대형 건물 시설관리직으로 취업을 준비하시는 분",
+            "에너지관리기능사 등 설비 자격 취득을 준비하시는 분",
+            "보일러·냉난방 설비를 다뤄 본 경험을 자격으로 증명하고 싶은 분",
+            "기술 하나로 오래 일할 수 있는 직무를 찾는 분",
+        ],
+        "물류/운송": [
+            "물류센터·항만·농산물 유통 현장으로 취업을 준비하시는 분",
+            "장비 운전·하역 등 현장 자격을 준비하시는 분",
+            "나이·학력과 상관없이 현장에서 바로 쓰는 기술을 찾는 분",
+            "경력 단절 후 다시 일을 시작하려는 분",
+        ],
+        "지게차": [
+            "지게차운전기능사 자격을 제주에서 준비하고 싶은 분",
+            "물류센터·항만·농산물 유통 현장으로 취업을 준비하시는 분",
+            "나이·학력과 상관없이 현장에서 바로 쓰는 자격을 찾는 분",
+            "경력 단절 후 다시 일을 시작하려는 분",
+        ],
     }
+    field_recommends["드론배송"] = field_recommends["드론"]
+    # 호텔디저트(AI 메뉴개발 향상과정): 자격증 대비 문구 대신 현직자 기준
+    field_recommends["호텔디저트"] = [
+        "호텔·리조트 페이스트리 주방에서 시즌 메뉴를 맡고 있는 재직자",
+        "카페·베이커리를 운영하며 디저트로 차별화하고 싶은 분",
+        "제주 재료로 우리 가게만의 시그니처 디저트를 만들고 싶은 분",
+        "메뉴 아이디어·원가 계산·홍보 사진을 AI로 덜어내고 싶은 분",
+    ]
+    field_recommends["AI마케팅"] = field_recommends["마케팅"]
+    field_recommends["유튜브"] = [
+        "유튜브 채널을 열었지만 기획과 꾸준한 업로드가 막막한 분",
+        "가게·브랜드 홍보를 위해 직접 영상 채널을 운영하고 싶은 소상공인",
+        "촬영·편집을 독학하다 막혀서 체계적으로 배우고 싶은 분",
+        "조회수·구독 데이터를 읽고 채널 성장 전략을 세우고 싶은 분",
+    ]
 
-    recommends = field_recommends.get(field, [
+    recommends = field_recommends.get(label) or field_recommends.get(field, [
         "새로운 분야에 도전하고 싶은 분",
         "취업이나 이직을 준비하시는 분",
         "현재 직무 역량을 업그레이드하고 싶은 분",
