@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-01 04:04",
+  "updated": "2026-11-01 07:40",
   "count": 10,
   "data": [
     {
@@ -9,6 +9,14 @@
       "traStartDate": "2026-11-03",
       "traEndDate": "2026-12-10",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001383699&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500045157828"
+    },
+    {
+      "address": "제주 서귀포시",
+      "subTitle": "드론항공평생교육원",
+      "title": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정",
+      "traStartDate": "2026-11-09",
+      "traEndDate": "2026-12-09",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001247924&tracseTme=5&crseTracseSe=C0061&trainstCstmrId=500035584309"
     },
     {
       "address": "제주 서귀포시",
@@ -25,14 +33,6 @@
       "traStartDate": "2026-11-09",
       "traEndDate": "2026-12-31",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001301001&tracseTme=3&crseTracseSe=C0061&trainstCstmrId=500020051252"
-    },
-    {
-      "address": "제주 서귀포시",
-      "subTitle": "드론항공평생교육원",
-      "title": "드론을 활용한 제주관광영상콘텐츠제작 실무자양성과정",
-      "traStartDate": "2026-11-09",
-      "traEndDate": "2026-12-09",
-      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001247924&tracseTme=5&crseTracseSe=C0061&trainstCstmrId=500035584309"
     },
     {
       "address": "제주 제주시",
