@@ -1,6 +1,6 @@
 {
-  "updated": "2026-11-03 07:07",
-  "count": 10,
+  "updated": "2026-11-03 12:34",
+  "count": 12,
   "data": [
     {
       "address": "제주 제주시",
@@ -9,6 +9,14 @@
       "traStartDate": "2026-11-03",
       "traEndDate": "2026-12-10",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001383699&tracseTme=1&crseTracseSe=C0061&trainstCstmrId=500045157828"
+    },
+    {
+      "address": "제주 서귀포시",
+      "subTitle": "주식회사제주도드론",
+      "title": "(산대특) 제주 스마트물류산업 분야 드론배송 실무자 양성과정",
+      "traStartDate": "2026-11-09",
+      "traEndDate": "2026-11-27",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001303135&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500037083746"
     },
     {
       "address": "제주 서귀포시",
@@ -25,14 +33,6 @@
       "traStartDate": "2026-11-09",
       "traEndDate": "2026-12-03",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001383616&tracseTme=4&crseTracseSe=C0061&trainstCstmrId=500038917060"
-    },
-    {
-      "address": "제주 서귀포시",
-      "subTitle": "주식회사제주도드론",
-      "title": "(산대특) 제주 스마트물류산업 분야 드론배송 실무자 양성과정",
-      "traStartDate": "2026-11-09",
-      "traEndDate": "2026-11-27",
-      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001303135&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500037083746"
     },
     {
       "address": "제주 제주시",
@@ -73,6 +73,22 @@
       "traStartDate": "2026-11-26",
       "traEndDate": "2027-01-08",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001296177&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500020038195"
+    },
+    {
+      "address": "제주 서귀포시",
+      "subTitle": "주식회사제주도드론",
+      "title": "(산대특) 제주 스마트물류산업 분야 드론배송 실무자 양성과정",
+      "traStartDate": "2026-11-30",
+      "traEndDate": "2026-12-18",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001303135&tracseTme=3&crseTracseSe=C0061&trainstCstmrId=500037083746"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "스카이팜에듀교육원",
+      "title": "(산대특)드론정비자격 취득을 위한 유지보수 실무자 향상과정",
+      "traStartDate": "2026-12-08",
+      "traEndDate": "2026-12-21",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001384394&tracseTme=3&crseTracseSe=C0061&trainstCstmrId=500041625803"
     },
     {
       "address": "제주 서귀포시",
