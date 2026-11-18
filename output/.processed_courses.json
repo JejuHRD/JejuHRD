@@ -388,5 +388,35 @@
       "instagram_caption": "output/(산대특)_AI활용_호텔디저트_메뉴개발_실무자_향상과정_instagram_caption.txt",
       "posting_guide": "output/(산대특)_AI활용_호텔디저트_메뉴개발_실무자_향상과정_posting_guide.txt"
     }
+  },
+  "AIG20263001303135_4_2026-12-09_2026-12-30": {
+    "title": "(산대특) 제주 스마트물류산업 분야 드론배송 실무자 양성과정",
+    "period": "2026.12.09 ~ 2026.12.30",
+    "generated_at": "2026-11-18T05:47:18.196052",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_제주_스마트물류산업_분야_드론배송_실무자_양_v2_1_cover.png",
+        "output/(산대특)_제주_스마트물류산업_분야_드론배송_실무자_양_v2_2_detail.png",
+        "output/(산대특)_제주_스마트물류산업_분야_드론배송_실무자_양_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_제주_스마트물류산업_분야_드론배송_실무자_양_blog_naver.txt",
+      "instagram_caption": "output/(산대특)_제주_스마트물류산업_분야_드론배송_실무자_양_instagram_caption.txt",
+      "posting_guide": "output/(산대특)_제주_스마트물류산업_분야_드론배송_실무자_양_posting_guide.txt"
+    }
+  },
+  "AIG20263001301001_4_2027-01-04_2027-03-04": {
+    "title": "(산대특) AI 유튜브 크리에이터 향상과정 : 분석·제작·성장 올인원 패키지",
+    "period": "2027.01.04 ~ 2027.03.04",
+    "generated_at": "2026-11-18T05:47:24.534614",
+    "files": {
+      "cardnews": [
+        "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_v2_1_cover.png",
+        "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_v2_2_detail.png",
+        "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_v2_3_howto.png"
+      ],
+      "blog_txt": "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_blog_naver.txt",
+      "instagram_caption": "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_instagram_caption.txt",
+      "posting_guide": "output/(산대특)_AI_유튜브_크리에이터_향상과정___분석·제_posting_guide.txt"
+    }
   }
 }
