@@ -1,6 +1,6 @@
 {
-  "updated": "2026-11-25 03:37",
-  "count": 9,
+  "updated": "2026-11-25 11:55",
+  "count": 10,
   "data": [
     {
       "address": "제주 제주시",
@@ -57,6 +57,14 @@
       "traStartDate": "2026-12-29",
       "traEndDate": "2027-02-11",
       "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001383699&tracseTme=2&crseTracseSe=C0061&trainstCstmrId=500045157828"
+    },
+    {
+      "address": "제주 제주시",
+      "subTitle": "주식회사 제원직업전문학교",
+      "title": "(산대특) AI 마케팅 자동화 실무 향상과정 : ChatGPT & Gemini 활용",
+      "traStartDate": "2026-12-30",
+      "traEndDate": "2027-02-02",
+      "titleLink": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?tracseId=AIG20263001301492&tracseTme=5&crseTracseSe=C0061&trainstCstmrId=500020051252"
     },
     {
       "address": "제주 제주시",
